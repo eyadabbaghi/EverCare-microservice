@@ -49,6 +49,12 @@ public class UserController {
         response.put("user", userDto);
         response.put("token", newToken);
         return ResponseEntity.ok(response);
+
+
+    }
+    @GetMapping("/patients")
+    public ResponseEntity<?> getAllPatients() {
+        return ResponseEntity.ok(userRepository.findByRole("PATIENT"));
     }
 
     @PutMapping("/change-password")

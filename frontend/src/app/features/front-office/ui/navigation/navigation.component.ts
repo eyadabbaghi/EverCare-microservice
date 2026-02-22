@@ -153,12 +153,14 @@ export class NavigationComponent implements OnInit, OnDestroy {
   /** =======================
    *  Close dropdown when clicking outside
    *  ======================= */
-  @HostListener('document:click', ['$event.target'])
-  onClickOutside(target: HTMLElement) {
-    const dropdown = document.getElementById('profile-dropdown');
-    const button = document.getElementById('profile-button');
-    if (dropdown && button && !dropdown.contains(target) && !button.contains(target)) {
-      this.profileOpen = false;
-    }
+ @HostListener('document:click', ['$event'])
+onClickOutside(event: Event) {
+  const target = event.target as HTMLElement; // Cast here
+  const dropdown = document.getElementById('profile-dropdown');
+  const button = document.getElementById('profile-button');
+
+  if (dropdown && button && !dropdown.contains(target) && !button.contains(target)) {
+    this.profileOpen = false;
   }
+}
 }

@@ -48,13 +48,18 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // optional refresh (safe)
+    this.authService.fetchCurrentUser().subscribe();
+
     this.userSub = this.authService.currentUser$.subscribe((user: User | null) => {
       this.user = user;
+
       if (user) {
-        this.profileData.name = user.name;
-        this.profileData.email = user.email;
-        this.profileData.phone = user.phone || '';
-        this.profileData.role = user.role || 'Admin';
+        // ✅ Fix TS2322: always fall back to string
+        this.profileData.name = user.name ?? '';
+        this.profileData.email = user.email ?? '';
+        this.profileData.phone = user.phone ?? '';
+        this.profileData.role = user.role ?? 'Admin';
       }
     });
   }
@@ -68,11 +73,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   toggleEdit(): void {
-    if (this.isEditing) {
-      this.saveProfile();
-    } else {
-      this.isEditing = true;
-    }
+    if (this.isEditing) this.saveProfile();
+    else this.isEditing = true;
   }
 
   saveProfile(): void {
@@ -91,15 +93,19 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.isEditing = false;
         this.isLoading = false;
 
+        // ✅ safe updates
         if (this.user) {
-          this.user.name = response.user.name;
-          this.user.email = response.user.email;
-          this.user.phone = response.user.phone;
+          this.user.name = response?.user?.name ?? this.user.name;
+          this.user.email = response?.user?.email ?? this.user.email;
+          this.user.phone = response?.user?.phone ?? this.user.phone;
         }
 
-        if (response.token) {
+        if (response?.token) {
           localStorage.setItem('auth_token', response.token);
         }
+
+        // refresh user
+        this.authService.fetchCurrentUser().subscribe();
       },
       error: (err: any) => {
         console.error('Update failed', err);
@@ -115,12 +121,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   triggerFileInput(): void {
-    const fileInput = document.getElementById('profile-picture-input') as HTMLInputElement;
-    fileInput.click();
+    const fileInput = document.getElementById('profile-picture-input') as HTMLInputElement | null;
+    fileInput?.click();
   }
 
   onFileSelected(event: any): void {
-    const file = event.target.files[0];
+    const file = event.target.files?.[0];
     if (file) {
       this.selectedFile = file;
       this.uploadPicture();
@@ -130,12 +136,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
   uploadPicture(): void {
     if (!this.selectedFile) return;
     this.isLoading = true;
+
     this.authService.uploadProfilePicture(this.selectedFile).subscribe({
       next: (response: any) => {
         this.toastr.success('Profile picture updated', 'Success');
         if (this.user) {
-          this.user.profilePicture = response.profilePicture;
+          this.user.profilePicture = response?.profilePicture ?? this.user.profilePicture;
         }
+
         this.authService.fetchCurrentUser().subscribe();
         this.isLoading = false;
         this.showPictureMenu = false;
@@ -151,12 +159,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   removePicture(): void {
     this.isLoading = true;
+
     this.authService.removeProfilePicture().subscribe({
       next: () => {
         this.toastr.success('Profile picture removed', 'Success');
         if (this.user) {
           this.user.profilePicture = undefined;
         }
+
         this.authService.fetchCurrentUser().subscribe();
         this.isLoading = false;
         this.showPictureMenu = false;
@@ -173,7 +183,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     if (!name) return 'AD';
     return name
       .split(' ')
-      .map(n => n[0])
+      .map((n: string) => n[0])
       .join('')
       .toUpperCase();
   }

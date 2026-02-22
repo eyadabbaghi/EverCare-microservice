@@ -28,14 +28,15 @@ export class HomeComponent implements OnInit {
   showNewUserFlow = false;
 
   readonly modules: HomeModuleCard[] = [
-    {
-      id: 'daily-me',
-      title: 'Daily Me',
-      description: 'Track your mood, medications, and daily activities with ease',
-      icon: '✨',
-      color: 'bg-[#A78BFA]',
-      gradient: 'from-[#A78BFA] to-[#7C3AED]',
-    },
+   {
+  id: 'daily-me',
+  title: 'Daily Me',
+  description: 'Track your mood, medications, and daily activities with ease',
+  icon: '✨',
+  color: 'bg-[#A78BFA]',
+  gradient: 'from-[#A78BFA] to-[#7C3AED]',
+  primaryRoute: '/daily-me',  
+},
     {
       id: 'activities',
       title: 'Activities',
@@ -114,11 +115,11 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  navigate(card: HomeModuleCard): void {
-    if (card.primaryRoute) {
-      this.router.navigateByUrl(card.primaryRoute);
-    }
-  }
+navigate(card: HomeModuleCard): void {
+  const route = card.primaryRoute ?? `/${card.id}`;
+  this.router.navigateByUrl(route);
+}
+
 
   startJourney(): void {
     this.router.navigateByUrl('/activities');
