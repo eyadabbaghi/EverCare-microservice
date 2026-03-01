@@ -1,0 +1,132 @@
+{
+  "version": "1.0",
+  "records": [
+    {
+      "filePath": "/DailymeServiceApplication.java",
+      "timestamp": 1771814138356,
+      "startOffset": 180,
+      "endOffset": 200,
+      "codeContent": "IntellijIdeaRulezzz ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Dailyme-service/src/main/java/tn/esprit/dailymeservice/DailymeServiceApplication.java",
+      "timestamp": 1771814359108,
+      "startOffset": 180,
+      "endOffset": 223,
+      "codeContent": "org.springframework.cloud.client.discovery.",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Dailyme-service/src/main/java/tn/esprit/dailymeservice/DailymeServiceApplication.java",
+      "timestamp": 1771814359119,
+      "startOffset": 154,
+      "endOffset": 226,
+      "codeContent": "import org.springframework.cloud.client.discovery.EnableDiscoveryClient;",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1771814516029,
+      "startOffset": 1293,
+      "endOffset": 1318,
+      "codeContent": "\n                        ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1771814516459,
+      "startOffset": 1310,
+      "endOffset": 1485,
+      "codeContent": "  .route(\"user-service\", r -\u003e r\n                        .path(\"/EverCare/admin/**\", \"/EverCare/auth/**,/EverCare/users/**,\")\n                        .uri(\"lb://USER-SERVICE\"))",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1771814516878,
+      "startOffset": 1483,
+      "endOffset": 1508,
+      "codeContent": "\n                        ",
+      "aiProbability": 70,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1771814517200,
+      "startOffset": 1500,
+      "endOffset": 1675,
+      "codeContent": "  .route(\"user-service\", r -\u003e r\n                        .path(\"/EverCare/admin/**\", \"/EverCare/auth/**,/EverCare/users/**,\")\n                        .uri(\"lb://USER-SERVICE\"))",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1771814533048,
+      "startOffset": 1310,
+      "endOffset": 1485,
+      "codeContent": "  .route(\"user-service\", r -\u003e r\n                        .path(\"/EverCare/admin/**\", \"/EverCare/auth/**,/EverCare/users/**,\")\n                        .uri(\"lb://USER-SERVICE\"))",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "/ApiGatewayApplication.java",
+      "timestamp": 1771814862664,
+      "startOffset": 1415,
+      "endOffset": 1435,
+      "codeContent": "IntellijIdeaRulezzz ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1771815031836,
+      "startOffset": 1496,
+      "endOffset": 1665,
+      "codeContent": ".route(\"communication-service\", r -\u003e r\n                        .path(\"/api/calls/**\",\"/api/conversations/**\")\n                        .uri(\"lb://COMMUNICATION-SERVICE\"))",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1771816522203,
+      "startOffset": 846,
+      "endOffset": 879,
+      "codeContent": "\"/EverCare/admin/appointments/**\"",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    }
+  ],
+  "toolStats": {
+    "AI Assistant": {
+      "usageCount": 11,
+      "totalLines": 21
+    }
+  }
+}

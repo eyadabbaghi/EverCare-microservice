@@ -20,4 +20,10 @@ export default () => ({
   jwt: {
     secret: process.env.JWT_SECRET,
   },
+  eureka: {
+    enabled: process.env.EUREKA_ENABLED === 'true',
+    serverUrl: process.env.EUREKA_SERVER_URL,
+    hostname: process.env.EUREKA_HOSTNAME || 'localhost',
+    ipAddr: process.env.EUREKA_IP_ADDR || '127.0.0.1',
+  },
 });

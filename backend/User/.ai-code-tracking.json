@@ -1,0 +1,385 @@
+{
+  "version": "1.0",
+  "records": [
+    {
+      "filePath": "/UserApplication.java",
+      "timestamp": 1771181411640,
+      "startOffset": 170,
+      "endOffset": 190,
+      "codeContent": "IntellijIdeaRulezzz ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/UserApplication.java",
+      "timestamp": 1771182030849,
+      "startOffset": 170,
+      "endOffset": 190,
+      "codeContent": "IntellijIdeaRulezzz ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/UserApplication.java",
+      "timestamp": 1771182033209,
+      "startOffset": 170,
+      "endOffset": 213,
+      "codeContent": "org.springframework.cloud.client.discovery.",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/UserApplication.java",
+      "timestamp": 1771182033228,
+      "startOffset": 144,
+      "endOffset": 216,
+      "codeContent": "import org.springframework.cloud.client.discovery.EnableDiscoveryClient;",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/ApiGatewayApplication.java",
+      "timestamp": 1771182200092,
+      "startOffset": 916,
+      "endOffset": 936,
+      "codeContent": "IntellijIdeaRulezzz ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1771182208434,
+      "startOffset": 915,
+      "endOffset": 1064,
+      "codeContent": " .route(\"appointment-service\", r -\u003e r\n                        .path(\"/api/appointments/**\")\n                        .uri(\"lb://APPOINTMENT-SERVICE\"))",
+      "aiProbability": 95,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/UserApplication.java",
+      "timestamp": 1771183904031,
+      "startOffset": 242,
+      "endOffset": 285,
+      "codeContent": "org.springframework.cloud.client.discovery.",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/UserApplication.java",
+      "timestamp": 1771183905382,
+      "startOffset": 170,
+      "endOffset": 213,
+      "codeContent": "org.springframework.cloud.client.discovery.",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/UserApplication.java",
+      "timestamp": 1771183905384,
+      "startOffset": 144,
+      "endOffset": 216,
+      "codeContent": "import org.springframework.cloud.client.discovery.EnableDiscoveryClient;",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/UserApplication.java",
+      "timestamp": 1771183973726,
+      "startOffset": 170,
+      "endOffset": 213,
+      "codeContent": "org.springframework.cloud.client.discovery.",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/UserApplication.java",
+      "timestamp": 1771183973729,
+      "startOffset": 144,
+      "endOffset": 216,
+      "codeContent": "import org.springframework.cloud.client.discovery.EnableDiscoveryClient;",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/ApiGatewayApplication.java",
+      "timestamp": 1771183981607,
+      "startOffset": 981,
+      "endOffset": 1001,
+      "codeContent": "IntellijIdeaRulezzz ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1771806895728,
+      "startOffset": 1097,
+      "endOffset": 1122,
+      "codeContent": "\n                        ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1771806896297,
+      "startOffset": 1114,
+      "endOffset": 1297,
+      "codeContent": " .route(\"activities-service\", r -\u003e r\n                        .path(\"/EverCare/activities/**\", \"/EverCare/admin/activities/**\")\n                        .uri(\"lb://ACTIVITIES-SERVICE\"))",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1771806968496,
+      "startOffset": 1114,
+      "endOffset": 1297,
+      "codeContent": " .route(\"activities-service\", r -\u003e r\n                        .path(\"/EverCare/activities/**\", \"/EverCare/admin/activities/**\")\n                        .uri(\"lb://ACTIVITIES-SERVICE\"))",
+      "aiProbability": 95,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "/AdminController.java",
+      "timestamp": 1771807399604,
+      "startOffset": 1520,
+      "endOffset": 2224,
+      "codeContent": "\n    @DeleteMapping(\"/users/{userId}\")\n    @PreAuthorize(\"hasRole(\u0027ADMIN\u0027)\")\n    public ResponseEntity\u003c?\u003e deleteUser(@PathVariable String userId) {\n        userService.deleteUserById(userId);\n        return ResponseEntity.ok().build();\n    }\n\n    private UserAdminDto mapToDto(User user) {\n        UserAdminDto dto \u003d new UserAdminDto();\n        dto.setUserId(user.getUserId());\n        dto.setName(user.getName());\n        dto.setEmail(user.getEmail());\n        dto.setRole(user.getRole());\n        dto.setPhone(user.getPhone());\n        dto.setVerified(user.isVerified());\n        dto.setCreatedAt(user.getCreatedAt());\n        dto.setProfilePicture(user.getProfilePicture());\n        return dto;\n    }\n",
+      "aiProbability": 95,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 21
+    },
+    {
+      "filePath": "/ApiGatewayApplication.java",
+      "timestamp": 1771807594436,
+      "startOffset": 819,
+      "endOffset": 839,
+      "codeContent": "IntellijIdeaRulezzz ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1771816522204,
+      "startOffset": 846,
+      "endOffset": 879,
+      "codeContent": "\"/EverCare/admin/appointments/**\"",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/security/SecurityConfig.java",
+      "timestamp": 1771985232568,
+      "startOffset": 1237,
+      "endOffset": 1262,
+      "codeContent": "\n                        ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/security/SecurityConfig.java",
+      "timestamp": 1771985233832,
+      "startOffset": 1262,
+      "endOffset": 1306,
+      "codeContent": ".requestMatchers(\"/actuator/**\").permitAll()",
+      "aiProbability": 70,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/SecurityConfig.java",
+      "timestamp": 1771985234303,
+      "startOffset": 1530,
+      "endOffset": 1757,
+      "codeContent": "\n                .oauth2ResourceServer(oauth2 -\u003e oauth2\n                        .jwt(jwt -\u003e jwt\n                                .jwtAuthenticationConverter(jwtAuthenticationConverter)\n                        )\n                )",
+      "aiProbability": 95,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 6
+    },
+    {
+      "filePath": "/SecurityConfig.java",
+      "timestamp": 1771985267124,
+      "startOffset": 1213,
+      "endOffset": 1267,
+      "codeContent": "auth/register\", \"/auth/login\", \"/users/profile/picture",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/SecurityConfig.java",
+      "timestamp": 1771985374280,
+      "startOffset": 1031,
+      "endOffset": 1487,
+      "codeContent": "\n                .authorizeHttpRequests(auth -\u003e auth\n                        .requestMatchers(\"/auth/register\", \"/auth/login\", \"/users/profile/picture\").permitAll()\n                        .requestMatchers(\"/uploads/**\").permitAll()\n                        .anyRequest().authenticated()\n                )\n                .sessionManagement(session -\u003e session\n                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)\n                )",
+      "aiProbability": 95,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 9
+    },
+    {
+      "filePath": "/SecurityConfig.java",
+      "timestamp": 1771985374992,
+      "startOffset": 1031,
+      "endOffset": 1487,
+      "codeContent": "\n                .authorizeHttpRequests(auth -\u003e auth\n                        .requestMatchers(\"/auth/register\", \"/auth/login\", \"/users/profile/picture\").permitAll()\n                        .requestMatchers(\"/uploads/**\").permitAll()\n                        .anyRequest().authenticated()\n                )\n                .sessionManagement(session -\u003e session\n                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)\n                )",
+      "aiProbability": 95,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 9
+    },
+    {
+      "filePath": "/SecurityConfig.java",
+      "timestamp": 1771985375958,
+      "startOffset": 1213,
+      "endOffset": 1267,
+      "codeContent": "auth/register\", \"/auth/login\", \"/users/profile/picture",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/SecurityConfig.java",
+      "timestamp": 1771985538751,
+      "startOffset": 1419,
+      "endOffset": 1454,
+      "codeContent": "r make all profile endpoints public",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/security/LocalUserJwtAuthenticationConverter.java",
+      "timestamp": 1771987190665,
+      "startOffset": 263,
+      "endOffset": 3507,
+      "codeContent": "userdetails.UserDetails;\nimport org.springframework.security.core.userdetails.UserDetailsService;\nimport org.springframework.security.core.userdetails.UsernameNotFoundException;\nimport org.springframework.security.oauth2.jwt.Jwt;\nimport org.springframework.stereotype.Component;\nimport tn.esprit.user.entities.User;\nimport tn.esprit.user.repositories.UserRepository;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n@Component\n@RequiredArgsConstructor\npublic class LocalUserJwtAuthenticationConverter implements Converter\u003cJwt, UsernamePasswordAuthenticationToken\u003e {\n\n    private final UserDetailsService userDetailsService;\n    private final UserRepository userRepository;\n    private static final Logger logger \u003d LoggerFactory.getLogger(LocalUserJwtAuthenticationConverter.class);\n\n    @Override\n    public UsernamePasswordAuthenticationToken convert(Jwt jwt) {\n        logger.info(\"\u003d\u003d\u003d CONVERSION JWT UTILISATEUR \u003d\u003d\u003d\");\n        \n        String email \u003d jwt.getClaimAsString(\"email\");\n        if (email \u003d\u003d null) {\n            email \u003d jwt.getClaimAsString(\"preferred_username\");\n        }\n        \n        logger.info(\"Email extrait du JWT: {}\", email);\n        logger.info(\"Tous les claims: {}\", jwt.getClaims());\n        \n        UserDetails userDetails \u003d null;\n        \n        try {\n            // Essayer de charger l\u0027utilisateur existant\n            userDetails \u003d userDetailsService.loadUserByUsername(email);\n            logger.info(\"Utilisateur trouvé en BDD: {}\", email);\n        } catch (UsernameNotFoundException e) {\n            logger.info(\"Utilisateur non trouvé en BDD, création automatique: {}\", email);\n            \n            // Créer l\u0027utilisateur automatiquement\n            User newUser \u003d new User();\n            newUser.setEmail(email);\n            newUser.setName(jwt.getClaimAsString(\"name\"));\n            newUser.setUsername(email);\n            newUser.setPassword(\"\"); // Pas de mot de passe local\n            \n            // Extraire le rôle depuis Keycloak\n            var realmAccess \u003d jwt.getClaimAsMap(\"realm_access\");\n            if (realmAccess !\u003d null \u0026\u0026 realmAccess.containsKey(\"roles\")) {\n                List\u003cString\u003e roles \u003d (List\u003cString\u003e) realmAccess.get(\"roles\");\n                if (!roles.isEmpty()) {\n                    // Mapper le rôle Keycloak vers votre rôle\n                    String role \u003d roles.get(0).toUpperCase();\n                    newUser.setRole(mapKeycloakRoleToLocalRole(role));\n                }\n            }\n            \n            userRepository.save(newUser);\n            logger.info(\"Utilisateur créé avec succès: {}\", email);\n            \n            // Recharger l\u0027utilisateur\n            userDetails \u003d userDetailsService.loadUserByUsername(email);\n        }\n        \n        return new UsernamePasswordAuthenticationToken(\n                userDetails,\n                jwt,\n                userDetails.getAuthorities()\n        );\n    }\n    \n    private String mapKeycloakRoleToLocalRole(String keycloakRole) {\n        // Adaptez selon vos besoins\n        switch(keycloakRole) {\n            case \"DOCTOR\": return \"DOCTOR\";\n            case \"PATIENT\": return \"PATIENT\";\n            case \"CAREGIVER\": return \"CAREGIVER\";\n            default: return \"PATIENT\";\n        }",
+      "aiProbability": 95,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 79
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/appointment-service/src/main/java/everCare/appointments/entities/User.java",
+      "timestamp": 1772048546159,
+      "startOffset": 843,
+      "endOffset": 879,
+      "codeContent": "// PATIENT, DOCTOR, CAREGIVER, ADMIN",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/appointment-service/src/main/java/everCare/appointments/entities/User.java",
+      "timestamp": 1772048548225,
+      "startOffset": 781,
+      "endOffset": 838,
+      "codeContent": "  @Column(nullable \u003d false)\n    private String password;\n",
+      "aiProbability": 70,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/appointment-service/src/main/java/everCare/appointments/repositories/UserRepository.java",
+      "timestamp": 1772048736998,
+      "startOffset": 1449,
+      "endOffset": 1482,
+      "codeContent": "    List\u003cUser\u003e findAllDoctors();\n",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "/UserRepository.java",
+      "timestamp": 1772048744508,
+      "startOffset": 1816,
+      "endOffset": 1988,
+      "codeContent": "@Query(\"SELECT u FROM User u WHERE u.email \u003d :email AND u.password \u003d :password\")\n    Optional\u003cUser\u003e login(@Param(\"email\") String email, @Param(\"password\") String password);",
+      "aiProbability": 95,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/appointment-service/src/main/java/everCare/appointments/services/AppointmentServiceImpl.java",
+      "timestamp": 1772052376253,
+      "startOffset": 1439,
+      "endOffset": 13937,
+      "codeContent": "\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d FIX: Load actual entities from database \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n        \n        // Load patient from database\n        if (appointment.getPatient() !\u003d null \u0026\u0026 appointment.getPatient().getUserId() !\u003d null) {\n            User patient \u003d userRepository.findById(appointment.getPatient().getUserId())\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Patient not found with id: \" + appointment.getPatient().getUserId()));\n            appointment.setPatient(patient);\n        } else {\n            throw new ResourceNotFoundException(\"Patient is required\");\n        }\n\n        // Load doctor from database\n        if (appointment.getDoctor() !\u003d null \u0026\u0026 appointment.getDoctor().getUserId() !\u003d null) {\n            User doctor \u003d userRepository.findById(appointment.getDoctor().getUserId())\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Doctor not found with id: \" + appointment.getDoctor().getUserId()));\n            appointment.setDoctor(doctor);\n        } else {\n            throw new ResourceNotFoundException(\"Doctor is required\");\n        }\n\n        // Load caregiver if present\n        if (appointment.getCaregiver() !\u003d null \u0026\u0026 appointment.getCaregiver().getUserId() !\u003d null) {\n            User caregiver \u003d userRepository.findById(appointment.getCaregiver().getUserId())\n                .orElse(null); // Caregiver is optional\n            appointment.setCaregiver(caregiver);\n        }\n\n        // Load consultation type\n        if (appointment.getConsultationType() !\u003d null \u0026\u0026 appointment.getConsultationType().getTypeId() !\u003d null) {\n            ConsultationType consultationType \u003d consultationTypeRepository.findById(appointment.getConsultationType().getTypeId())\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Consultation type not found with id: \" + appointment.getConsultationType().getTypeId()));\n            appointment.setConsultationType(consultationType);\n        } else {\n            throw new ResourceNotFoundException(\"Consultation type is required\");\n        }\n\n        // \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d END OF FIX \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n\n        // Calculate end time based on consultation type duration\n        if (appointment.getConsultationType() !\u003d null \u0026\u0026 appointment.getStartDateTime() !\u003d null) {\n            ConsultationType type \u003d appointment.getConsultationType();\n            appointment.setEndDateTime(appointment.getStartDateTime()\n                    .plusMinutes(type.getDefaultDurationMinutes()));\n        }\n\n        // Generate video link\n        if (appointment.getVideoLink() \u003d\u003d null \u0026\u0026 appointment.getPatient() !\u003d null \u0026\u0026 appointment.getDoctor() !\u003d null) {\n            String patientId \u003d appointment.getPatient().getUserId().length() \u003e\u003d 8 \n                ? appointment.getPatient().getUserId().substring(0, 8) \n                : appointment.getPatient().getUserId();\n            String doctorId \u003d appointment.getDoctor().getUserId().length() \u003e\u003d 8 \n                ? appointment.getDoctor().getUserId().substring(0, 8) \n                : appointment.getDoctor().getUserId();\n            appointment.setVideoLink(\"https://consult.evercare.com/room/\" + doctorId + \"-\" + patientId);\n        }\n\n        // Set default status\n        if (appointment.getStatus() \u003d\u003d null) {\n            appointment.setStatus(\"SCHEDULED\");\n        }\n\n        return appointmentRepository.save(appointment);\n    }\n\n    // \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d READ \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n\n    @Override\n    public List\u003cAppointment\u003e getAllAppointments() {\n        return appointmentRepository.findAll();\n    }\n\n    @Override\n    public Appointment getAppointmentById(String id) {\n        return appointmentRepository.findById(id)\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Appointment not found with id: \" + id));\n    }\n\n    @Override\n    public List\u003cAppointment\u003e getAppointmentsByPatient(String patientId) {\n        User patient \u003d userRepository.findById(patientId)\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Patient not found with id: \" + patientId));\n        return appointmentRepository.findByPatient(patient);\n    }\n\n    @Override\n    public List\u003cAppointment\u003e getAppointmentsByDoctor(String doctorId) {\n        User doctor \u003d userRepository.findById(doctorId)\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Doctor not found with id: \" + doctorId));\n        return appointmentRepository.findByDoctor(doctor);\n    }\n\n    @Override\n    public List\u003cAppointment\u003e getAppointmentsByCaregiver(String caregiverId) {\n        User caregiver \u003d userRepository.findById(caregiverId)\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Caregiver not found with id: \" + caregiverId));\n        return appointmentRepository.findByCaregiver(caregiver);\n    }\n\n    @Override\n    public List\u003cAppointment\u003e getAppointmentsByStatus(String status) {\n        return appointmentRepository.findByStatus(status);\n    }\n\n    @Override\n    public List\u003cAppointment\u003e getAppointmentsByDateRange(LocalDateTime start, LocalDateTime end) {\n        return appointmentRepository.findByStartDateTimeBetween(start, end);\n    }\n\n    @Override\n    public List\u003cAppointment\u003e getAppointmentsByDoctorAndDateRange(String doctorId, LocalDateTime start, LocalDateTime end) {\n        User doctor \u003d userRepository.findById(doctorId)\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Doctor not found with id: \" + doctorId));\n        return appointmentRepository.findByDoctorAndStartDateTimeBetween(doctor, start, end);\n    }\n\n    @Override\n    public List\u003cAppointment\u003e getFutureAppointmentsByPatient(String patientId) {\n        User patient \u003d userRepository.findById(patientId)\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Patient not found with id: \" + patientId));\n        return appointmentRepository.findFutureByPatient(patient, LocalDateTime.now());\n    }\n\n    @Override\n    public boolean isDoctorAvailable(String doctorId, LocalDateTime dateTime) {\n        User doctor \u003d userRepository.findById(doctorId)\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Doctor not found with id: \" + doctorId));\n        int count \u003d appointmentRepository.countByDoctorAndDateTime(doctor, dateTime);\n        return count \u003d\u003d 0;\n    }\n\n    // \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d UPDATE \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n\n    @Override\n    public Appointment updateAppointment(String id, Appointment appointmentDetails) {\n        Appointment existingAppointment \u003d getAppointmentById(id);\n\n        if (appointmentDetails.getStartDateTime() !\u003d null) {\n            existingAppointment.setStartDateTime(appointmentDetails.getStartDateTime());\n            // Recalculate end time\n            if (existingAppointment.getConsultationType() !\u003d null) {\n                existingAppointment.setEndDateTime(appointmentDetails.getStartDateTime()\n                        .plusMinutes(existingAppointment.getConsultationType().getDefaultDurationMinutes()));\n            }\n        }\n\n        if (appointmentDetails.getStatus() !\u003d null) {\n            existingAppointment.setStatus(appointmentDetails.getStatus());\n        }\n\n        if (appointmentDetails.getCaregiverPresence() !\u003d null) {\n            existingAppointment.setCaregiverPresence(appointmentDetails.getCaregiverPresence());\n        }\n\n        if (appointmentDetails.getDoctorNotes() !\u003d null) {\n            existingAppointment.setDoctorNotes(appointmentDetails.getDoctorNotes());\n        }\n\n        if (appointmentDetails.getSimpleSummary() !\u003d null) {\n            existingAppointment.setSimpleSummary(appointmentDetails.getSimpleSummary());\n        }\n\n        // Load caregiver if provided\n        if (appointmentDetails.getCaregiver() !\u003d null \u0026\u0026 appointmentDetails.getCaregiver().getUserId() !\u003d null) {\n            User caregiver \u003d userRepository.findById(appointmentDetails.getCaregiver().getUserId())\n                .orElse(null);\n            existingAppointment.setCaregiver(caregiver);\n        }\n\n        // Load consultation type if provided\n        if (appointmentDetails.getConsultationType() !\u003d null \u0026\u0026 appointmentDetails.getConsultationType().getTypeId() !\u003d null) {\n            ConsultationType consultationType \u003d consultationTypeRepository.findById(appointmentDetails.getConsultationType().getTypeId())\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Consultation type not found\"));\n            existingAppointment.setConsultationType(consultationType);\n        }\n\n        existingAppointment.setUpdatedAt(LocalDateTime.now());\n\n        return appointmentRepository.save(existingAppointment);\n    }\n\n    @Override\n    public Appointment confirmByPatient(String id) {\n        Appointment appointment \u003d getAppointmentById(id);\n        appointment.setConfirmationDatePatient(LocalDateTime.now());\n        appointment.setStatus(\"CONFIRMED_BY_PATIENT\");\n        appointment.setUpdatedAt(LocalDateTime.now());\n        return appointmentRepository.save(appointment);\n    }\n\n    @Override\n    public Appointment confirmByCaregiver(String id) {\n        Appointment appointment \u003d getAppointmentById(id);\n        appointment.setConfirmationDateCaregiver(LocalDateTime.now());\n        appointment.setStatus(\"CONFIRMED_BY_CAREGIVER\");\n        appointment.setUpdatedAt(LocalDateTime.now());\n        return appointmentRepository.save(appointment);\n    }\n\n    @Override\n    public Appointment cancelAppointment(String id) {\n        Appointment appointment \u003d getAppointmentById(id);\n        appointment.setStatus(\"CANCELLED\");\n        appointment.setUpdatedAt(LocalDateTime.now());\n        return appointmentRepository.save(appointment);\n    }\n\n    @Override\n    public Appointment rescheduleAppointment(String id, LocalDateTime newDateTime) {\n        Appointment appointment \u003d getAppointmentById(id);\n        appointment.setStartDateTime(newDateTime);\n\n        // Recalculate end time\n        if (appointment.getConsultationType() !\u003d null) {\n            appointment.setEndDateTime(newDateTime\n                    .plusMinutes(appointment.getConsultationType().getDefaultDurationMinutes()));\n        }\n\n        appointment.setStatus(\"RESCHEDULED\");\n        appointment.setUpdatedAt(LocalDateTime.now());\n        return appointmentRepository.save(appointment);\n    }\n\n    @Override\n    public Appointment updateDoctorNotes(String id, String notes) {\n        Appointment appointment \u003d getAppointmentById(id);\n        appointment.setDoctorNotes(notes);\n        appointment.setUpdatedAt(LocalDateTime.now());\n        return appointmentRepository.save(appointment);\n    }\n\n    @Override\n    public Appointment updateSimpleSummary(String id, String summary) {\n        Appointment appointment \u003d getAppointmentById(id);\n        appointment.setSimpleSummary(summary);\n        appointment.setUpdatedAt(LocalDateTime.now());\n        return appointmentRepository.save(appointment);\n    }\n\n    // \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d DELETE \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n\n    @Override\n    public void deleteAppointment(String id) {\n        Appointment appointment \u003d getAppointmentById(id);\n        appointmentRepository.delete(appointment);\n    }\n\n    @Override\n    public void deleteAppointmentsByPatient(String patientId) {\n        User patient \u003d userRepository.findById(patientId)\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Patient not found with id: \" + patientId));\n        List\u003cAppointment\u003e appointments \u003d appointmentRepository.findByPatient(patient);\n        appointmentRepository.deleteAll(appointments);\n    }\n\n    // \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d BUSINESS LOGIC \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n\n    @Override\n    public long countAppointmentsByDoctorAndDate(String doctorId, LocalDateTime date) {\n        User doctor \u003d userRepository.findById(doctorId)\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Doctor not found with id: \" + doctorId));\n        return appointmentRepository.countByDoctorAndDateTime(doctor, date);\n    }\n\n    @Override\n    public List\u003cAppointment\u003e getAppointmentsNeedingReminder(LocalDateTime reminderTime) {\n        LocalDateTime reminderWindowStart \u003d reminderTime.minusHours(24);\n        LocalDateTime reminderWindowEnd \u003d reminderTime.plusHours(1);\n\n        return appointmentRepository.findByStartDateTimeBetween(reminderWindowStart, reminderWindowEnd)\n                .stream()\n                .filter(a -\u003e a.getStatus().equals(\"SCHEDULED\") || a.getStatus().equals(\"CONFIRMED_BY_PATIENT\"))\n                .toList();\n    }\n\n    @Override\n    public void sendReminders() {\n        List\u003cAppointment\u003e appointmentsNeedingReminder \u003d getAppointmentsNeedingReminder(LocalDateTime.now());\n\n        for (Appointment appointment : appointmentsNeedingReminder) {",
+      "aiProbability": 95,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 279
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/appointment-service/src/main/java/everCare/appointments/controllers/AppointmentController.java",
+      "timestamp": 1772053708471,
+      "startOffset": 124,
+      "endOffset": 3787,
+      "codeContent": "entities.User;\nimport everCare.appointments.entities.ConsultationType;\nimport everCare.appointments.dtos.AppointmentDTO;\nimport everCare.appointments.services.AppointmentService;\nimport everCare.appointments.repositories.UserRepository;\nimport everCare.appointments.repositories.ConsultationTypeRepository;\nimport everCare.appointments.exceptions.ResourceNotFoundException;\nimport lombok.RequiredArgsConstructor;\nimport org.springframework.format.annotation.DateTimeFormat;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.web.bind.annotation.*;\nimport java.time.LocalDateTime;\nimport java.util.List;\n\n@RestController\n@RequestMapping(\"/appointments\")\n@RequiredArgsConstructor\n@CrossOrigin(origins \u003d \"*\")\npublic class AppointmentController {\n\n    private final AppointmentService appointmentService;\n    private final UserRepository userRepository;\n    private final ConsultationTypeRepository consultationTypeRepository;\n\n    // \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d CREATE WITH DTO \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n\n    @PostMapping\n    public ResponseEntity\u003cAppointment\u003e createAppointment(@RequestBody AppointmentDTO appointmentDTO) {\n        // Create new appointment entity from DTO\n        Appointment appointment \u003d new Appointment();\n        \n        // Load and set patient\n        if (appointmentDTO.getPatientId() !\u003d null) {\n            User patient \u003d userRepository.findById(appointmentDTO.getPatientId())\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Patient not found with id: \" + appointmentDTO.getPatientId()));\n            appointment.setPatient(patient);\n        } else {\n            throw new ResourceNotFoundException(\"Patient ID is required\");\n        }\n        \n        // Load and set doctor\n        if (appointmentDTO.getDoctorId() !\u003d null) {\n            User doctor \u003d userRepository.findById(appointmentDTO.getDoctorId())\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Doctor not found with id: \" + appointmentDTO.getDoctorId()));\n            appointment.setDoctor(doctor);\n        } else {\n            throw new ResourceNotFoundException(\"Doctor ID is required\");\n        }\n        \n        // Load and set caregiver (optional)\n        if (appointmentDTO.getCaregiverId() !\u003d null \u0026\u0026 !appointmentDTO.getCaregiverId().isEmpty()) {\n            User caregiver \u003d userRepository.findById(appointmentDTO.getCaregiverId())\n                .orElse(null);\n            appointment.setCaregiver(caregiver);\n        }\n        \n        // Load and set consultation type\n        if (appointmentDTO.getConsultationTypeId() !\u003d null) {\n            ConsultationType consultationType \u003d consultationTypeRepository.findById(appointmentDTO.getConsultationTypeId())\n                .orElseThrow(() -\u003e new ResourceNotFoundException(\"Consultation type not found with id: \" + appointmentDTO.getConsultationTypeId()));\n            appointment.setConsultationType(consultationType);\n        } else {\n            throw new ResourceNotFoundException(\"Consultation type ID is required\");\n        }\n        \n        // Set other fields\n        appointment.setStartDateTime(appointmentDTO.getStartDateTime());\n        appointment.setEndDateTime(appointmentDTO.getEndDateTime());\n        appointment.setStatus(appointmentDTO.getStatus() !\u003d null ? appointmentDTO.getStatus() : \"SCHEDULED\");\n        appointment.setCaregiverPresence(appointmentDTO.getCaregiverPresence());\n        appointment.setVideoLink(appointmentDTO.getVideoLink());\n        appointment.setSimpleSummary(appointmentDTO.getSimpleSummary());\n        \n        // Set default values for other fields\n        appointment.setRecurring(false);\n        ",
+      "aiProbability": 95,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 77
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/controller/UserController.java",
+      "timestamp": 1772243698640,
+      "startOffset": 0,
+      "endOffset": 6364,
+      "codeContent": "package tn.esprit.user.controller;\n\nimport lombok.RequiredArgsConstructor;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.security.core.annotation.AuthenticationPrincipal;\nimport org.springframework.security.core.userdetails.UserDetails;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.web.multipart.MultipartFile;\nimport org.springframework.web.servlet.support.ServletUriComponentsBuilder;\nimport tn.esprit.user.dto.ChangePasswordRequest;\nimport tn.esprit.user.dto.UpdateUserRequest;\nimport tn.esprit.user.dto.UserDto;\nimport tn.esprit.user.entity.User;\nimport tn.esprit.user.entity.UserRole;\nimport tn.esprit.user.repository.UserRepository;\nimport tn.esprit.user.service.UserService;\n\nimport java.io.File;\nimport java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\nimport java.nio.file.Paths;\nimport java.nio.file.StandardCopyOption;\nimport java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n\n@RestController\n@RequestMapping(\"/users\")\n@RequiredArgsConstructor\n@CrossOrigin(origins \u003d \"*\")\npublic class UserController {\n\n    private final UserService userService;\n    private final UserRepository userRepository;\n\n    @PutMapping(\"/profile\")\n    public ResponseEntity\u003c?\u003e updateProfile(@RequestBody UpdateUserRequest request,\n                                           @AuthenticationPrincipal UserDetails userDetails) {\n        String email \u003d userDetails.getUsername();\n        User updatedUser \u003d userService.updateUser(email, request);\n        UserDto userDto \u003d mapToDto(updatedUser);\n        return ResponseEntity.ok(Map.of(\"user\", userDto));\n    }\n\n    @PutMapping(\"/change-password\")\n    public ResponseEntity\u003c?\u003e changePassword(@RequestBody ChangePasswordRequest request,\n                                            @AuthenticationPrincipal UserDetails userDetails) {\n        String email \u003d userDetails.getUsername();\n        userService.changePassword(email, request);\n        return ResponseEntity.ok().build();\n    }\n\n    @DeleteMapping(\"/profile\")\n    public ResponseEntity\u003c?\u003e deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {\n        try {\n            String email \u003d userDetails.getUsername();\n            userService.deleteUser(email);\n            return ResponseEntity.ok().build();\n        } catch (Exception e) {\n            e.printStackTrace();\n            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)\n                    .body(Map.of(\"message\", \"Failed to delete account: \" + e.getMessage()));\n        }\n    }\n\n    private UserDto mapToDto(User user) {\n        UserDto dto \u003d new UserDto();\n        dto.setUserId(user.getUserId());\n        dto.setName(user.getName());\n        dto.setEmail(user.getEmail());\n        dto.setRole(user.getRole());\n        dto.setPhone(user.getPhone());\n        dto.setVerified(user.isVerified());\n        dto.setCreatedAt(user.getCreatedAt());\n        dto.setDateOfBirth(user.getDateOfBirth());\n        dto.setEmergencyContact(user.getEmergencyContact());\n        dto.setProfilePicture(user.getProfilePicture());\n\n        // Doctor fields\n        dto.setYearsExperience(user.getYearsExperience());\n        dto.setSpecialization(user.getSpecialization());\n        dto.setMedicalLicense(user.getMedicalLicense());\n        dto.setWorkplaceType(user.getWorkplaceType());\n        dto.setWorkplaceName(user.getWorkplaceName());\n        dto.setDoctorEmail(user.getDoctorEmail());\n\n        // Relationships\n        if (user.getRole() \u003d\u003d UserRole.PATIENT) {\n            dto.setCaregiverEmails(user.getCaregivers().stream()\n                    .map(User::getEmail).collect(Collectors.toSet()));\n        } else if (user.getRole() \u003d\u003d UserRole.CAREGIVER) {\n            dto.setPatientEmails(user.getPatients().stream()\n                    .map(User::getEmail).collect(Collectors.toSet()));\n        }\n        return dto;\n    }\n\n    @PostMapping(\"/profile/picture\")\n    public ResponseEntity\u003c?\u003e uploadProfilePicture(@RequestParam(\"file\") MultipartFile file,\n                                                  @AuthenticationPrincipal UserDetails userDetails) {\n        String email \u003d userDetails.getUsername();\n        User user \u003d userService.findByEmail(email);\n\n        if (file.isEmpty()) {\n            return ResponseEntity.badRequest().body(\"File is empty\");\n        }\n\n        try {\n            String uploadDir \u003d \"uploads/profile-pictures/\";\n            File dir \u003d new File(uploadDir);\n            if (!dir.exists()) dir.mkdirs();\n\n            String fileName \u003d user.getUserId() + \"_\" + System.currentTimeMillis() + \"_\" + file.getOriginalFilename();\n            Path filePath \u003d Paths.get(uploadDir + fileName);\n            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);\n\n            String fileUrl \u003d ServletUriComponentsBuilder.fromCurrentContextPath()\n                    .path(\"/uploads/profile-pictures/\")\n                    .path(fileName)\n                    .toUriString();\n            user.setProfilePicture(fileUrl);\n            userRepository.save(user);\n\n            return ResponseEntity.ok(Map.of(\"profilePicture\", fileUrl));\n        } catch (IOException e) {\n            e.printStackTrace();\n            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(\"Failed to upload file\");\n        }\n    }\n\n    @DeleteMapping(\"/profile/picture\")\n    public ResponseEntity\u003c?\u003e removeProfilePicture(@AuthenticationPrincipal UserDetails userDetails) {\n        String email \u003d userDetails.getUsername();\n        User user \u003d userService.findByEmail(email);\n        user.setProfilePicture(null);\n        userRepository.save(user);\n        return ResponseEntity.ok().build();\n    }\n\n    @GetMapping(\"/search\")\n    public ResponseEntity\u003cList\u003cUserDto\u003e\u003e searchUsers(@RequestParam String q, @RequestParam UserRole role) {\n        List\u003cUser\u003e users \u003d userService.searchUsersByRole(q, role);\n        List\u003cUserDto\u003e dtos \u003d users.stream()\n                .map(this::mapToDto)\n                .collect(Collectors.toList());\n        return ResponseEntity.ok(dtos);\n    }\n\n    @GetMapping(\"/by-email\")\n    public ResponseEntity\u003cUserDto\u003e getUserByEmail(@RequestParam String email) {\n        User user \u003d userService.findByEmail(email);\n        return ResponseEntity.ok(mapToDto(user));\n  ",
+      "aiProbability": 90,
+      "aiTool": "AI Assistant",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 156
+    }
+  ],
+  "toolStats": {
+    "AI Assistant": {
+      "usageCount": 34,
+      "totalLines": 674
+    }
+  }
+}
