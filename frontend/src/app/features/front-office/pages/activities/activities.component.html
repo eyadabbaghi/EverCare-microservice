@@ -1,0 +1,209 @@
+<div class="min-h-screen bg-[#FAF8FC] p-6">
+  <div class="max-w-7xl mx-auto space-y-10">
+    <!-- Header -->
+    <section class="relative w-full h-80 md:h-96 lg:h-[28rem] rounded-2xl overflow-hidden flex items-center justify-center mb-10">
+      <img 
+        src="https://365healthservices.com/wp-content/uploads/2023/08/elderly-couple-playing-garden-hose-768x475.webp" 
+        alt="Activities header" 
+        class="absolute inset-0 w-full h-full object-cover brightness-75"
+      />
+      <div class="relative text-center px-6 max-w-3xl">
+        <h1 class="text-4xl md:text-5xl font-bold text-white drop-shadow-lg">
+          Stay Active, Stay Sharp
+        </h1>
+        <p class="mt-4 text-lg md:text-xl text-white drop-shadow-md">
+          Discover activities designed to boost your mind, body, and daily well-being.
+        </p>
+      </div>
+    </section>
+
+    <!-- Filter Bar (only search and type) -->
+    <div class="flex flex-wrap gap-4 items-center">
+      <!-- Search input -->
+      <div class="flex-1 min-w-[200px]">
+        <div class="relative group">
+          <span class="absolute left-3 top-2.5 text-[#7C3AED] transition-all duration-300 group-focus-within:scale-110">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <input
+            type="text"
+            placeholder="Search activities..."
+            [(ngModel)]="searchTerm"
+            (input)="applyFilters()"
+            class="w-full pl-10 pr-3 py-2 rounded-full border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#C4B5FD] transition-all duration-300"
+          />
+        </div>
+      </div>
+
+      <!-- Type filter -->
+      <select
+        [(ngModel)]="selectedType"
+        (change)="applyFilters()"
+        class="px-4 py-2 rounded-full border border-[#E5E7EB] bg-white focus:outline-none focus:ring-2 focus:ring-[#C4B5FD] transition-all duration-300"
+      >
+        <option value="all">All Types</option>
+        <option *ngFor="let type of types" [value]="type">{{ type }}</option>
+      </select>
+
+      <!-- Reset button -->
+      <button
+        type="button"
+        class="px-4 py-2 rounded-full bg-[#F3E8FF] text-[#7C3AED] hover:bg-[#EDE9FE] transition-colors"
+        (click)="resetFilters()"
+      >
+        Reset Filters
+      </button>
+    </div>
+
+    <!-- Activities grid -->
+    <section>
+      <h2 class="text-3xl text-[#2D1B4E] mb-6 flex items-center gap-2">
+        <span class="text-2xl">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
+            <path d="M8 10h8M8 14h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        All Activities
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div
+          *ngFor="let activity of pagedActivities"
+          class="cursor-pointer"
+          (click)="viewDetails(activity)"
+        >
+          <div class="border-2 rounded-2xl overflow-hidden transition-all duration-300 bg-white border-[#DDD6FE] hover:shadow-2xl">
+            <!-- Image -->
+            <div class="relative h-52 overflow-hidden">
+              <img
+                [src]="activity.imageUrl"
+                [alt]="activity.name"
+                class="w-full h-full object-cover"
+              />
+
+              <div class="absolute top-3 right-3 flex gap-2">
+                <!-- Doctor suggested badge -->
+                <span
+                  *ngIf="activity.doctorSuggested"
+                  class="inline-flex items-center rounded-full bg-[#C4B5FD] text-[#2D1B4E] px-2 py-1 text-xs font-medium border border-[#7C3AED]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.47 122.88" class="w-4 h-4 mr-1 fill-current">
+                    <!-- doctor icon path (shortened) -->
+                  </svg>
+                  Doctor
+                </span>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-5 space-y-4">
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex-1">
+                  <h3 class="text-2xl text-[#2D1B4E] mb-2">
+                    {{ activity.name }}
+                  </h3>
+                  <p class="text-sm text-[#6B5B8C] line-clamp-3">
+                    {{ activity.description }}
+                  </p>
+                </div>
+
+                <div class="text-right space-y-2">
+                  <div class="inline-flex items-center rounded-full border px-3 py-1 text-xs"
+                       [ngClass]="{
+                         'bg-blue-100 text-blue-700 border-blue-200': activity.type === 'Relaxation',
+                         'bg-purple-100 text-purple-700 border-purple-200': activity.type === 'Cognitive',
+                         'bg-green-100 text-green-700 border-green-200': activity.type === 'Physical',
+                         'bg-pink-100 text-pink-700 border-pink-200': activity.type === 'Social',
+                         'bg-orange-100 text-orange-700 border-orange-200': activity.type === 'Creative'
+                       }">
+                    {{ activity.type }}
+                  </div>
+                  <!-- Difficulty badge removed – not available in public data -->
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between text-sm text-[#6B5B8C]">
+                <div class="flex items-center gap-4">
+                  <div class="flex items-center gap-1">
+                    <!-- Timer SVG -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 102.85 122.88" class="w-4 h-4 fill-current">
+                      <path d="M56.91,20.32C67.15,21.4,76.5,25.5,84.05,31.7l5.21-5.44c1.06-1.11,2.84-1.13,3.95-0.06l3.5,3.4c1.1,1.07,1.12,2.84,0.06,3.94l-5.35,5.58c7.15,8.83,11.44,20.08,11.44,32.32c0,28.4-23.03,51.43-51.43,51.43C23.03,122.88,0,99.85,0,71.45C0,58.63,4.7,46.9,12.46,37.89l-6.02-5.66c-1.12-1.05-1.15-2.83-0.09-3.94l3.37-3.53c1.06-1.11,2.83-1.14,3.94-0.09l6.41,6.03c7.81-6.02,17.39-9.84,27.83-10.54V9h-9.9c-1.32,0-2.4-1.08-2.4-2.4V2.4c0-1.32,1.08-2.4,2.4-2.4h28.8c1.32,0,2.4,1.08,2.4,2.4v4.2c0,1.32-1.08,2.4-2.4,2.4h-9.9V20.32ZM47.24,52.63h4.39c0.8,0,1.46,0.66,1.46,1.46v18.35h13.51c0.8,0,1.46,0.66,1.46,1.46v4.39c0,0.8-0.66,1.46-1.46,1.46H45.78V54.09C45.78,53.28,46.44,52.63,47.24,52.63ZM51.43,29.69c23.06,0,41.76,18.7,41.76,41.76c0,23.06-18.7,41.76-41.76,41.76c-23.06,0-41.76-18.7-41.76-41.76C9.67,48.39,28.37,29.69,51.43,29.69Z"/>
+                    </svg>
+                    <span>{{ activity.duration }} min</span>
+                  </div>
+                  <div class="flex items-center gap-1" *ngIf="activity.scheduledTime">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                      <polyline points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>{{ activity.scheduledTime }}</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-1">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-yellow-400">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+                  </svg>
+                  <span class="text-base font-medium text-[#2D1B4E]">
+                    {{ activity.rating | number : '1.1-1' }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="pt-2">
+                <button
+                  class="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-full"
+                  (click)="viewDetails(activity)"
+                >
+                  View details →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pagination -->
+    <div
+      *ngIf="totalPages > 1"
+      class="flex items-center justify-between pt-2 text-xs text-[#6B5B8C] mt-6"
+    >
+      <div>
+        Page <span class="font-semibold text-[#2D1B4E]">{{ currentPage }}</span> of
+        <span class="font-semibold text-[#2D1B4E]">{{ totalPages }}</span>
+      </div>
+
+      <div class="inline-flex items-center gap-1 bg-white/80 rounded-full px-1 py-0.5 border border-[#E5D9FF]">
+        <button
+          type="button"
+          class="px-2 py-1 rounded-full hover:bg-[#F3E8FF] disabled:opacity-50"
+          (click)="prevPage()"
+          [disabled]="currentPage === 1"
+        >
+          ‹
+        </button>
+        <button
+          *ngFor="let page of pages"
+          type="button"
+          class="min-w-[2rem] px-2 py-1 rounded-full text-xs"
+          [ngClass]="page === currentPage ? 'bg-[#7C3AED] text-white shadow-sm' : 'text-[#6B5B8C] hover:bg-[#F3E8FF]'"
+          (click)="setPage(page)"
+        >
+          {{ page }}
+        </button>
+        <button
+          type="button"
+          class="px-2 py-1 rounded-full hover:bg-[#F3E8FF] disabled:opacity-50"
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+        >
+          ›
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
