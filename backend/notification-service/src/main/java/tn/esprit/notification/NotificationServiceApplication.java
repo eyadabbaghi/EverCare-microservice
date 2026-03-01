@@ -1,17 +1,13 @@
-package tn.esprit.activities;
+package tn.esprit.notification;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
-@EnableDiscoveryClient
-@EnableFeignClients
-public class ActivitiesApplication {
-
+@EnableDiscoveryClient  // Registers this service with Eureka
+public class NotificationServiceApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(ActivitiesApplication.class, args);
+		SpringApplication.run(NotificationServiceApplication.class, args);
 	}
-
 }

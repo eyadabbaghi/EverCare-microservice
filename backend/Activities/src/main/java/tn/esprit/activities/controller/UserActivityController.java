@@ -46,4 +46,15 @@ public class UserActivityController {
             @PathVariable String userId, @PathVariable String activityId, @RequestParam int rating) {
         return ResponseEntity.ok(activityService.rateActivity(userId, activityId, rating));
     }
+
+    /**
+     * Public endpoint to get all activities (no user context).
+     * Accessible without authentication.
+     *
+     * @return list of all activities
+     */
+    @GetMapping("/public")
+    public ResponseEntity<List<ActivityDTO>> getPublicActivities() {
+        return ResponseEntity.ok(activityService.getAllActivities());
+    }
 }

@@ -1969,12 +1969,434 @@
       "aiTool": "AI Assistant",
       "detectionMethod": "REALTIME_SPEED_ANALYSIS",
       "lineCount": 77
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/appointment-service/src/main/java/everCare/appointments/controllers/AppointmentController.java",
+      "timestamp": 1772395558670,
+      "startOffset": 11558,
+      "endOffset": 11592,
+      "codeContent": "git checkout -b [your-branch-name]",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/pages/activities/activities.component.ts",
+      "timestamp": 1772396480598,
+      "startOffset": 137,
+      "endOffset": 225,
+      "codeContent": "import { ActivityService, Activity } from \u0027../../../../core/services/activity.service\u0027;\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/pages/activities/activities.component.ts",
+      "timestamp": 1772396481848,
+      "startOffset": 416,
+      "endOffset": 450,
+      "codeContent": "  allActivities: Activity[] \u003d [];\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/pages/activities/activities.component.ts",
+      "timestamp": 1772396485989,
+      "startOffset": 683,
+      "endOffset": 761,
+      "codeContent": "  // Filtered list for display\n  private filteredActivities: Activity[] \u003d [];\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/pages/activities/activities.component.ts",
+      "timestamp": 1772396490049,
+      "startOffset": 1167,
+      "endOffset": 1196,
+      "codeContent": "        this.applyFilters();\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/pages/activities/activities.component.ts",
+      "timestamp": 1772396493001,
+      "startOffset": 2056,
+      "endOffset": 2259,
+      "codeContent": "  // Getter for current page items\n  get pagedActivities(): Activity[] {\n    const start \u003d (this.currentPage - 1) * this.pageSize;\n    return this.filteredActivities.slice(start, start + this.pageSize);\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 5
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/pages/activities/activities.component.ts",
+      "timestamp": 1772396494751,
+      "startOffset": 2264,
+      "endOffset": 2306,
+      "codeContent": "  viewDetails(activity: Activity): void {\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Activities/src/main/java/tn/esprit/activities/ActivitiesApplication.java",
+      "timestamp": 1772396644132,
+      "startOffset": 224,
+      "endOffset": 287,
+      "codeContent": "import org.springframework.cloud.openfeign.EnableFeignClients;\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/core/services/activity.service.ts",
+      "timestamp": 1772396667585,
+      "startOffset": 3064,
+      "endOffset": 3254,
+      "codeContent": " //private apiUrl \u003d \u0027http://localhost:8092/EverCare\u0027; // direct to microservice\n   // Use API Gateway URL instead of direct microservice\n  private apiUrl \u003d \u0027http://localhost:8089/EverCare\u0027;\n",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 4
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Activities/src/main/java/tn/esprit/activities/service/ActivityService.java",
+      "timestamp": 1772396699684,
+      "startOffset": 78,
+      "endOffset": 112,
+      "codeContent": "import lombok.extern.slf4j.Slf4j;\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Activities/src/main/java/tn/esprit/activities/service/ActivityService.java",
+      "timestamp": 1772396700878,
+      "startOffset": 224,
+      "endOffset": 279,
+      "codeContent": "import tn.esprit.activities.client.NotificationClient;\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Activities/src/main/java/tn/esprit/activities/service/ActivityService.java",
+      "timestamp": 1772396705734,
+      "startOffset": 1023,
+      "endOffset": 1123,
+      "codeContent": "    private final NotificationClient notificationClient;   // Feign client for notification service\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Activities/src/main/java/tn/esprit/activities/service/ActivityService.java",
+      "timestamp": 1772396709165,
+      "startOffset": 2393,
+      "endOffset": 2533,
+      "codeContent": "\n        // Send notification\n        sendNotification(activity.getId(), \"CREATED\", \"Activity \u0027\" + activity.getName() + \"\u0027 was created.\");\n\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 5
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Activities/src/main/java/tn/esprit/activities/service/ActivityService.java",
+      "timestamp": 1772396718219,
+      "startOffset": 4215,
+      "endOffset": 4354,
+      "codeContent": "\n        // Send notification\n        sendNotification(activity.getId(), \"DELETED\", \"Activity \u0027\" + activity.getName() + \"\u0027 was deleted.\");\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 4
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Activities/src/main/java/tn/esprit/activities/service/ActivityService.java",
+      "timestamp": 1772396724658,
+      "startOffset": 11235,
+      "endOffset": 11890,
+      "codeContent": "    // ---------- Helper: Send notification (with error handling) ----------\n\n    private void sendNotification(String activityId, String action, String details) {\n        try {\n            NotificationRequest request \u003d new NotificationRequest();\n            request.setActivityId(activityId);\n            request.setAction(action);\n            request.setDetails(details);\n            notificationClient.sendNotification(request);\n            log.info(\"Notification sent: {} - {}\", action, activityId);\n        } catch (Exception e) {\n            log.error(\"Failed to send notification for activity {}: {}\", activityId, e.getMessage());\n        }\n    }\n\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 16
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Activities/src/main/java/tn/esprit/activities/controller/AdminActivityController.java",
+      "timestamp": 1772397313001,
+      "startOffset": 567,
+      "endOffset": 595,
+      "codeContent": "@CrossOrigin(origins \u003d \"*\")\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Activities/src/main/java/tn/esprit/activities/controller/AdminActivityDetailsController.java",
+      "timestamp": 1772397326575,
+      "startOffset": 594,
+      "endOffset": 622,
+      "codeContent": "@CrossOrigin(origins \u003d \"*\")\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1772397340633,
+      "startOffset": 1387,
+      "endOffset": 1643,
+      "codeContent": "                .route(\"user-service\", r -\u003e r\n                        .path(\"/EverCare/admin/**\",\n                                \"/EverCare/auth/**\",\n                                \"/EverCare/users/**\")\n                        .uri(\"lb://USER-SERVICE\"))\n",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 6
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1772397342856,
+      "startOffset": 2036,
+      "endOffset": 2230,
+      "codeContent": "                .route(\"notification-service\", r -\u003e r\n                        .path(\"/EverCare/api/notifications/**\")   // Added route\n                        .uri(\"lb://NOTIFICATION-SERVICE\"))\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 4
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/back-office/back-office-routing.module.ts",
+      "timestamp": 1772397373228,
+      "startOffset": 994,
+      "endOffset": 1025,
+      "codeContent": "    canActivate: [AdminGuard],\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397504228,
+      "startOffset": 110,
+      "endOffset": 234,
+      "codeContent": "import { NotificationService, Notification as ActivityNotification } from \u0027../../../../core/services/notification.service\u0027;\n",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397505432,
+      "startOffset": 42,
+      "endOffset": 133,
+      "codeContent": "import { Subscription, interval } from \u0027rxjs\u0027;\nimport { switchMap } from \u0027rxjs/operators\u0027;\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397506396,
+      "startOffset": 0,
+      "endOffset": 150,
+      "codeContent": "import { Component, HostListener, OnDestroy, OnInit, Inject, PLATFORM_ID } from \u0027@angular/core\u0027;\nimport { isPlatformBrowser } from \u0027@angular/common\u0027;\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397520767,
+      "startOffset": 1303,
+      "endOffset": 1468,
+      "codeContent": "  // Activity notifications fetched from the microservice, enriched with local read flag\n  activityNotifications: (ActivityNotification \u0026 { read: boolean })[] \u003d [];\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397521667,
+      "startOffset": 1469,
+      "endOffset": 1672,
+      "codeContent": "  constructor(\n    private readonly router: Router,\n    private authService: AuthService,\n    private notificationService: NotificationService,\n    @Inject(PLATFORM_ID) private platformId: Object\n  ) {}\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 7
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397523714,
+      "startOffset": 2204,
+      "endOffset": 3273,
+      "codeContent": "\n    // Only run HTTP calls and polling in the browser (not during SSR)\n    if (isPlatformBrowser(this.platformId)) {\n      // Fetch immediately on init\n      this.notificationService.getNotifications().subscribe({\n        next: (data) \u003d\u003e {\n          this.activityNotifications \u003d data.map(n \u003d\u003e ({ ...n, read: false }));\n        },\n        error: (err) \u003d\u003e console.error(\u0027Initial notification fetch failed\u0027, err)\n      });\n\n      // Start polling for activity notifications every 30 seconds\n      this.pollingSub \u003d interval(30000)\n        .pipe(switchMap(() \u003d\u003e this.notificationService.getNotifications()))\n        .subscribe({\n          next: (fetched) \u003d\u003e {\n            // Merge with existing to preserve read status\n            const existingMap \u003d new Map(this.activityNotifications.map(n \u003d\u003e [n.id, n]));\n            this.activityNotifications \u003d fetched.map(n \u003d\u003e ({\n              ...n,\n              read: existingMap.get(n.id)?.read ?? false\n            }));\n          },\n          error: (err) \u003d\u003e console.error(\u0027Failed to fetch notifications\u0027, err)\n        });\n    }\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 27
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397524902,
+      "startOffset": 1980,
+      "endOffset": 2148,
+      "codeContent": "    // If token exists but user is null, try to fetch user (only in browser)\n    if (isPlatformBrowser(this.platformId) \u0026\u0026 this.authService.getToken() \u0026\u0026 !this.user) {\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397527403,
+      "startOffset": 3520,
+      "endOffset": 3758,
+      "codeContent": "    if (this.pollingSub) this.pollingSub.unsubscribe();\n  }\n\n  // Notifications for display (only activity notifications)\n  get displayNotifications(): (ActivityNotification \u0026 { read: boolean })[] {\n    return this.activityNotifications;\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 7
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397528678,
+      "startOffset": 3793,
+      "endOffset": 3860,
+      "codeContent": "    return this.activityNotifications.filter(n \u003d\u003e !n.read).length;\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397530549,
+      "startOffset": 4061,
+      "endOffset": 4164,
+      "codeContent": "      \u0027/medical-folder\u0027, \u0027/alerts\u0027,\n      \u0027/profile\u0027, \u0027/messages\u0027, \u0027/daily\u0027, \u0027/blog\u0027, \u0027/appointments\u0027,\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397532694,
+      "startOffset": 4679,
+      "endOffset": 4793,
+      "codeContent": "    this.activityNotifications \u003d this.activityNotifications.map(n \u003d\u003e\n      n.id \u003d\u003d\u003d id ? { ...n, read: true } : n\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397533544,
+      "startOffset": 4831,
+      "endOffset": 4925,
+      "codeContent": "    this.activityNotifications \u003d this.activityNotifications.map(n \u003d\u003e ({ ...n, read: true }));\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397534406,
+      "startOffset": 4930,
+      "endOffset": 5020,
+      "codeContent": "  handleNotificationClick(notification: ActivityNotification \u0026 { read: boolean }): void {\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397535846,
+      "startOffset": 5058,
+      "endOffset": 5419,
+      "codeContent": "    // Navigate to the public activity details page\n    this.navigate(`/activities/${notification.activityId}`);\n  }\n\n  // Helper for activity notification icon\n  getActivityIcon(action: string): string {\n    switch (action) {\n      case \u0027CREATED\u0027: return \u0027🆕\u0027;\n      case \u0027UPDATED\u0027: return \u0027✏️\u0027;\n      case \u0027DELETED\u0027: return \u0027🗑️\u0027;\n      default: return \u0027📢\u0027;\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 12
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397537650,
+      "startOffset": 5430,
+      "endOffset": 5741,
+      "codeContent": "  // Helper for activity notification title\n  getActivityTitle(action: string): string {\n    switch (action) {\n      case \u0027CREATED\u0027: return \u0027New activity available\u0027;\n      case \u0027UPDATED\u0027: return \u0027Activity updated\u0027;\n      case \u0027DELETED\u0027: return \u0027Activity removed\u0027;\n      default: return \u0027Activity notification\u0027;\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 8
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772397540820,
+      "startOffset": 6105,
+      "endOffset": 6342,
+      "codeContent": "  clearAllNotifications(): void {\n  this.activityNotifications \u003d []; // clear all activity notifications\n  // Optionally, you could also call a backend endpoint to delete them\n  // this.notificationService.deleteAll().subscribe(...);\n}\n\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 7
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Activities/src/main/java/tn/esprit/activities/controller/UserActivityController.java",
+      "timestamp": 1772397755515,
+      "startOffset": 480,
+      "endOffset": 508,
+      "codeContent": "@CrossOrigin(origins \u003d \"*\")\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Activities/src/main/java/tn/esprit/activities/controller/UserActivityController.java",
+      "timestamp": 1772397759459,
+      "startOffset": 2030,
+      "endOffset": 2370,
+      "codeContent": "\n    /**\n     * Public endpoint to get all activities (no user context).\n     * Accessible without authentication.\n     *\n     * @return list of all activities\n     */\n    @GetMapping(\"/public\")\n    public ResponseEntity\u003cList\u003cActivityDTO\u003e\u003e getPublicActivities() {\n        return ResponseEntity.ok(activityService.getAllActivities());\n    }\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 12
     }
   ],
   "toolStats": {
     "AI Assistant": {
       "usageCount": 179,
       "totalLines": 4670
+    },
+    "GitHub Copilot": {
+      "usageCount": 38,
+      "totalLines": 178
     }
   }
 }

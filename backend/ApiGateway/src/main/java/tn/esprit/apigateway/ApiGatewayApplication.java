@@ -43,6 +43,9 @@ public class ApiGatewayApplication {
                 .route("medical-record-service", r -> r
                         .path("/api/medical-records/**")
                         .uri("lb://MEDICAL-RECORD-SERVICE"))
+                .route("notification-service", r -> r
+                        .path("/EverCare/api/notifications/**")   // Added route
+                        .uri("lb://NOTIFICATION-SERVICE"))
                 .build();
     }
 
