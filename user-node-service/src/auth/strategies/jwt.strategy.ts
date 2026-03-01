@@ -4,6 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../../users/services/users.service';
 import { UserRole } from '../../users/schemas/user-role.enum';
+import * as jwksClient from 'jwks-rsa';
 
 export interface JwtPayload {
   sub?: string;
@@ -28,14 +29,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private configService: ConfigService,
     private userService: UserService,
   ) {
-    // For testing, you can use a secret directly
-    // In production, you'd want to validate against Keycloak's public key
+    const authServerUrl = configService.get<string>('keycloak.authServerUrl');
+    const realm = configService.get<string>('keycloak.realm');
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey:
-        configService.get<string>('JWT_SECRET') ||
-        'evercareSecretKey-evercareSecretKey-256bit-long',
+      secretOrKeyProvider: jwksClient.passportJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: `${authServerUrl}/realms/${realm}/protocol/openid-connect/certs`,
+      }),
     });
   }
 

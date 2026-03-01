@@ -16,4 +16,5 @@ export class AuthService {
   async getCurrentUser(email: string): Promise<UserDto> {
     return this.userService.getUserDtoByEmail(email);
   }
+
 }

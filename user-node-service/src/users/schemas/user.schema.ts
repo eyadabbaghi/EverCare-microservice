@@ -80,7 +80,7 @@ export class User {
 export const UserSchema = SchemaFactory.createForClass(User);
 
 // Add indexes for better query performance
-UserSchema.index({ email: 1 });
-UserSchema.index({ userId: 1 });
+// REMOVED: UserSchema.index({ email: 1 }); - Already created by unique:true
+// REMOVED: UserSchema.index({ userId: 1 }); - Already created by unique:true
 UserSchema.index({ role: 1 });
 UserSchema.index({ name: 'text', email: 'text' }); // For text search
