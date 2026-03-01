@@ -78,8 +78,15 @@ export class AuthService {
   private keycloakUrl = 'http://localhost:8090/realms/EverCareRealm/protocol/openid-connect/token';
   private clientId = 'frontend-app'; // Replace with your public client ID
 
+  // EverCare Auth service (login/register/me/users)
+  private evercareAuthUrl = 'http://localhost:8096/EverCare/auth';
+
+  // Dailyme service base (DailyMe features)
+  private dailymeBaseUrl = 'http://localhost:8097/dailyme';
+
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+
   private isBrowser: boolean;
 
   constructor(
@@ -145,19 +152,62 @@ export class AuthService {
     });
   }
 
-  private storeToken(token: string): void {
-    if (this.isBrowser) {
-      localStorage.setItem('auth_token', token);
-    }
+  private authHeaders(): HttpHeaders {
+    const token = this.getToken();
+    return new HttpHeaders().set('Authorization', `Bearer ${token}`);
   }
 
-  getToken(): string | null {
-    if (this.isBrowser) {
-      return localStorage.getItem('auth_token');
-    }
-    return null;
+  // ---------------------------
+  // USER PROFILE (EverCare users endpoints)
+  // ---------------------------
+  updateProfile(data: UpdateUserRequest): Observable<any> {
+    return this.http.put<any>(`${this.usersUrl}/profile`, data, { headers: this.authHeaders() });
   }
 
+  changePassword(data: ChangePasswordRequest): Observable<any> {
+    return this.http.put<any>(`${this.usersUrl}/change-password`, data, { headers: this.authHeaders() });
+  }
+
+  deleteAccount(): Observable<any> {
+    return this.http.delete<any>(`${this.usersUrl}/profile`, { headers: this.authHeaders() });
+  }
+
+  uploadProfilePicture(file: File): Observable<{ profilePicture: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ profilePicture: string }>(`${this.usersUrl}/profile/picture`, formData, {
+      headers: this.authHeaders()
+    });
+  }
+
+  removeProfilePicture(): Observable<any> {
+    return this.http.delete<any>(`${this.usersUrl}/profile/picture`, { headers: this.authHeaders() });
+  }
+
+  searchUsersByRole(term: string, role: string): Observable<User[]> {
+    return this.http.get<User[]>(`${this.usersUrl}/search`, {
+      params: { q: term, role },
+      headers: this.authHeaders()
+    });
+  }
+
+  getUserByEmail(email: string): Observable<User> {
+    return this.http.get<User>(`${this.usersUrl}/by-email`, {
+      params: { email },
+      headers: this.authHeaders()
+    });
+  }
+
+  // ---------------------------
+  // DAILYME BASE
+  // ---------------------------
+  getDailymeBaseUrl(): string {
+    return this.dailymeBaseUrl;
+  }
+
+  // ---------------------------
+  // SESSION
+  // ---------------------------
   logout(): void {
     if (this.isBrowser) {
       localStorage.removeItem('auth_token');
@@ -171,48 +221,45 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  private loadStoredUser(): void {
+  getToken(): string | null {
+    if (this.isBrowser) return localStorage.getItem('auth_token');
+    return null;
+  }
+
+  private storeToken(token: string): void {
+    if (this.isBrowser) localStorage.setItem('auth_token', token);
+  }
+
+  private setCurrentUser(user: User | null): void {
+    this.currentUserSubject.next(user);
     if (this.isBrowser) {
-      const storedUser = localStorage.getItem('current_user');
-      if (storedUser) {
-        this.currentUserSubject.next(JSON.parse(storedUser));
-      }
+      if (user) localStorage.setItem('current_user', JSON.stringify(user));
+      else localStorage.removeItem('current_user');
     }
   }
 
-  // ---------- Profile endpoints ----------
-  updateProfile(data: UpdateUserRequest): Observable<any> {
-    return this.http.put<any>(`${this.usersUrl}/profile`, data);
+  private loadStoredUser(): void {
+    if (!this.isBrowser) return;
+    const storedUser = localStorage.getItem('current_user');
+    if (storedUser) this.currentUserSubject.next(JSON.parse(storedUser));
   }
 
-  changePassword(data: ChangePasswordRequest): Observable<any> {
-    return this.http.put(`${this.usersUrl}/change-password`, data);
-  }
+  private decodeJwt(token: string): any | null {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
 
-  deleteAccount(): Observable<any> {
-    return this.http.delete(`${this.usersUrl}/profile`);
-  }
-
-  uploadProfilePicture(file: File): Observable<{ profilePicture: string }> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.http.post<{ profilePicture: string }>(`${this.usersUrl}/profile/picture`, formData);
-  }
-
-  removeProfilePicture(): Observable<any> {
-    return this.http.delete(`${this.usersUrl}/profile/picture`);
-  }
-
-  searchUsersByRole(term: string, role: string): Observable<User[]> {
-    return this.http.get<User[]>(`${this.usersUrl}/search`, {
-      params: { q: term, role }
-    });
-  }
-
-  getUserByEmail(email: string): Observable<User> {
-    return this.http.get<User>(`${this.usersUrl}/by-email`, {
-      params: { email }
-    });
+      const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const json = decodeURIComponent(
+        atob(payload)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(json);
+    } catch {
+      return null;
+    }
   }
 
   // ---------- Google login – temporarily disabled ----------

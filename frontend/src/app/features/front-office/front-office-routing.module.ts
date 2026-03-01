@@ -1,15 +1,18 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+
+import { FrontOfficeLayoutComponent } from '../../layouts/front-office-layout/front-office-layout.component';
 import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { ActivitiesComponent } from './pages/activities/activities.component';
 import { ActivityDetailsComponent } from './pages/activity-details/activity-details.component';
 import { AlertsComponent } from './pages/alerts/alerts.component';
-import { FrontOfficeLayoutComponent } from '../../layouts/front-office-layout/front-office-layout.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SetupProfileComponent } from './pages/setup-profile/setup-profile.component';
 
 import {AppointmentsPageComponent} from '../appointments/pages/appointments-page/appointments-page.component';
+import { DailyMeListComponent } from '../daily-me/daily-me-list/daily-me-list.component';
+
 const routes: Routes = [
   { path: 'setup-profile', component: SetupProfileComponent },
 
@@ -17,7 +20,9 @@ const routes: Routes = [
     path: '',
     component: FrontOfficeLayoutComponent,
     children: [
-      { path: '', component: HomeComponent },
+      // ✅ IMPORTANT
+      { path: '', component: HomeComponent, pathMatch: 'full' },
+
       { path: 'login', component: LoginComponent },
       { path: 'activities', component: ActivitiesComponent },
       { path: 'activities/:id', component: ActivityDetailsComponent },
@@ -31,8 +36,9 @@ const routes: Routes = [
       {
         path: 'medical-folder',
         loadChildren: () => import('../medical-folder/medical-folder.module').then(m => m.MedicalFolderModule)
-      }
+      },
 
+      { path: 'daily-me', component: DailyMeListComponent },
     ],
   },
 ];

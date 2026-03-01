@@ -11,20 +11,17 @@ const routes: Routes = [
     path: '',
     loadChildren: () =>
       import('./features/front-office/front-office.module').then(
-        (m) => m.FrontOfficeModule,
+        (m) => m.FrontOfficeModule
       ),
   },
   {
-    path: '',
+    path: 'admin',
     loadChildren: () =>
       import('./features/back-office/back-office.module').then(
-        (m) => m.BackOfficeModule,
+        (m) => m.BackOfficeModule
       ),
   },
-  {
-    path: '**',
-    redirectTo: '',
-  },
+  { path: '**', redirectTo: '' },
 ];
 
 @NgModule({

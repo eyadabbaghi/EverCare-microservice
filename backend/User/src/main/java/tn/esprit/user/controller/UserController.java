@@ -43,6 +43,21 @@ public class UserController {
         User updatedUser = userService.updateUser(email, request);
         UserDto userDto = mapToDto(updatedUser);
         return ResponseEntity.ok(Map.of("user", userDto));
+
+        // Generate a new token (always, or only if email changed)
+        String newToken = jwtUtil.generateToken(updatedUser.getEmail());
+
+        // Return both updated user and new token
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", userDto);
+        response.put("token", newToken);
+        return ResponseEntity.ok(response);
+
+
+    }
+    @GetMapping("/patients")
+    public ResponseEntity<?> getAllPatients() {
+        return ResponseEntity.ok(userRepository.findByRole("PATIENT"));
     }
 
     @PutMapping("/change-password")
