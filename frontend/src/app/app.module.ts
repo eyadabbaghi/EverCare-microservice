@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import {
-  HTTP_INTERCEPTORS,
+
   provideHttpClient,
   withInterceptorsFromDi,
   withFetch
 } from '@angular/common/http';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import {  FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -34,9 +34,8 @@ import { ToastrModule } from 'ngx-toastr';
 import {ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
 
-// Import the interceptor
-import { AuthInterceptor } from './features/front-office/pages/login/auth.interceptor';
-import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
+
+import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {CommonModule} from '@angular/common'; // adjust path if needed
 import { AuthInterceptor } from './features/front-office/pages/login/auth.interceptor';
 
@@ -104,6 +103,5 @@ import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
 
 export class AppModule {}

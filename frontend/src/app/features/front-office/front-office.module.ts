@@ -26,6 +26,17 @@ import { DoctorSearchModalComponent } from './pages/profile/doctor-search-modal.
 
 
 import { DailyMeModule } from '../daily-me/daily-me.module';
+import {PricingComponent} from './pages/pricing/pricing.component';
+import {AboutComponent} from './pages/about/about.component';
+import {ServicesComponent} from './pages/services/services.component';
+import {ContactComponent} from './pages/contact/contact.component';
+import {FaqComponent} from './pages/faq/faq.component';
+import {RegisterComponent} from './pages/register/register.component';
+import {FeatureCardComponent} from './components/feature-card/feature-card.component';
+import {TestimonialComponent} from './components/testimonial/testimonial.component';
+import {TeamMemberComponent} from './components/team-member/team-member.component';
+import {ContactFormComponent} from './components/contact-form/contact-form.component';
+import {NewsletterComponent} from './components/newsletter/newsletter.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +66,7 @@ import { DailyMeModule } from '../daily-me/daily-me.module';
     SetupProfileComponent,
     // 👇 ADD THIS COMPONENT
     DoctorSearchModalComponent,
+    ProfileComponent
   ],
 
   imports: [
@@ -64,8 +76,6 @@ import { DailyMeModule } from '../daily-me/daily-me.module';
     SharedModule,
     FrontOfficeRoutingModule,
     LucideAngularModule,
-
-
 
 
     DailyMeModule,

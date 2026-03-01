@@ -71,22 +71,6 @@
 
         <!-- Notifications button -->
 <div class="relative">
-  <button
-    type="button"
-    class="relative inline-flex items-center justify-center w-9 h-9 rounded-full hover:bg-[#F3E8FF]"
-    (click)="openAlerts()"
-  >
-    <svg class="w-5 h-5 text-[#7C3AED]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-        d="M15 17h5l-1.4-1.4A2 2 0 0118 14V11a6 6 0 10-12 0v3a2 2 0 01-.6 1.6L4 17h5m6 0a3 3 0 11-6 0"/>
-    </svg>
-    <span
-      *ngIf="unreadCount > 0"
-      class="absolute -top-1 -right-1 w-5 h-5 bg-[#C06C84] rounded-full text-white text-xs flex items-center justify-center font-semibold"
-    >
-      {{ unreadCount }}
-    </span>
-  </button>
 
           <div *ngIf="notificationsOpen" class="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white border border-[#E5E7EB] rounded-xl shadow-lg overflow-hidden z-50">
             <div class="px-4 py-2 flex items-center justify-between">

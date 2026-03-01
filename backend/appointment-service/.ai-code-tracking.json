@@ -4015,6 +4015,138 @@
       "aiTool": "GitHub Copilot",
       "detectionMethod": "REALTIME_SPEED_ANALYSIS",
       "lineCount": 4
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/front-office.module.ts",
+      "timestamp": 1772402264332,
+      "startOffset": 1499,
+      "endOffset": 2320,
+      "codeContent": "import {PricingComponent} from \u0027./pages/pricing/pricing.component\u0027;\nimport {AboutComponent} from \u0027./pages/about/about.component\u0027;\nimport {ServicesComponent} from \u0027./pages/services/services.component\u0027;\nimport {ContactComponent} from \u0027./pages/contact/contact.component\u0027;\nimport {FaqComponent} from \u0027./pages/faq/faq.component\u0027;\nimport {RegisterComponent} from \u0027./pages/register/register.component\u0027;\nimport {FeatureCardComponent} from \u0027./components/feature-card/feature-card.component\u0027;\nimport {TestimonialComponent} from \u0027./components/testimonial/testimonial.component\u0027;\nimport {TeamMemberComponent} from \u0027./components/team-member/team-member.component\u0027;\nimport {ContactFormComponent} from \u0027./components/contact-form/contact-form.component\u0027;\nimport {NewsletterComponent} from \u0027./components/newsletter/newsletter.component\u0027;\n",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 12
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/app/features/front-office/ui/navigation/navigation.component.ts",
+      "timestamp": 1772402549577,
+      "startOffset": 5476,
+      "endOffset": 5508,
+      "codeContent": "protected notifications: any;\n  ",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/controller/UserController.java",
+      "timestamp": 1772403649076,
+      "startOffset": 1727,
+      "endOffset": 1859,
+      "codeContent": " // Generate a new token (always, or only if email changed)\n        String newToken \u003d jwtUtil.generateToken(updatedUser.getEmail());",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "/UserController.java",
+      "timestamp": 1772403745838,
+      "startOffset": 6948,
+      "endOffset": 7244,
+      "codeContent": "\n\n    @GetMapping(\"/profile\")\n    public ResponseEntity\u003cUserDto\u003e getCurrentUserProfile(@AuthenticationPrincipal UserDetails userDetails) {\n        String email \u003d userDetails.getUsername();\n        User user \u003d userService.findByEmail(email);\n        return ResponseEntity.ok(mapToDto(user));\n    }",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 8
+    },
+    {
+      "filePath": "/UserController.java",
+      "timestamp": 1772403785868,
+      "startOffset": 1287,
+      "endOffset": 1321,
+      "codeContent": "    private final JwtUtil jwtUtil;",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/controller/UserController.java",
+      "timestamp": 1772403800938,
+      "startOffset": 1553,
+      "endOffset": 2090,
+      "codeContent": "ser updatedUser \u003d userService.updateUser(email, request);\n        UserDto userDto \u003d mapToDto(updatedUser);\n        return ResponseEntity.ok(Map.of(\"user\", userDto));\n\n        // Generate a new token (always, or only if email changed)\n        String newToken \u003d jwtUtil.generateToken(updatedUser.getEmail());\n\n        // Return both updated user and new token\n        Map\u003cString, Object\u003e response \u003d new HashMap\u003c\u003e();\n        response.put(\"user\", userDto);\n        response.put(\"token\", newToken);\n        return ResponseEntity.ok(response);",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 12
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/controller/UserController.java",
+      "timestamp": 1772403813760,
+      "startOffset": 1719,
+      "endOffset": 2046,
+      "codeContent": "\n        // Generate a new token (always, or only if email changed)\n        String newToken \u003d jwtUtil.generateToken(updatedUser.getEmail());\n\n        // Return both updated user and new token\n        Map\u003cString, Object\u003e response \u003d new HashMap\u003c\u003e();\n        response.put(\"user\", userDto);\n        response.put(\"token\", newToken);",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 8
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/controller/UserController.java",
+      "timestamp": 1772403821313,
+      "startOffset": 1499,
+      "endOffset": 2005,
+      "codeContent": "   String email \u003d userDetails.getUsername();\n        User updatedUser \u003d userService.updateUser(email, request);\n        UserDto userDto \u003d mapToDto(updatedUser);\n        return ResponseEntity.ok(Map.of(\"user\", userDto));\n\n        // Generate a new token (always, or only if email changed)\n        String newToken \u003d jwtUtil.generateToken(updatedUser.getEmail());\n\n        // Return both updated user and new token\n        Map\u003cString, Object\u003e response \u003d new HashMap\u003c\u003e();\n        response.put(\"user\", userDto);",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 11
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/controller/UserController.java",
+      "timestamp": 1772403832076,
+      "startOffset": 1398,
+      "endOffset": 1493,
+      "codeContent": "\n                                           @AuthenticationPrincipal UserDetails userDetails) {",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/controller/UserController.java",
+      "timestamp": 1772403833285,
+      "startOffset": 1493,
+      "endOffset": 1537,
+      "codeContent": "\n                                           ",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "/UserController.java",
+      "timestamp": 1772403833966,
+      "startOffset": 1502,
+      "endOffset": 1719,
+      "codeContent": "String email \u003d userDetails.getUsername();\n        User updatedUser \u003d userService.updateUser(email, request);\n        UserDto userDto \u003d mapToDto(updatedUser);\n        return ResponseEntity.ok(Map.of(\"user\", userDto));\n",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 5
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/controller/UserController.java",
+      "timestamp": 1772403834379,
+      "startOffset": 1502,
+      "endOffset": 1653,
+      "codeContent": "String email \u003d userDetails.getUsername();\n        User user \u003d userService.updateUser(email, request);\n        return ResponseEntity.ok(mapToDto(user));",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
     }
   ],
   "toolStats": {
@@ -4023,8 +4155,8 @@
       "totalLines": 4670
     },
     "GitHub Copilot": {
-      "usageCount": 186,
-      "totalLines": 1662
+      "usageCount": 198,
+      "totalLines": 1730
     }
   }
 }

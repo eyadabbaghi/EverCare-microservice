@@ -162,6 +162,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   // Helper for activity notification title
+  protected notifications: any;
   getActivityTitle(action: string): string {
     switch (action) {
       case 'CREATED': return 'New activity available';
@@ -196,14 +197,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   // this.notificationService.deleteAll().subscribe(...);
 }
 
-  @HostListener('document:click', ['$event.target'])
-  onClickOutside(target: HTMLElement) {
-    const dropdown = document.getElementById('profile-dropdown');
-    const button = document.getElementById('profile-button');
-    if (dropdown && button && !dropdown.contains(target) && !button.contains(target)) {
-      this.profileOpen = false;
-    }
-  }
+
   /** =======================
    *  Close dropdown when clicking outside
    *  ======================= */
@@ -217,4 +211,8 @@ onClickOutside(event: Event) {
     this.profileOpen = false;
   }
 }
+
+  protected getSeverityClasses(severity: any) {
+    return undefined;
+  }
 }

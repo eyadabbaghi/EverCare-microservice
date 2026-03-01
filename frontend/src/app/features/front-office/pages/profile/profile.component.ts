@@ -33,15 +33,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
   isLoading = false;
   showPictureMenu = false;
   selectedFile: File | null = null;
-
   user: User | null = null;
   private userSub!: Subscription;
-
   personalForm: FormGroup;
-  passwordData = { currentPassword: '', newPassword: '' };
-  showPictureMenu = false;
-  selectedFile: File | null = null;
-
   passwordData = { currentPassword: '', newPassword: '' };
 
   // Country codes
@@ -60,8 +54,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     { code: '+7', flag: '🇷🇺', name: 'Russia' },
     { code: '+27', flag: '🇿🇦', name: 'South Africa' },
   ];
-  personalForm!: FormGroup;
-
   phoneCountryCode = '+1';
   emergencyCountryCode = '+1';
 
@@ -72,8 +64,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   // Modal states
   showDoctorSearch = false;
-  showCaregiverSearch = false;      // for patients adding caregivers
-  showPatientSearch = false;         // for caregivers adding patients
+  showCaregiverSearch = false;
+  showPatientSearch = false;
 
   constructor(
     private fb: FormBuilder,
@@ -105,26 +97,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       if (user) {
         this.populateForm();
         this.loadConnectedUsers();
-        // ✅ NEVER use user.dateOfBirth / user.emergencyContact (not in User type)
-        this.profileData = {
-          name: user.name ?? '',
-          email: user.email ?? '',
-          phone: user.phone ?? '',
-          address: this.profileData.address,
-          dateOfBirth: this.profileData.dateOfBirth,
-          emergencyContact: this.profileData.emergencyContact,
-          bloodType: this.profileData.bloodType,
-          allergies: this.profileData.allergies,
-        };
-
-        this.personalForm.patchValue({
-          name: user.name ?? '',
-          email: user.email ?? '',
-          phone: user.phone ?? '',
-          address: this.profileData.address,
-          dateOfBirth: this.profileData.dateOfBirth,
-          emergencyContact: this.profileData.emergencyContact,
-        });
       }
     });
   }
@@ -136,16 +108,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private populateForm(): void {
     if (!this.user) return;
     this.personalForm.patchValue({
-      name: this.user.name,
-      email: this.user.email,
+      name: this.user.name || '',
+      email: this.user.email || '',
       phone: this.user.phone || '',
       dateOfBirth: this.user.dateOfBirth || '',
       emergencyContact: this.user.emergencyContact || '',
-      yearsExperience: this.user.yearsExperience,
-      specialization: this.user.specialization,
-      medicalLicense: this.user.medicalLicense,
-      workplaceType: this.user.workplaceType,
-      workplaceName: this.user.workplaceName,
+      yearsExperience: this.user.yearsExperience || '',
+      specialization: this.user.specialization || '',
+      medicalLicense: this.user.medicalLicense || '',
+      workplaceType: this.user.workplaceType || '',
+      workplaceName: this.user.workplaceName || '',
     });
   }
 
@@ -223,7 +195,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       phone: formValue.phone,
       dateOfBirth: formValue.dateOfBirth,
       emergencyContact: formValue.emergencyContact,
-      phone: formValue.phone,
     };
 
     if (this.user.role === 'DOCTOR') {
@@ -240,18 +211,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.toastr.success('Profile updated successfully');
         this.isEditing = false;
         this.isLoading = false;
-        if (response.token) localStorage.setItem('auth_token', response.token);
-        if (response.user) this.authService.fetchCurrentUser().subscribe();
+
+        // if backend sends a new token
+        if (response?.token) {
+          localStorage.setItem('auth_token', response.token);
+        }
 
         // refresh user from backend
         this.authService.fetchCurrentUser().subscribe();
-
-        // if backend sends a new token
-        if (response?.token) localStorage.setItem('auth_token', response.token);
       },
       error: (err) => {
-        console.error(err);
-        this.toastr.error('Failed to update profile');
         console.error('Update failed', err);
         this.toastr.error(err.error?.message || 'Failed to update profile', 'Error');
         this.isLoading = false;
@@ -282,8 +251,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.passwordData = { currentPassword: '', newPassword: '' };
       },
       error: (err) => {
-        console.error(err);
-        this.toastr.error('Password change failed');
         console.error('Password change failed', err);
         this.toastr.error(err.error?.message || 'Failed to change password', 'Error');
         this.isLoading = false;
@@ -294,11 +261,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
   togglePictureMenu(): void {
     this.showPictureMenu = !this.showPictureMenu;
   }
+
   triggerFileInput(): void {
-    document.getElementById('profile-picture-input')?.click();
     const fileInput = document.getElementById('profile-picture-input') as HTMLInputElement | null;
     fileInput?.click();
   }
+
   onFileSelected(event: any): void {
     const file = event.target.files?.[0];
     if (file) {
@@ -306,45 +274,45 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.uploadPicture();
     }
   }
+
   uploadPicture(): void {
     if (!this.selectedFile) return;
     this.isLoading = true;
 
     this.authService.uploadProfilePicture(this.selectedFile).subscribe({
       next: (response) => {
-        this.toastr.success('Profile picture updated');
-        if (this.user) this.user.profilePicture = response.profilePicture;
         this.toastr.success('Profile picture updated', 'Success');
-        if (this.user) this.user.profilePicture = response.profilePicture;
-
+        if (this.user) {
+          this.user.profilePicture = response.profilePicture;
+        }
         this.authService.fetchCurrentUser().subscribe();
         this.isLoading = false;
         this.showPictureMenu = false;
         this.selectedFile = null;
       },
       error: (err) => {
-        console.error(err);
+        console.error('Upload failed', err);
         this.toastr.error('Upload failed');
         this.isLoading = false;
       }
     });
   }
+
   removePicture(): void {
     this.isLoading = true;
 
     this.authService.removeProfilePicture().subscribe({
       next: () => {
-        this.toastr.success('Profile picture removed');
-        if (this.user) this.user.profilePicture = undefined;
         this.toastr.success('Profile picture removed', 'Success');
-        if (this.user) this.user.profilePicture = undefined;
-
+        if (this.user) {
+          this.user.profilePicture = undefined;
+        }
         this.authService.fetchCurrentUser().subscribe();
         this.isLoading = false;
         this.showPictureMenu = false;
       },
       error: (err) => {
-        console.error(err);
+        console.error('Remove failed', err);
         this.toastr.error('Remove failed');
         this.isLoading = false;
       }
@@ -353,12 +321,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   // Account deletion
   confirmDeleteAccount(): void {
-    if (confirm('Delete your account? This cannot be undone.')) {
-      this.deleteAccount();
-    }
     const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone.');
     if (confirmed) this.deleteAccount();
   }
+
   private deleteAccount(): void {
     this.isLoading = true;
 
@@ -368,8 +334,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.authService.logout();
       },
       error: (err) => {
-        console.error(err);
-        this.toastr.error('Delete failed');
+        console.error('Delete failed', err);
+        this.toastr.error(err.error?.message || 'Failed to delete account', 'Error');
         this.isLoading = false;
       }
     });
@@ -386,10 +352,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error(err);
-        this.toastr.error('Failed to associate doctor');
-        console.error('Delete failed', err);
-        this.toastr.error(err.error?.message || 'Failed to delete account', 'Error');
+        console.error('Failed to associate doctor', err);
+        this.toastr.error(err.error?.message || 'Failed to associate doctor', 'Error');
         this.isLoading = false;
       }
     });
@@ -404,7 +368,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.authService.fetchCurrentUser().subscribe();
       },
       error: (err) => {
-        console.error(err);
+        console.error('Failed to associate caregiver', err);
         this.toastr.error('Failed to associate caregiver');
       }
     });
@@ -419,45 +383,42 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.authService.fetchCurrentUser().subscribe();
       },
       error: (err) => {
-        console.error(err);
+        console.error('Failed to associate patient', err);
         this.toastr.error('Failed to associate patient');
       }
     });
   }
 
- removeConnection(user: User): void {
-  let updateData: UpdateUserRequest = {};
-  if (user.role === 'DOCTOR') {
-    // Send the same email to toggle (backend will clear if it's the same)
-    updateData.doctorEmail = user.email;
-  } else {
-    // For caregiver/patient, send the email to toggle
-    updateData.connectedEmail = user.email;
-  }
-  this.authService.updateProfile(updateData).subscribe({
-    next: () => {
-      this.toastr.info(`${user.role} removed`);
-      this.authService.fetchCurrentUser().subscribe();
-    },
-    error: (err) => {
-      console.error(err);
-      this.toastr.error('Failed to remove connection');
+  removeConnection(user: User): void {
+    let updateData: UpdateUserRequest = {};
+    if (user.role === 'DOCTOR') {
+      // Send the same email to toggle (backend will clear if it's the same)
+      updateData.doctorEmail = user.email;
+    } else {
+      // For caregiver/patient, send the email to toggle
+      updateData.connectedEmail = user.email;
     }
-  });
-}
+    this.authService.updateProfile(updateData).subscribe({
+      next: () => {
+        this.toastr.info(`${user.role} removed`);
+        this.authService.fetchCurrentUser().subscribe();
+      },
+      error: (err) => {
+        console.error('Failed to remove connection', err);
+        this.toastr.error('Failed to remove connection');
+      }
+    });
+  }
 
   // Helpers
   getInitials(name: string | undefined): string {
     if (!name) return 'U';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
-    return name.split(' ').map((n) => n[0]).join('').toUpperCase();
   }
 
   isInvalid(controlName: string): boolean {
     const ctrl = this.personalForm.get(controlName);
     return ctrl ? ctrl.invalid && ctrl.touched : false;
-    const control = this.personalForm.get(controlName);
-    return !!(control && control.invalid && control.touched);
   }
 
   getRoleBadgeColor(): string {
@@ -472,6 +433,4 @@ export class ProfileComponent implements OnInit, OnDestroy {
   trackByEmail(index: number, item: User): string {
     return item.email;
   }
-
-
 }
