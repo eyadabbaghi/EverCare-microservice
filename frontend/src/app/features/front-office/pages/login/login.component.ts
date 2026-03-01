@@ -1,9 +1,8 @@
-import { Component, NgZone, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { AuthService, LoginRequest, RegisterRequest } from './auth.service';
+import { AuthService, LoginRequest, RegisterRequest, User } from './auth.service';
 
 // Custom validator for password strength (matches backend rules)
 export function strongPasswordValidator(): ValidatorFn {
@@ -20,13 +19,6 @@ export function strongPasswordValidator(): ValidatorFn {
 
     return !valid ? { weakPassword: true } : null;
   };
-}
-
-// Extend Window interface to include our callback
-declare global {
-  interface Window {
-    handleGoogleResponse: (response: any) => void;
-  }
 }
 
 @Component({
@@ -51,22 +43,11 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private toastr: ToastrService,
-    private ngZone: NgZone,
-    @Inject(PLATFORM_ID) private platformId: Object   // <-- add this
-  ) {}
+    private toastr: ToastrService
+  ) { }
 
   ngOnInit(): void {
     this.initForms();
-
-    // Only define the global callback in the browser (not during SSR)
-    if (isPlatformBrowser(this.platformId)) {
-      window.handleGoogleResponse = (response) => {
-        this.ngZone.run(() => {
-          this.handleGoogleCredential(response.credential);
-        });
-      };
-    }
   }
 
   private initForms(): void {
@@ -87,6 +68,10 @@ export class LoginComponent implements OnInit {
     this.activeTab = tab;
   }
 
+  /**
+   * MODIFIÉ : Utilise maintenant le retour de l'utilisateur complet
+   * pour garantir que les données sont là avant la redirection.
+   */
   handleLogin(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
@@ -97,8 +82,10 @@ export class LoginComponent implements OnInit {
     const credentials: LoginRequest = this.loginForm.value;
 
     this.authService.login(credentials).subscribe({
-      next: () => {
-        this.toastr.success('Login successful!', 'Welcome');
+      next: (user: User) => {
+        console.log('Login réussi, utilisateur récupéré:', user);
+        this.toastr.success(`Welcome back, ${user.name}!`, 'Success');
+        // Redirection vers la racine (Home) seulement quand l'utilisateur est chargé
         this.router.navigate(['/']);
       },
       error: (err) => {
@@ -113,6 +100,9 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  /**
+   * MODIFIÉ : Attend également l'utilisateur complet après l'inscription
+   */
   handleRegister(): void {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
@@ -123,15 +113,11 @@ export class LoginComponent implements OnInit {
     const userData: RegisterRequest = this.registerForm.value;
 
     this.authService.register(userData).subscribe({
-      next: () => {
-        // Registration and automatic login succeeded – now navigate
-        this.router.navigate(['/setup-profile'], {
-          state: {
-            name: userData.name,
-            email: userData.email,
-            role: userData.role
-          }
-        });
+      next: (user: User) => {
+        localStorage.setItem('showWelcomeFlow', 'true');
+        this.toastr.success('Registration successful!', 'Welcome');
+        // Redirection sécurisée
+        this.router.navigate(['/']);
       },
       error: (err) => {
         console.error('Registration error', err);
@@ -145,25 +131,8 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  // Called when the user clicks the custom Google button (if you keep it)
   handleGoogleLogin(): void {
-    this.toastr.info('Please use the official Google Sign‑In button', 'Info');
-  }
-
-  // Actual handler for the credential received from Google
-  handleGoogleCredential(idToken: string): void {
-    this.isLoading = true;
-    this.authService.googleLogin(idToken).subscribe({
-      next: () => {
-        this.toastr.success('Login successful!', 'Welcome');
-        this.router.navigate(['/']);
-      },
-      error: (err) => {
-        console.error(err);
-        this.toastr.error('Google login failed');
-        this.isLoading = false;
-      }
-    });
+    this.toastr.info('Google login not implemented yet', 'Info');
   }
 
   // Password strength meter helpers
@@ -200,6 +169,7 @@ export class LoginComponent implements OnInit {
     return 'bg-green-600';
   }
 
+  // Individual check methods for the template
   hasMinLength(): boolean {
     const password = this.registerForm?.get('password')?.value;
     return password && password.length >= 8;
