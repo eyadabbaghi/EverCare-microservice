@@ -8,14 +8,11 @@ import { ActivitiesComponent } from './pages/activities/activities.component';
 import { ActivityDetailsComponent } from './pages/activity-details/activity-details.component';
 import { AlertsComponent } from './pages/alerts/alerts.component';
 import { ProfileComponent } from './pages/profile/profile.component';
-import { SetupProfileComponent } from './pages/setup-profile/setup-profile.component';
 
 import {AppointmentsPageComponent} from '../appointments/pages/appointments-page/appointments-page.component';
 import { DailyMeListComponent } from '../daily-me/daily-me-list/daily-me-list.component';
 
 const routes: Routes = [
-  { path: 'setup-profile', component: SetupProfileComponent },
-
   {
     path: '',
     component: FrontOfficeLayoutComponent,

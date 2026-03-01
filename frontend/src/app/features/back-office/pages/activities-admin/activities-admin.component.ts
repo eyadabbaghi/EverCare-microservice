@@ -1,27 +1,28 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
-import { ActivityService, Activity, ActivityDetails, ActivityWithDetails, CreateActivityRequest, UpdateActivityRequest, CreateActivityDetailsRequest, UpdateActivityDetailsRequest } from '../../../../core/services/activity.service';
 
-// Custom validator: first letter uppercase
-function firstLetterUppercase(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  if (!value) return null;
-  const firstChar = value.charAt(0);
-  if (firstChar !== firstChar.toUpperCase()) {
-    return { firstLetterUppercase: true };
-  }
-  return null;
-}
+type ActivityType = 'Relaxation' | 'Cognitive' | 'Physical' | 'Social' | 'Creative';
+type DifficultyLevel = 'Easy' | 'Moderate' | 'Challenging';
+type AlzheimerStage = 'Early' | 'Moderate' | 'Advanced';
 
-// Custom validator: at least one stage selected
-function atLeastOneStage(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  if (!value || value.length === 0) {
-    return { atLeastOneStage: true };
-  }
-  return null;
+interface Activity {
+  id: string;
+  name: string;
+  type: ActivityType;
+  duration: number;
+  scheduledTime?: string;
+  description: string;
+  instructions: string[];
+  difficulty: DifficultyLevel;
+  recommendedStage: AlzheimerStage[];
+  frequency: string;
+  supervision: string;
+  benefits: string[];
+  precautions?: string[];
+  imageUrl: string;
+  rating: number;
+  totalRatings: number;
+  doctorSuggested?: boolean;
 }
 
 @Component({
@@ -29,125 +30,108 @@ function atLeastOneStage(control: AbstractControl): ValidationErrors | null {
   templateUrl: './activities-admin.component.html',
   styleUrls: ['./activities-admin.component.css'],
 })
-export class ActivitiesAdminComponent implements OnInit {
+export class ActivitiesAdminComponent {
   activities: Activity[] = [];
-  activitiesWithDetails: ActivityWithDetails[] = [];
-  selectedActivity: ActivityWithDetails | null = null;
-  selectedDetails: ActivityDetails | null = null;
+  selectedActivity: Activity | null = null;
 
   formMode: 'create' | 'edit' = 'create';
-
-  // Reactive forms
-  activityForm: FormGroup;
-  detailsForm: FormGroup;
+  formModel: Activity = this.createEmptyActivity();
 
   currentPage = 1;
   pageSize = 4;
 
-  activityTypes = ['Relaxation', 'Cognitive', 'Physical', 'Social', 'Creative'];
-  difficultyLevels: ('Easy' | 'Moderate' | 'Challenging')[] = ['Easy', 'Moderate', 'Challenging'];
-  stages: ('Early' | 'Moderate' | 'Advanced')[] = ['Early', 'Moderate', 'Advanced'];
-  timeOptions: string[] = [];
-  private clickTimeout: any;
+  activityTypes: ActivityType[] = ['Relaxation', 'Cognitive', 'Physical', 'Social', 'Creative'];
+  difficultyLevels: DifficultyLevel[] = ['Easy', 'Moderate', 'Challenging'];
+  stages: AlzheimerStage[] = ['Early', 'Moderate', 'Advanced'];
 
-  constructor(
-    private fb: FormBuilder,
-    private readonly router: Router,
-    private activityService: ActivityService,
-    private toastr: ToastrService
-    
-  ) {
-    this.activityForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100), firstLetterUppercase]],
-      type: ['Relaxation', Validators.required],
-      duration: [10, [Validators.required, Validators.min(1), Validators.max(480)]],
-      scheduledTime: [''],
-      description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(1000)]],
-      imageUrl: ['', [Validators.required, Validators.pattern('https?://.+')]],
-      doctorSuggested: [false],
-      location: [''],
-      startTime: [''],
-      monitoredBy: ['']
-    });
-
-    this.detailsForm = this.fb.group({
-      instructions: this.fb.array([this.fb.control('')]), // removed Validators.required
-      difficulty: ['Easy', Validators.required],
-      recommendedStage: [[], atLeastOneStage],
-      frequency: ['', Validators.required],
-      supervision: ['', Validators.required],
-      benefits: this.fb.array([this.fb.control('')]), // removed Validators.required
-      precautions: this.fb.array([])
-    });
-    this.generateTimeOptions();
+  constructor(private readonly router: Router) {
+    this.initializeMockData();
   }
 
-  ngOnInit(): void {
-    this.loadActivities();
-  }
-
-  // Helper to get form arrays
-  get instructions(): FormArray {
-    return this.detailsForm.get('instructions') as FormArray;
-  }
-  get benefits(): FormArray {
-    return this.detailsForm.get('benefits') as FormArray;
-  }
-  get precautions(): FormArray {
-    return this.detailsForm.get('precautions') as FormArray;
-  }
-
-  loadActivities(): void {
-    this.activityService.getAllActivities().subscribe({
-      next: (data) => {
-        this.activities = data;
-        this.loadAllDetails();
+  private initializeMockData(): void {
+    // Keep this visually aligned with the front-office activities
+    this.activities = [
+      {
+        id: '1',
+        name: 'Morning Breathing Exercise',
+        type: 'Relaxation',
+        duration: 10,
+        scheduledTime: '08:00 AM',
+        description:
+          'Gentle breathing exercises to start the day with calm and focus. This mindfulness practice helps reduce anxiety and promotes mental clarity.',
+        instructions: [
+          'Find a comfortable seated position in a quiet space',
+          'Close your eyes gently or maintain a soft gaze',
+          'Breathe in slowly through your nose for 4 counts',
+          'Hold your breath gently for 2 counts',
+          'Breathe out slowly through your mouth for 6 counts',
+          'Repeat this cycle for 10 minutes',
+          'Notice how your body relaxes with each breath',
+        ],
+        difficulty: 'Easy',
+        recommendedStage: ['Early', 'Moderate', 'Advanced'],
+        frequency: 'Daily',
+        supervision: 'Independent or minimal supervision',
+        benefits: [
+          'Reduces anxiety and stress',
+          'Improves focus and concentration',
+          'Promotes relaxation and calm',
+          'Enhances overall well-being',
+        ],
+        imageUrl:
+          'https://images.unsplash.com/photo-1562658048-b4c459feab21?auto=format&fit=crop&w=1080&q=80',
+        rating: 4.8,
+        totalRatings: 142,
+        doctorSuggested: true,
       },
-      error: (err) => {
-        console.error('Failed to load activities', err);
-        this.toastr.error('Could not load activities');
-      }
-    });
+      {
+        id: '2',
+        name: 'Memory Card Game',
+        type: 'Cognitive',
+        duration: 20,
+        scheduledTime: '10:00 AM',
+        description:
+          'Fun card matching game to exercise memory and recognition skills. This engaging activity stimulates cognitive function and provides mental exercise.',
+        instructions: [
+          'Lay out 12 cards face down in a grid pattern',
+          'Turn over two cards at a time',
+          'Try to find matching pairs',
+          'Remember where cards are located',
+          'Continue until all pairs are found',
+          'Celebrate each successful match',
+        ],
+        difficulty: 'Moderate',
+        recommendedStage: ['Early', 'Moderate'],
+        frequency: '3 times per week',
+        supervision: 'Caregiver presence recommended',
+        benefits: [
+          'Enhances memory recall',
+          'Improves concentration and focus',
+          'Provides mental stimulation',
+          'Boosts confidence',
+        ],
+        precautions: [
+          'Start with fewer cards if needed',
+          'Take breaks if frustrated',
+          'Keep sessions positive and encouraging',
+        ],
+        imageUrl:
+          'https://images.unsplash.com/photo-1737505599159-5ffc1dcbc08f?auto=format&fit=crop&w=1080&q=80',
+        rating: 4.5,
+        totalRatings: 98,
+      },
+    ];
+
+    this.selectedActivity = this.activities[0] ?? null;
   }
 
-  loadAllDetails(): void {
-    const requests = this.activities.map(activity =>
-      this.activityService.getDetailsByActivityId(activity.id).toPromise()
-        .then(details => ({ activity, details: details || [] }))
-        .catch(() => ({ activity, details: [] }))
-    );
-
-    Promise.all(requests).then(results => {
-      this.activitiesWithDetails = results.map(result => {
-        const activity = result.activity;
-        const details = result.details.length > 0 ? result.details[0] : null;
-        return {
-          ...activity,
-          instructions: details?.instructions || [],
-          difficulty: details?.difficulty || 'Easy',
-          recommendedStage: details?.recommendedStage || [],
-          frequency: details?.frequency || '',
-          supervision: details?.supervision || '',
-          benefits: details?.benefits || [],
-          precautions: details?.precautions || [],
-        };
-      });
-      if (this.activitiesWithDetails.length > 0) {
-        this.selectActivity(this.activitiesWithDetails[0]);
-      }
-    }).catch(err => {
-      console.error('Failed to load details', err);
-      this.toastr.error('Could not load activity details');
-    });
-  }
-
-  get pagedActivities(): ActivityWithDetails[] {
+  get pagedActivities(): Activity[] {
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.activitiesWithDetails.slice(start, start + this.pageSize);
+    return this.activities.slice(start, start + this.pageSize);
   }
 
   get totalPages(): number {
-    return Math.max(1, Math.ceil(this.activitiesWithDetails.length / this.pageSize) || 1);
+    return Math.max(1, Math.ceil(this.activities.length / this.pageSize) || 1);
   }
 
   get pages(): number[] {
@@ -155,75 +139,59 @@ export class ActivitiesAdminComponent implements OnInit {
   }
 
   setPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
+    if (page < 1 || page > this.totalPages) {
+      return;
     }
+    this.currentPage = page;
   }
 
   nextPage(): void {
     if (this.currentPage < this.totalPages) {
-      this.currentPage++;
+      this.currentPage += 1;
     }
   }
 
   prevPage(): void {
     if (this.currentPage > 1) {
-      this.currentPage--;
+      this.currentPage -= 1;
     }
   }
 
-  selectActivity(activity: ActivityWithDetails): void {
-    if (this.clickTimeout) {
-      clearTimeout(this.clickTimeout);
-    }
-    this.clickTimeout = setTimeout(() => {
-      this._selectActivity(activity);
-      this.clickTimeout = null;
-    }, 200);
-  }
-
-  private _selectActivity(activity: ActivityWithDetails): void {
-    this.selectedActivity = activity;
-    this.formMode = 'edit';
-    this.activityForm.patchValue(activity);
-    this.detailsForm.patchValue({
-      difficulty: activity.difficulty,
-      recommendedStage: activity.recommendedStage,
-      frequency: activity.frequency,
-      supervision: activity.supervision
-    });
-    // Clear and rebuild form arrays using groups, no validators
-    this.instructions.clear();
-    activity.instructions.forEach(instr => 
-      this.instructions.push(this.fb.group({ value: [instr] })) // removed Validators.required
-    );
-    this.benefits.clear();
-    activity.benefits.forEach(ben => 
-      this.benefits.push(this.fb.group({ value: [ben] })) // removed Validators.required
-    );
-    this.precautions.clear();
-    (activity.precautions || []).forEach(pre => 
-      this.precautions.push(this.fb.group({ value: [pre] })) // removed Validators.required
-    );
-
-    this.selectedDetails = {
-      id: activity.id,
-      activityId: activity.id,
-      instructions: activity.instructions,
-      difficulty: activity.difficulty,
-      recommendedStage: activity.recommendedStage,
-      frequency: activity.frequency,
-      supervision: activity.supervision,
-      benefits: activity.benefits,
-      precautions: activity.precautions || [],
+  createEmptyActivity(): Activity {
+    return {
+      id: '',
+      name: '',
+      type: 'Relaxation',
+      duration: 10,
+      scheduledTime: '',
+      description: '',
+      instructions: [''],
+      difficulty: 'Easy',
+      recommendedStage: [],
+      frequency: '',
+      supervision: '',
+      benefits: [''],
+      precautions: [],
+      imageUrl: '',
+      rating: 4.5,
+      totalRatings: 0,
+      doctorSuggested: false,
     };
   }
 
-  goToDetails(activity: ActivityWithDetails): void {
-    if (this.clickTimeout) {
-      clearTimeout(this.clickTimeout);
-      this.clickTimeout = null;
-    }
+  selectActivity(activity: Activity): void {
+    this.selectedActivity = activity;
+    this.formMode = 'edit';
+    this.formModel = {
+      ...activity,
+      instructions: [...activity.instructions],
+      benefits: [...activity.benefits],
+      precautions: activity.precautions ? [...activity.precautions] : [],
+      recommendedStage: [...activity.recommendedStage],
+    };
+  }
+
+  goToDetails(activity: Activity): void {
     this.router.navigate(['/admin/activities', activity.id], {
       state: { activity },
     });
@@ -231,288 +199,99 @@ export class ActivitiesAdminComponent implements OnInit {
 
   startCreate(): void {
     this.formMode = 'create';
-    this.activityForm.reset({
-      name: '',
-      type: 'Relaxation',
-      duration: 10,
-      scheduledTime: '',
-      description: '',
-      imageUrl: '',
-      doctorSuggested: false,
-      location: '',
-      startTime: '',
-      monitoredBy: ''
-    });
-    this.detailsForm.reset({
-      difficulty: 'Easy',
-      recommendedStage: [],
-      frequency: '',
-      supervision: ''
-    });
-    this.instructions.clear();
-    this.instructions.push(this.fb.group({ value: [''] })); // no validator
-    this.benefits.clear();
-    this.benefits.push(this.fb.group({ value: [''] })); // no validator
-    this.precautions.clear();
+    this.formModel = this.createEmptyActivity();
     this.selectedActivity = null;
-    this.selectedDetails = null;
   }
 
   addInstruction(): void {
-    const newGroup = this.fb.group({ value: [''] }); // no validator
-    this.instructions.push(newGroup);
-    newGroup.markAsTouched();
+    this.formModel.instructions = [...this.formModel.instructions, ''];
   }
 
   removeInstruction(index: number): void {
-    this.instructions.removeAt(index);
+    this.formModel.instructions = this.formModel.instructions.filter((_, i) => i !== index);
   }
 
   addBenefit(): void {
-    this.benefits.push(this.fb.group({ value: [''] })); // no validator
+    this.formModel.benefits = [...this.formModel.benefits, ''];
   }
 
   removeBenefit(index: number): void {
-    this.benefits.removeAt(index);
+    this.formModel.benefits = this.formModel.benefits.filter((_, i) => i !== index);
   }
 
   addPrecaution(): void {
-    this.precautions.push(this.fb.group({ value: [''] })); // no validator
+    const current = this.formModel.precautions ?? [];
+    this.formModel.precautions = [...current, ''];
   }
 
   removePrecaution(index: number): void {
-    this.precautions.removeAt(index);
+    if (!this.formModel.precautions) {
+      return;
+    }
+    this.formModel.precautions = this.formModel.precautions.filter((_, i) => i !== index);
   }
 
-  toggleStage(stage: 'Early' | 'Moderate' | 'Advanced'): void {
-    const current = this.detailsForm.get('recommendedStage')?.value || [];
-    if (current.includes(stage)) {
-      this.detailsForm.patchValue({ recommendedStage: current.filter((s: string) => s !== stage) });
+  toggleStage(stage: AlzheimerStage): void {
+    if (this.formModel.recommendedStage.includes(stage)) {
+      this.formModel.recommendedStage = this.formModel.recommendedStage.filter((s) => s !== stage);
     } else {
-      this.detailsForm.patchValue({ recommendedStage: [...current, stage] });
+      this.formModel.recommendedStage = [...this.formModel.recommendedStage, stage];
     }
-    this.detailsForm.get('recommendedStage')?.markAsTouched();
   }
 
   saveActivity(): void {
-    if (this.activityForm.invalid || this.detailsForm.invalid) {
-      this.activityForm.markAllAsTouched();
-      this.detailsForm.markAllAsTouched();
-      this.toastr.warning('Please fix the errors in the form');
-      return;
-    }
-
-    const activityValue = this.activityForm.value;
-    const detailsValue = this.detailsForm.value;
-
-    const cleanedActivity: CreateActivityRequest | UpdateActivityRequest = {
-      name: activityValue.name,
-      type: activityValue.type,
-      duration: activityValue.duration,
-      scheduledTime: activityValue.scheduledTime || undefined,
-      description: activityValue.description,
-      imageUrl: activityValue.imageUrl,
-      doctorSuggested: activityValue.doctorSuggested,
-      location: activityValue.location,
-      startTime: activityValue.startTime,
-      monitoredBy: activityValue.monitoredBy,
+    const cleaned: Activity = {
+      ...this.formModel,
+      id: this.formMode === 'create' || !this.formModel.id ? this.generateId() : this.formModel.id,
+      instructions: this.formModel.instructions.filter((s) => s.trim().length > 0),
+      benefits: this.formModel.benefits.filter((s) => s.trim().length > 0),
+      precautions: this.formModel.precautions?.filter((s) => s.trim().length > 0),
     };
 
-    if (this.formMode === 'create') {
-      this.activityService.createActivity(cleanedActivity as CreateActivityRequest).subscribe({
-        next: (newActivity) => {
-          const detailsRequest: CreateActivityDetailsRequest = {
-            activityId: newActivity.id,
-            instructions: detailsValue.instructions.map((g: any) => g.value).filter((s: string) => s.trim().length > 0),
-            difficulty: detailsValue.difficulty,
-            recommendedStage: detailsValue.recommendedStage,
-            frequency: detailsValue.frequency,
-            supervision: detailsValue.supervision,
-            benefits: detailsValue.benefits.map((g: any) => g.value).filter((s: string) => s.trim().length > 0),
-            precautions: detailsValue.precautions.map((g: any) => g.value).filter((s: string) => s.trim().length > 0),
-          };
-          this.activityService.createDetails(detailsRequest).subscribe({
-            next: (newDetails) => {
-              const combined: ActivityWithDetails = {
-                ...newActivity,
-                instructions: newDetails.instructions,
-                difficulty: newDetails.difficulty,
-                recommendedStage: newDetails.recommendedStage,
-                frequency: newDetails.frequency,
-                supervision: newDetails.supervision,
-                benefits: newDetails.benefits,
-                precautions: newDetails.precautions,
-              };
-              this.activitiesWithDetails = [...this.activitiesWithDetails, combined];
-              this.selectActivity(combined);
-              this.toastr.success('Activity created');
-            },
-            error: (err) => {
-              console.error('Details creation failed', err);
-              this.toastr.error('Activity created but details failed');
-            }
-          });
-        },
-        error: (err) => {
-          console.error('Create failed', err);
-          this.toastr.error('Creation failed');
-        }
-      });
+    if (this.formMode === 'create' || !this.activities.find((a) => a.id === cleaned.id)) {
+      this.activities = [...this.activities, cleaned];
     } else {
-      if (!this.selectedActivity) return;
-      this.activityService.updateActivity(this.selectedActivity.id, cleanedActivity).subscribe({
-        next: (updatedActivity) => {
-          const detailsRequest: UpdateActivityDetailsRequest = {
-            instructions: detailsValue.instructions.map((g: any) => g.value).filter((s: string) => s.trim().length > 0),
-            difficulty: detailsValue.difficulty,
-            recommendedStage: detailsValue.recommendedStage,
-            frequency: detailsValue.frequency,
-            supervision: detailsValue.supervision,
-            benefits: detailsValue.benefits.map((g: any) => g.value).filter((s: string) => s.trim().length > 0),
-            precautions: detailsValue.precautions.map((g: any) => g.value).filter((s: string) => s.trim().length > 0),
-          };
-          if (this.selectedDetails?.id) {
-            this.activityService.updateDetails(this.selectedDetails.id, detailsRequest).subscribe({
-              next: (updatedDetails) => {
-                this.updateLocal(updatedActivity, updatedDetails);
-                this.toastr.success('Activity updated');
-              },
-              error: (err) => {
-                console.error('Details update failed', err);
-                this.updateLocal(updatedActivity, null);
-                this.toastr.warning('Activity updated but details failed');
-              }
-            });
-          } else {
-            const createReq: CreateActivityDetailsRequest = {
-              activityId: updatedActivity.id,
-              ...detailsRequest as any,
-            };
-            this.activityService.createDetails(createReq).subscribe({
-              next: (newDetails) => {
-                this.updateLocal(updatedActivity, newDetails);
-                this.toastr.success('Activity updated and details created');
-              },
-              error: (err) => {
-                console.error('Details creation failed', err);
-                this.updateLocal(updatedActivity, null);
-                this.toastr.warning('Activity updated but details creation failed');
-              }
-            });
-          }
-        },
-        error: (err) => {
-          console.error('Update failed', err);
-          this.toastr.error('Update failed');
-        }
-      });
+      this.activities = this.activities.map((a) => (a.id === cleaned.id ? cleaned : a));
     }
-  }
 
-  private updateLocal(updatedActivity: Activity, updatedDetails: ActivityDetails | null): void {
-    const index = this.activitiesWithDetails.findIndex(a => a.id === updatedActivity.id);
-    if (index !== -1) {
-      const existing = this.activitiesWithDetails[index];
-      const combined: ActivityWithDetails = {
-        ...updatedActivity,
-        instructions: updatedDetails?.instructions || existing.instructions,
-        difficulty: updatedDetails?.difficulty || existing.difficulty,
-        recommendedStage: updatedDetails?.recommendedStage || existing.recommendedStage,
-        frequency: updatedDetails?.frequency || existing.frequency,
-        supervision: updatedDetails?.supervision || existing.supervision,
-        benefits: updatedDetails?.benefits || existing.benefits,
-        precautions: updatedDetails?.precautions || existing.precautions,
-      };
-      this.activitiesWithDetails[index] = combined;
-      this.selectedActivity = combined;
-      this.selectedDetails = updatedDetails || { ...combined } as any;
-
-      // Update the activity form
-      this.activityForm.patchValue(updatedActivity);
-
-      // Update the details form (non-array fields)
-      this.detailsForm.patchValue({
-        difficulty: combined.difficulty,
-        recommendedStage: combined.recommendedStage,
-        frequency: combined.frequency,
-        supervision: combined.supervision
-      });
-
-      // Rebuild instructions array with FormGroup { value: [...] } no validator
-      this.instructions.clear();
-      combined.instructions.forEach(instr => 
-        this.instructions.push(this.fb.group({ value: [instr] }))
-      );
-
-      // Rebuild benefits array with FormGroup
-      this.benefits.clear();
-      combined.benefits.forEach(ben => 
-        this.benefits.push(this.fb.group({ value: [ben] }))
-      );
-
-      // Rebuild precautions array with FormGroup
-      this.precautions.clear();
-      (combined.precautions || []).forEach(pre => 
-        this.precautions.push(this.fb.group({ value: [pre] }))
-      );
-    }
+    this.selectedActivity = cleaned;
+    this.formMode = 'edit';
+    this.formModel = {
+      ...cleaned,
+      instructions: [...cleaned.instructions],
+      benefits: [...cleaned.benefits],
+      precautions: cleaned.precautions ? [...cleaned.precautions] : [],
+      recommendedStage: [...cleaned.recommendedStage],
+    };
   }
 
   deleteCurrentActivity(): void {
-    if (!this.selectedActivity) return;
-    this.deleteActivity(this.selectedActivity);
+    if (!this.formModel.id) {
+      return;
+    }
+    const target = this.activities.find((a) => a.id === this.formModel.id);
+    if (!target) {
+      return;
+    }
+    this.deleteActivity(target);
   }
 
-  deleteActivity(activity: ActivityWithDetails): void {
-    if (!confirm(`Delete "${activity.name}"?`)) return;
-    this.activityService.deleteActivity(activity.id).subscribe({
-      next: () => {
-        this.activitiesWithDetails = this.activitiesWithDetails.filter(a => a.id !== activity.id);
-        if (this.selectedActivity?.id === activity.id) {
-          this.selectedActivity = this.activitiesWithDetails[0] || null;
-          if (this.selectedActivity) {
-            this.selectActivity(this.selectedActivity);
-          } else {
-            this.startCreate();
-          }
-        }
-        this.toastr.success('Activity deleted');
-      },
-      error: (err) => {
-        console.error('Delete failed', err);
-        this.toastr.error('Delete failed');
-      }
-    });
-  }
-
-  trackByIndex(index: number, item: any): number {
-    return index;
-  }
-
-  private generateTimeOptions(): void {
-  const times = [];
-  for (let hour = 0; hour < 24; hour++) {
-    for (let minute of [0, 30]) {
-      const period = hour < 12 ? 'AM' : 'PM';
-      const displayHour = hour % 12 || 12;
-      const displayMinute = minute.toString().padStart(2, '0');
-      times.push(`${displayHour}:${displayMinute} ${period}`);
+  deleteActivity(activity: Activity): void {
+    this.activities = this.activities.filter((a) => a.id !== activity.id);
+    if (this.selectedActivity?.id === activity.id) {
+      this.selectedActivity = this.activities[0] ?? null;
+    }
+    if (this.formModel.id === activity.id) {
+      this.startCreate();
     }
   }
-  this.timeOptions = times;
-}
 
-incrementDuration(): void {
-  const current = this.activityForm.get('duration')?.value || 10;
-  if (current < 480) {
-    this.activityForm.patchValue({ duration: current + 5 });
+  private generateId(): string {
+    const maxId = this.activities.reduce((max, a) => {
+      const n = Number(a.id);
+      return Number.isNaN(n) ? max : Math.max(max, n);
+    }, 0);
+    return String(maxId + 1);
   }
 }
 
-decrementDuration(): void {
-  const current = this.activityForm.get('duration')?.value || 10;
-  if (current > 1) {
-    this.activityForm.patchValue({ duration: current - 5 });
-  }
-}
-}

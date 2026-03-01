@@ -5,6 +5,8 @@ import { Subscription, interval } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { AuthService, User } from '../../pages/login/auth.service';
 import { NotificationService, Notification as ActivityNotification } from '../../../../core/services/notification.service';
+import { Subscription } from 'rxjs';
+import { AuthService, User } from '../../pages/login/auth.service'; // adjust path if needed
 
 interface NavItem {
   id: string;
@@ -18,12 +20,14 @@ interface NavItem {
   styleUrls: ['./navigation.component.css'],
 })
 export class NavigationComponent implements OnInit, OnDestroy {
+  // AJOUT DE 'communication' DANS LA LISTE DES ITEMS
   navItems: NavItem[] = [
     { id: 'home', label: 'Home', route: '/' },
     { id: 'activities', label: 'Activities', route: '/activities' },
     { id: 'appointments', label: 'Appointments', route: '/appointments' },
     { id: 'medical-folder', label: 'Medical Folder', route: '/medical-folder' },
     { id: 'alerts', label: 'Alerts', route: '/alerts' },
+    { id: 'communication', label: 'Messages', route: '/communication' }, // Route vers ton nouveau module
   ];
 
   user: User | null = null;
@@ -43,15 +47,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
+  constructor(private readonly router: Router, private authService: AuthService) { }
 
   ngOnInit(): void {
-    // Subscribe to user changes
-    this.userSub = this.authService.currentUser$.subscribe({
-      next: (user) => {
-        this.user = user;
-        console.log('Navigation user updated:', user);
-      },
-      error: (err) => console.error('User subscription error:', err)
+    this.userSub = this.authService.currentUser$.subscribe((user: User | null) => {
+      this.user = user;
     });
 
     // If token exists but user is null, try to fetch user (only in browser)
@@ -119,8 +119,8 @@ export class NavigationComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigateByUrl(route);
     }
+    this.router.navigateByUrl(route);
     this.isMobileMenuOpen = false;
-    this.profileOpen = false;
   }
 
   toggleMobileMenu(): void {
@@ -159,6 +159,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
       case 'DELETED': return '🗑️';
       default: return '📢';
     }
+    if (notification.type === 'alert') this.navigate('/alerts');
+    else if (notification.type === 'appointment') this.navigate('/appointments');
+    // Optionnel : Gérer le clic sur une notification de type message
+    else if (notification.type === 'message') this.navigate('/communication');
   }
 
   // Helper for activity notification title
@@ -169,6 +173,13 @@ export class NavigationComponent implements OnInit, OnDestroy {
       case 'UPDATED': return 'Activity updated';
       case 'DELETED': return 'Activity removed';
       default: return 'Activity notification';
+  getSeverityClasses(severity?: string): string {
+    switch (severity) {
+      case 'CRITICAL': return 'bg-[#C06C84] text-white';
+      case 'HIGH': return 'bg-[#B39DDB] text-white';
+      case 'MEDIUM': return 'bg-[#DCCEF9] text-[#7C3AED]';
+      case 'LOW': return 'bg-[#A8E6CF] text-[#22c55e]';
+      default: return '';
     }
   }
 
