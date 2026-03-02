@@ -31,7 +31,7 @@ public class ApiGatewayApplication {
                         .path("/EverCare/activities/**",
                                 "/EverCare/admin/activities/**")
                         .uri("lb://ACTIVITIES-SERVICE"))
-                .route("user-service", r -> r
+                .route("user-node-service", r -> r
                         .path("/EverCare/admin/**",
                                 "/EverCare/auth/**",
                                 "/EverCare/users/**")
@@ -46,6 +46,7 @@ public class ApiGatewayApplication {
                 .route("notification-service", r -> r
                         .path("/EverCare/api/notifications/**")   // Added route
                         .uri("lb://NOTIFICATION-SERVICE"))
+
                 .build();
     }
 

@@ -48,9 +48,9 @@ public class MessageController {
             Files.write(path, file.getBytes());
 
             // Mise à jour des infos du message avec les détails du fichier
-            message.setFileName(file.getOriginalFilename());
-            message.setFileType(file.getContentType());
-            message.setFileUrl("/uploads/" + fileName);
+         //   message.setFileName(file.getOriginalFilename());
+           // message.setFileType(file.getContentType());
+           // message.setFileUrl("/uploads/" + fileName);
         }
 
         return ResponseEntity.ok(messageService.sendMessage(conversationId, message));

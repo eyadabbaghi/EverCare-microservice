@@ -12,7 +12,6 @@ import tn.esprit.activities.entity.UserActivity;
 import tn.esprit.activities.repository.ActivityDetailsRepository;
 import tn.esprit.activities.repository.ActivityRepository;
 import tn.esprit.activities.repository.UserActivityRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -704,12 +704,82 @@
       "aiTool": "AI Assistant",
       "detectionMethod": "REALTIME_SPEED_ANALYSIS",
       "lineCount": 1
+    },
+    {
+      "filePath": "/RouteDefinitionRouteLocator.java",
+      "timestamp": 1772418031672,
+      "startOffset": 2801,
+      "endOffset": 2840,
+      "codeContent": "                                       ",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/RouteDefinitionRouteLocator.java",
+      "timestamp": 1772418031674,
+      "startOffset": 2931,
+      "endOffset": 2970,
+      "codeContent": "                                       ",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/RouteDefinitionRouteLocator.java",
+      "timestamp": 1772418031691,
+      "startOffset": 5014,
+      "endOffset": 5042,
+      "codeContent": "                            ",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/MessageController.java",
+      "timestamp": 1772419556439,
+      "startOffset": 2255,
+      "endOffset": 2275,
+      "codeContent": "IntellijIdeaRulezzz ",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/MessageController.java",
+      "timestamp": 1772419558011,
+      "startOffset": 2260,
+      "endOffset": 2313,
+      "codeContent": "\n                .setFileType(file.getContentType());",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "/ApiGatewayApplication.java",
+      "timestamp": 1772420118000,
+      "startOffset": 2283,
+      "endOffset": 2401,
+      "codeContent": "\n\n    public static void main(String[] args) {\n        SpringApplication.run(ApiGatewayApplication.class, args);\n    }",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 5
     }
   ],
   "toolStats": {
     "AI Assistant": {
       "usageCount": 64,
       "totalLines": 145
+    },
+    "GitHub Copilot": {
+      "usageCount": 6,
+      "totalLines": 11
     }
   }
 }
