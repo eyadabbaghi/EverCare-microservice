@@ -536,27 +536,5 @@
   </div>
 </div>
 
-<!-- Doctor Search Modal -->
-<app-doctor-search-modal
-  [open]="showDoctorSearch"
-  [role]="'DOCTOR'"
-  (closed)="showDoctorSearch = false"
-  (userSelected)="onDoctorSelected($event)"
-></app-doctor-search-modal>
 
-<!-- Caregiver Search Modal (for patients adding caregivers) -->
-<app-doctor-search-modal
-  [open]="showCaregiverSearch"
-  [role]="'CAREGIVER'"
-  (closed)="showCaregiverSearch = false"
-  (userSelected)="onCaregiverSelected($event)"
-></app-doctor-search-modal>
-
-<!-- Patient Search Modal (for caregivers adding patients) -->
-<app-doctor-search-modal
-  [open]="showPatientSearch"
-  [role]="'PATIENT'"
-  (closed)="showPatientSearch = false"
-  (userSelected)="onPatientSelected($event)"
-></app-doctor-search-modal>
 

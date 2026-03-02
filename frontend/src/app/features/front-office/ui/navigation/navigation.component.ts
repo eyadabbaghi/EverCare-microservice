@@ -5,8 +5,6 @@ import { Subscription, interval } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { AuthService, User } from '../../pages/login/auth.service';
 import { NotificationService, Notification as ActivityNotification } from '../../../../core/services/notification.service';
-import { Subscription } from 'rxjs';
-import { AuthService, User } from '../../pages/login/auth.service'; // adjust path if needed
 
 interface NavItem {
   id: string;
@@ -20,14 +18,14 @@ interface NavItem {
   styleUrls: ['./navigation.component.css'],
 })
 export class NavigationComponent implements OnInit, OnDestroy {
-  // AJOUT DE 'communication' DANS LA LISTE DES ITEMS
+  // Navigation items including 'communication'
   navItems: NavItem[] = [
     { id: 'home', label: 'Home', route: '/' },
     { id: 'activities', label: 'Activities', route: '/activities' },
     { id: 'appointments', label: 'Appointments', route: '/appointments' },
     { id: 'medical-folder', label: 'Medical Folder', route: '/medical-folder' },
     { id: 'alerts', label: 'Alerts', route: '/alerts' },
-    { id: 'communication', label: 'Messages', route: '/communication' }, // Route vers ton nouveau module
+    { id: 'communication', label: 'Messages', route: '/communication' },
   ];
 
   user: User | null = null;
@@ -47,7 +45,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
-  constructor(private readonly router: Router, private authService: AuthService) { }
 
   ngOnInit(): void {
     this.userSub = this.authService.currentUser$.subscribe((user: User | null) => {
@@ -111,7 +108,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     // Protected routes that require authentication
     const protectedRoutes = [
       '/medical-folder', '/alerts',
-      '/profile', '/messages', '/daily', '/blog', '/appointments',
+      '/profile', '/messages', '/daily', '/blog', '/appointments', '/communication'
     ];
 
     if (protectedRoutes.includes(route) && !this.user) {
@@ -119,7 +116,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigateByUrl(route);
     }
-    this.router.navigateByUrl(route);
     this.isMobileMenuOpen = false;
   }
 
@@ -147,8 +143,8 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   handleNotificationClick(notification: ActivityNotification & { read: boolean }): void {
     this.markAsRead(notification.id);
-    // Navigate to the public activity details page
-    this.navigate(`/activities/${notification.activityId}`);
+
+
   }
 
   // Helper for activity notification icon
@@ -159,20 +155,18 @@ export class NavigationComponent implements OnInit, OnDestroy {
       case 'DELETED': return '🗑️';
       default: return '📢';
     }
-    if (notification.type === 'alert') this.navigate('/alerts');
-    else if (notification.type === 'appointment') this.navigate('/appointments');
-    // Optionnel : Gérer le clic sur une notification de type message
-    else if (notification.type === 'message') this.navigate('/communication');
   }
 
   // Helper for activity notification title
-  protected notifications: any;
   getActivityTitle(action: string): string {
     switch (action) {
       case 'CREATED': return 'New activity available';
       case 'UPDATED': return 'Activity updated';
       case 'DELETED': return 'Activity removed';
       default: return 'Activity notification';
+    }
+  }
+
   getSeverityClasses(severity?: string): string {
     switch (severity) {
       case 'CRITICAL': return 'bg-[#C06C84] text-white';
@@ -203,27 +197,22 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   clearAllNotifications(): void {
-  this.activityNotifications = []; // clear all activity notifications
-  // Optionally, you could also call a backend endpoint to delete them
-  // this.notificationService.deleteAll().subscribe(...);
-}
-
+    this.activityNotifications = []; // clear all activity notifications
+    // Optionally, you could also call a backend endpoint to delete them
+    // this.notificationService.deleteAll().subscribe(...);
+  }
 
   /** =======================
    *  Close dropdown when clicking outside
    *  ======================= */
- @HostListener('document:click', ['$event'])
-onClickOutside(event: Event) {
-  const target = event.target as HTMLElement; // Cast here
-  const dropdown = document.getElementById('profile-dropdown');
-  const button = document.getElementById('profile-button');
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event) {
+    const target = event.target as HTMLElement;
+    const dropdown = document.getElementById('profile-dropdown');
+    const button = document.getElementById('profile-button');
 
-  if (dropdown && button && !dropdown.contains(target) && !button.contains(target)) {
-    this.profileOpen = false;
-  }
-}
-
-  protected getSeverityClasses(severity: any) {
-    return undefined;
+    if (dropdown && button && !dropdown.contains(target) && !button.contains(target)) {
+      this.profileOpen = false;
+    }
   }
 }

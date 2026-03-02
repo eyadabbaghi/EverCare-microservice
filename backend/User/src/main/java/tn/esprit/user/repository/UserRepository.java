@@ -1,6 +1,7 @@
 package tn.esprit.user.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import tn.esprit.user.entity.User;
 import java.util.Optional;
 import org.springframework.data.repository.query.Param;
@@ -17,4 +18,6 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     // ✅ ADD THIS
     List<User> findByRole(String role);
+
+    List<User> findByRoleContainingIgnoreCaseAndRoleContainingIgnoreCase(String q, String role);
 }

@@ -3,6 +3,8 @@ package tn.esprit.user.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -56,23 +58,20 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // --- GESTION DU PROFIL ---
-
-    @PutMapping("/profile")
-    public ResponseEntity<?> updateProfile(@RequestBody UpdateUserRequest request,
-                                           @AuthenticationPrincipal UserDetails userDetails) {
-        String email = userDetails.getUsername();
-        User user = userService.updateUser(email, request);
-        return ResponseEntity.ok(mapToDto(user));
-
-    }
     @GetMapping("/patients")
     public ResponseEntity<?> getAllPatients() {
         return ResponseEntity.ok(userRepository.findByRole("PATIENT"));
+    }
+
+    // --- GESTION DU PROFIL ---
+
+    @PutMapping("/profile")
     public ResponseEntity<?> updateProfile(@RequestBody UpdateUserRequest request, Principal principal) {
         String email = principal.getName();
         User updatedUser = userService.updateUser(email, request);
         UserDto userDto = mapToDto(updatedUser);
+
+        // Generate new token
         String newToken = jwtUtil.generateToken(updatedUser.getEmail());
 
         Map<String, Object> response = new HashMap<>();
@@ -139,6 +138,23 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    // --- RECHERCHE ---
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDto>> searchUsers(@RequestParam String q, @RequestParam String role) {
+        List<User> users = userService.searchUsersByRole(q, role);
+        List<UserDto> dtos = users.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping("/by-email")
+    public ResponseEntity<UserDto> getUserByEmail(@RequestParam String email) {
+        User user = userService.findByEmail(email);
+        return ResponseEntity.ok(mapToDto(user));
+    }
+
     // --- MAPPING ---
 
     private UserDto mapToDto(User user) {
@@ -153,6 +169,9 @@ public class UserController {
         dto.setDateOfBirth(user.getDateOfBirth());
         dto.setEmergencyContact(user.getEmergencyContact());
         dto.setProfilePicture(user.getProfilePicture());
+
+
+
         return dto;
     }
 }

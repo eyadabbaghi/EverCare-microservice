@@ -181,4 +181,8 @@ public class UserService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
     }
+
+    public List<User> searchUsersByRole(String q, String role) {
+        return userRepository.findByRoleContainingIgnoreCaseAndRoleContainingIgnoreCase(q, role);
+    }
 }

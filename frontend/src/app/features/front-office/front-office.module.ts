@@ -19,10 +19,6 @@ import { SharedModule } from '../../shared/shared.module';
 import { LucideAngularModule } from 'lucide-angular';
 import { NewUserFlowComponent } from './pages/login/new-user-flow.component';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import { SetupProfileComponent } from './pages/setup-profile/setup-profile.component';
-
-// 👇 ADD THIS IMPORT
-import { DoctorSearchModalComponent } from './pages/profile/doctor-search-modal.component';
 
 
 import { DailyMeModule } from '../daily-me/daily-me.module';
@@ -63,9 +59,7 @@ import {NewsletterComponent} from './components/newsletter/newsletter.component'
     WelcomePopupComponent,
     AlzheimersAssessmentComponent,
     NewUserFlowComponent,
-    SetupProfileComponent,
-    // 👇 ADD THIS COMPONENT
-    DoctorSearchModalComponent,
+
     ProfileComponent
   ],
 

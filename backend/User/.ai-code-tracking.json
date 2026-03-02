@@ -1595,6 +1595,380 @@
       "aiTool": "GitHub Copilot",
       "detectionMethod": "REALTIME_SPEED_ANALYSIS",
       "lineCount": 11
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/repository/UserRepository.java",
+      "timestamp": 1772406939513,
+      "startOffset": 331,
+      "endOffset": 370,
+      "codeContent": "\nimport java.util.List;   // ✅ ADD THIS",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/repository/UserRepository.java",
+      "timestamp": 1772406940504,
+      "startOffset": 859,
+      "endOffset": 918,
+      "codeContent": "\n\n    // ✅ ADD THIS\n    List\u003cUser\u003e findByRole(String role);",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 4
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/controller/UserController.java",
+      "timestamp": 1772407937828,
+      "startOffset": 194,
+      "endOffset": 6920,
+      "codeContent": "security.core.annotation.AuthenticationPrincipal;\nimport org.springframework.security.core.userdetails.UserDetails;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.web.multipart.MultipartFile;\nimport org.springframework.web.servlet.support.ServletUriComponentsBuilder;\nimport tn.esprit.user.dto.ChangePasswordRequest;\nimport tn.esprit.user.dto.UpdateUserRequest;\nimport tn.esprit.user.dto.UserDto;\nimport tn.esprit.user.entity.User;\nimport tn.esprit.user.repository.UserRepository;\nimport tn.esprit.user.service.UserService;\nimport tn.esprit.user.security.JwtUtil;\n\nimport java.io.File;\nimport java.io.IOException;\nimport java.nio.file.Files;\nimport java.nio.file.Path;\nimport java.nio.file.Paths;\nimport java.nio.file.StandardCopyOption;\nimport java.security.Principal;\nimport java.util.HashMap;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n\n@RestController\n@RequestMapping(\"/users\")\n@RequiredArgsConstructor\n@CrossOrigin(origins \u003d \"*\") // Autorise Angular\npublic class UserController {\n\n    private final UserService userService;\n    private final JwtUtil jwtUtil;\n    private final UserRepository userRepository;\n\n    // --- RÉCUPÉRATION DES UTILISATEURS POUR LE CHAT ---\n\n    @GetMapping(\"/all\")\n    public ResponseEntity\u003cList\u003cUserDto\u003e\u003e getAllUsers() {\n        // Récupère tous les utilisateurs via le service\n        List\u003cUser\u003e users \u003d userService.getAllUsers();\n        List\u003cUserDto\u003e dtos \u003d users.stream()\n                .map(this::mapToDto)\n                .collect(Collectors.toList());\n        return ResponseEntity.ok(dtos);\n    }\n\n    @GetMapping(\"/{userId}\")\n    public ResponseEntity\u003cUserDto\u003e getUserById(@PathVariable String userId) {\n        // Utilisation du repository au cas où le service cause une erreur de type\n        return userRepository.findById(userId)\n                .map(user -\u003e ResponseEntity.ok(mapToDto(user)))\n                .orElse(ResponseEntity.notFound().build());\n    }\n\n    @GetMapping(\"/patients\")\n    public ResponseEntity\u003c?\u003e getAllPatients() {\n        return ResponseEntity.ok(userRepository.findByRole(\"PATIENT\"));\n    }\n\n    // --- GESTION DU PROFIL ---\n\n    @PutMapping(\"/profile\")\n    public ResponseEntity\u003c?\u003e updateProfile(@RequestBody UpdateUserRequest request, Principal principal) {\n        String email \u003d principal.getName();\n        User updatedUser \u003d userService.updateUser(email, request);\n        UserDto userDto \u003d mapToDto(updatedUser);\n        \n        // Generate new token\n        String newToken \u003d jwtUtil.generateToken(updatedUser.getEmail());\n\n        Map\u003cString, Object\u003e response \u003d new HashMap\u003c\u003e();\n        response.put(\"user\", userDto);\n        response.put(\"token\", newToken);\n        return ResponseEntity.ok(response);\n    }\n\n    @PutMapping(\"/change-password\")\n    public ResponseEntity\u003c?\u003e changePassword(@RequestBody ChangePasswordRequest request, Principal principal) {\n        String email \u003d principal.getName();\n        userService.changePassword(email, request);\n        return ResponseEntity.ok().build();\n    }\n\n    @DeleteMapping(\"/profile\")\n    public ResponseEntity\u003c?\u003e deleteAccount(Principal principal) {\n        try {\n            String email \u003d principal.getName();\n            userService.deleteUser(email);\n            return ResponseEntity.ok().build();\n        } catch (Exception e) {\n            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)\n                    .body(Map.of(\"message\", \"Failed to delete account: \" + e.getMessage()));\n        }\n    }\n\n    // --- PHOTO DE PROFIL ---\n\n    @PostMapping(\"/profile/picture\")\n    public ResponseEntity\u003c?\u003e uploadProfilePicture(@RequestParam(\"file\") MultipartFile file, Principal principal) {\n        String email \u003d principal.getName();\n        User user \u003d userService.findByEmail(email);\n        if (file.isEmpty()) return ResponseEntity.badRequest().body(\"File is empty\");\n\n        try {\n            String uploadDir \u003d \"uploads/profile-pictures/\";\n            File dir \u003d new File(uploadDir);\n            if (!dir.exists()) dir.mkdirs();\n\n            String fileName \u003d user.getUserId() + \"_\" + System.currentTimeMillis() + \"_\" + file.getOriginalFilename();\n            Path filePath \u003d Paths.get(uploadDir + fileName);\n            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);\n\n            String fileUrl \u003d ServletUriComponentsBuilder.fromCurrentContextPath()\n                    .path(\"/uploads/profile-pictures/\")\n                    .path(fileName)\n                    .toUriString();\n            user.setProfilePicture(fileUrl);\n            userRepository.save(user);\n\n            return ResponseEntity.ok(Map.of(\"profilePicture\", fileUrl));\n        } catch (IOException e) {\n            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(\"Failed to upload file\");\n        }\n    }\n\n    @DeleteMapping(\"/profile/picture\")\n    public ResponseEntity\u003c?\u003e removeProfilePicture(Principal principal) {\n        String email \u003d principal.getName();\n        User user \u003d userService.findByEmail(email);\n        user.setProfilePicture(null);\n        userRepository.save(user);\n        return ResponseEntity.ok().build();\n    }\n\n    // --- RECHERCHE ---\n\n    @GetMapping(\"/search\")\n    public ResponseEntity\u003cList\u003cUserDto\u003e\u003e searchUsers(@RequestParam String q, @RequestParam String role) {\n        List\u003cUser\u003e users \u003d userService.searchUsersByRole(q, role);\n        List\u003cUserDto\u003e dtos \u003d users.stream()\n                .map(this::mapToDto)\n                .collect(Collectors.toList());\n        return ResponseEntity.ok(dtos);\n    }\n\n    @GetMapping(\"/by-email\")\n    public ResponseEntity\u003cUserDto\u003e getUserByEmail(@RequestParam String email) {\n        User user \u003d userService.findByEmail(email);\n        return ResponseEntity.ok(mapToDto(user));\n    }\n\n    // --- MAPPING ---\n\n    private UserDto mapToDto(User user) {\n        UserDto dto \u003d new UserDto();\n        dto.setUserId(user.getUserId());\n        dto.setName(user.getName());\n        dto.setEmail(user.getEmail());\n        dto.setRole(user.getRole());\n        dto.setPhone(user.getPhone());\n        dto.setVerified(user.isVerified());\n        dto.setCreatedAt(user.getCreatedAt());\n        dto.setDateOfBirth(user.getDateOfBirth());\n        dto.setEmergencyContact(user.getEmergencyContact());\n        dto.setProfilePicture(user.getProfilePicture());\n        \n        // Doctor fields\n        dto.setYearsExperience(user.getYearsExperience());\n        dto.setSpecialization(user.getSpecialization());\n        dto.setMedicalLicense(user.getMedicalLicense());\n        dto.setWorkplaceType(user.getWorkplaceType());\n        dto.setWorkplaceName(user.getWorkplaceName());\n        dto.setDoctorEmail(user.getDoctorEmail());\n",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 175
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/service/UserService.java",
+      "timestamp": 1772407964798,
+      "startOffset": 6396,
+      "endOffset": 6442,
+      "codeContent": "public\u003c__TMP__\u003e __TMP__ searchUsersByRole() {}",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/service/UserService.java",
+      "timestamp": 1772407964950,
+      "startOffset": 6408,
+      "endOffset": 6450,
+      "codeContent": "java.util.List\u003ctn.esprit.user.entity.User\u003e",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/UserService.java",
+      "timestamp": 1772407968366,
+      "startOffset": 6470,
+      "endOffset": 6559,
+      "codeContent": "return userRepository.findByRoleContainingIgnoreCaseAndRoleContainingIgnoreCase(q, role);",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/repository/UserRepository.java",
+      "timestamp": 1772407978458,
+      "startOffset": 800,
+      "endOffset": 878,
+      "codeContent": "\u003c__TMP__\u003e __TMP__ findByRoleContainingIgnoreCaseAndRoleContainingIgnoreCase();",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/repository/UserRepository.java",
+      "timestamp": 1772407978528,
+      "startOffset": 805,
+      "endOffset": 847,
+      "codeContent": "java.util.List\u003ctn.esprit.user.entity.User\u003e",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/repository/UserRepository.java",
+      "timestamp": 1772408026931,
+      "startOffset": 820,
+      "endOffset": 842,
+      "codeContent": "tn.esprit.user.entity.",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/repository/UserRepository.java",
+      "timestamp": 1772408031782,
+      "startOffset": 805,
+      "endOffset": 847,
+      "codeContent": "java.util.List\u003ctn.esprit.user.entity.User\u003e",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/UserRepository.java",
+      "timestamp": 1772408041027,
+      "startOffset": 481,
+      "endOffset": 521,
+      "codeContent": "org.springframework.data.jpa.repository.",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/UserRepository.java",
+      "timestamp": 1772408041032,
+      "startOffset": 98,
+      "endOffset": 151,
+      "codeContent": "import org.springframework.data.jpa.repository.Query;",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/SecurityConfig.java",
+      "timestamp": 1772408079104,
+      "startOffset": 618,
+      "endOffset": 638,
+      "codeContent": "IntellijIdeaRulezzz ",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/User/src/main/java/tn/esprit/user/security/SecurityConfig.java",
+      "timestamp": 1772408085800,
+      "startOffset": 618,
+      "endOffset": 653,
+      "codeContent": "LocalUserJwtAuthenticationConverter",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1772408290802,
+      "startOffset": 0,
+      "endOffset": 4393,
+      "codeContent": "\u003c\u003c\u003c\u003c\u003c\u003c\u003c HEAD\npackage tn.esprit.apigateway;\n\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.cloud.client.discovery.EnableDiscoveryClient;\nimport org.springframework.cloud.gateway.route.RouteLocator;\nimport org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;\nimport org.springframework.context.annotation.Bean;\n\n@SpringBootApplication\n@EnableDiscoveryClient\n\n\npublic class ApiGatewayApplication {\n\n    public static void main(String[] args) {\n        SpringApplication.run(ApiGatewayApplication.class, args);\n    }\n\n    @Bean\n    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {\n        return builder.routes()\n                .route(\"appointment-service\", r -\u003e r\n                        .path(\"/EverCare/appointments/**\",\n                                \"/EverCare/availabilities/**\",\n                                \"/EverCare/consultation-types/**\",\n                                \"/EverCare/medicaments/**\",\n                                \"/EverCare/prescriptions/**\")\n                        .uri(\"lb://APPOINTMENT-SERVICE\"))\n                .route(\"activities-service\", r -\u003e r\n                        .path(\"/EverCare/activities/**\",\n                                \"/EverCare/admin/activities/**\")\n                        .uri(\"lb://ACTIVITIES-SERVICE\"))\n                .route(\"user-service\", r -\u003e r\n                        .path(\"/EverCare/admin/**\",\n                                \"/EverCare/auth/**\",\n                                \"/EverCare/users/**\")\n                        .uri(\"lb://USER-SERVICE\"))\n                .route(\"communication-service\", r -\u003e r\n                        .path(\"/api/calls/**\",\n                                \"/api/conversations/**\")\n                        .uri(\"lb://COMMUNICATION-SERVICE\"))\n                .route(\"medical-record-service\", r -\u003e r\n                        .path(\"/api/medical-records/**\")\n                        .uri(\"lb://MEDICAL-RECORD-SERVICE\"))\n                .route(\"notification-service\", r -\u003e r\n                        .path(\"/EverCare/api/notifications/**\")   // Added route\n                        .uri(\"lb://NOTIFICATION-SERVICE\"))\n                .build();\n    }\n\n\n\n\n\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\npackage tn.esprit.apigateway;\n\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.cloud.client.discovery.EnableDiscoveryClient;\nimport org.springframework.cloud.gateway.route.RouteLocator;\nimport org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;\nimport org.springframework.context.annotation.Bean;\n\n@SpringBootApplication\n@EnableDiscoveryClient\n\n\npublic class ApiGatewayApplication {\n\n    public static void main(String[] args) {\n        SpringApplication.run(ApiGatewayApplication.class, args);\n    }\n\n    @Bean\n    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {\n        return builder.routes()\n                .route(\"appointment-service\", r -\u003e r\n                        .path(\"/EverCare/appointments/**\",\n                                \"/EverCare/availabilities/**\",\n                                \"/EverCare/consultation-types/**\",\n                                \"/EverCare/medicaments/**\",\n                                \"/EverCare/prescriptions/**\")\n                        .uri(\"lb://APPOINTMENT-SERVICE\"))\n                .route(\"activities-service\", r -\u003e r\n                        .path(\"/EverCare/activities/**\",\n                                \"/EverCare/admin/activities/**\")\n                        .uri(\"lb://ACTIVITIES-SERVICE\"))\n                .route(\"user-service\", r -\u003e r\n                        .path(\"/EverCare/admin/**\",\n                                \"/EverCare/auth/**\",\n                                \"/EverCare/users/**\")\n                        .uri(\"lb://USER-SERVICE\"))\n                .route(\"communication-service\", r -\u003e r\n                        .path(\"/api/calls/**\",\n                                \"/api/conversations/**\")\n                        .uri(\"lb://COMMUNICATION-SERVICE\"))\n                .route(\"medical-record-service\", r -\u003e r\n                        .path(\"/api/medical-records/**\")\n                        .uri(\"lb://MEDICAL-RECORD-SERVICE\"))\n                .build();\n    }\n\n\n\n\n\n\u003e\u003e\u003e\u003e\u003e\u003e\u003e secondary/medical-record",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 110
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Eureka-service/src/main/java/tn/esprit/eurekaservice/EurekaServiceApplication.java",
+      "timestamp": 1772408290808,
+      "startOffset": 0,
+      "endOffset": 927,
+      "codeContent": "\u003c\u003c\u003c\u003c\u003c\u003c\u003c HEAD\npackage tn.esprit.eurekaservice;\n\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;\n\n@SpringBootApplication\n@EnableEurekaServer\npublic class EurekaServiceApplication {\n\n    public static void main(String[] args) {\n        SpringApplication.run(EurekaServiceApplication.class, args);\n    }\n\n}\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\npackage tn.esprit.eurekaservice;\n\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;\n\n@SpringBootApplication\n@EnableEurekaServer\npublic class EurekaServiceApplication {\n\n    public static void main(String[] args) {\n        SpringApplication.run(EurekaServiceApplication.class, args);\n    }\n\n}\n\u003e\u003e\u003e\u003e\u003e\u003e\u003e secondary/medical-record",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 33
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1772408336987,
+      "startOffset": 1263,
+      "endOffset": 1295,
+      "codeContent": "\n                               ",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1772408346156,
+      "startOffset": 1387,
+      "endOffset": 2230,
+      "codeContent": "                .route(\"user-service\", r -\u003e r\n                        .path(\"/EverCare/admin/**\",\n                                \"/EverCare/auth/**\",\n                                \"/EverCare/users/**\")\n                        .uri(\"lb://USER-SERVICE\"))\n                .route(\"communication-service\", r -\u003e r\n                        .path(\"/api/calls/**\",\n                                \"/api/conversations/**\")\n                        .uri(\"lb://COMMUNICATION-SERVICE\"))\n                .route(\"medical-record-service\", r -\u003e r\n                        .path(\"/api/medical-records/**\")\n                        .uri(\"lb://MEDICAL-RECORD-SERVICE\"))\n                .route(\"notification-service\", r -\u003e r\n                        .path(\"/EverCare/api/notifications/**\")   // Added route\n                        .uri(\"lb://NOTIFICATION-SERVICE\"))\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 16
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/CommunicationServiceApplication.java",
+      "timestamp": 1772408635733,
+      "startOffset": 284,
+      "endOffset": 304,
+      "codeContent": "@EnableFeignClients\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/CommunicationServiceApplication.java",
+      "timestamp": 1772408636805,
+      "startOffset": 237,
+      "endOffset": 300,
+      "codeContent": "import org.springframework.cloud.openfeign.EnableFeignClients;\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/service/conversationservice.java",
+      "timestamp": 1772408857028,
+      "startOffset": 276,
+      "endOffset": 415,
+      "codeContent": "import com.yourteam.communicationservice.client.UserServiceClient; // Ajout\nimport com.yourteam.communicationservice.dto.UserDto; // Ajout\n",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/service/conversationservice.java",
+      "timestamp": 1772408857973,
+      "startOffset": 601,
+      "endOffset": 678,
+      "codeContent": "    private final UserServiceClient userServiceClient; // Injection de Feign\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/service/conversationservice.java",
+      "timestamp": 1772408858845,
+      "startOffset": 751,
+      "endOffset": 1297,
+      "codeContent": "        // Validation via Feign avant enregistrement dans H2\n        try {\n            UserDto user1 \u003d userServiceClient.getUserById(conversation.getUser1Id());\n            UserDto user2 \u003d userServiceClient.getUserById(conversation.getUser2Id());\n\n            if (user1 \u003d\u003d null || user2 \u003d\u003d null) {\n                throw new RuntimeException(\"Un des utilisateurs est introuvable\");\n            }\n        } catch (Exception e) {\n            throw new RuntimeException(\"Erreur de communication avec le service User : \" + e.getMessage());\n        }\n\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 13
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/Dailyme-service/src/main/java/tn/esprit/dailymeservice/DailymeServiceApplication.java",
+      "timestamp": 1772408980636,
+      "startOffset": 155,
+      "endOffset": 228,
+      "codeContent": "import org.springframework.cloud.client.discovery.EnableDiscoveryClient;\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/Controller/MessageController.java",
+      "timestamp": 1772409395783,
+      "startOffset": 192,
+      "endOffset": 260,
+      "codeContent": "import org.springframework.web.multipart.MultipartFile; // Manquant\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/Controller/MessageController.java",
+      "timestamp": 1772409396712,
+      "startOffset": 382,
+      "endOffset": 602,
+      "codeContent": "import com.yourteam.communicationservice.service.ContentFilterService;\n\nimport java.io.IOException;\nimport java.nio.file.Files; // Manquant\nimport java.nio.file.Path;  // Manquant\nimport java.nio.file.Paths; // Manquant\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 7
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/Controller/MessageController.java",
+      "timestamp": 1772409397894,
+      "startOffset": 783,
+      "endOffset": 1025,
+      "codeContent": "    private final ContentFilterService contentFilterService;\n\n    @GetMapping(\"/forbidden-words\")\n    public ResponseEntity\u003cList\u003cString\u003e\u003e getForbiddenWords() {\n        return ResponseEntity.ok(contentFilterService.getForbiddenWords());\n    }\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 7
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/Controller/MessageController.java",
+      "timestamp": 1772409400373,
+      "startOffset": 1159,
+      "endOffset": 2364,
+      "codeContent": "            @RequestParam(value \u003d \"senderId\") String senderId,\n            @RequestParam(value \u003d \"content\", required \u003d false) String content,\n            @RequestParam(value \u003d \"file\", required \u003d false) MultipartFile file) throws IOException {\n\n        // Note: Assure-toi que ton entité Message possède bien l\u0027annotation @Builder ou remplace par un \"new Message()\"\n        Message message \u003d new Message();\n        message.setSenderId(senderId);\n        message.setContent(content !\u003d null ? content : \"\");\n\n        if (file !\u003d null \u0026\u0026 !file.isEmpty()) {\n            // Création du nom de fichier unique\n            String fileName \u003d System.currentTimeMillis() + \"_\" + file.getOriginalFilename();\n            // Chemin de stockage (crée un dossier \u0027uploads\u0027 à la racine de ton projet)\n            Path path \u003d Paths.get(\"uploads/\" + fileName);\n            Files.createDirectories(path.getParent());\n            Files.write(path, file.getBytes());\n\n            // Mise à jour des infos du message avec les détails du fichier\n            message.setFileName(file.getOriginalFilename());\n            message.setFileType(file.getContentType());\n            message.setFileUrl(\"/uploads/\" + fileName);\n        }\n\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 24
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/service/MessageService.java",
+      "timestamp": 1772409423766,
+      "startOffset": 404,
+      "endOffset": 545,
+      "codeContent": "import com.yourteam.communicationservice.client.UserServiceClient; // Ajouté\nimport com.yourteam.communicationservice.dto.UserDto; // Ajouté\n",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/service/MessageService.java",
+      "timestamp": 1772409424830,
+      "startOffset": 754,
+      "endOffset": 892,
+      "codeContent": "    private final ContentFilterService contentFilterService;\n    private final UserServiceClient userServiceClient; // Injecté pour Feign\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/service/MessageService.java",
+      "timestamp": 1772409425756,
+      "startOffset": 964,
+      "endOffset": 1871,
+      "codeContent": "        // 1. Sécurité contenu : Bloque les mots interdits\n        if (contentFilterService.isContentInvalid(message.getContent())) {\n            throw new IllegalArgumentException(\"Contenu inapproprié détecté.\");\n        }\n\n        // 2. VERIFICATION FEIGN : On s\u0027assure que l\u0027expéditeur existe dans MySQL\n        // Si le User-Service est éteint, Feign lèvera une exception ici.\n        try {\n            UserDto sender \u003d userServiceClient.getUserById(message.getSenderId());\n            if (sender \u003d\u003d null) {\n                throw new RuntimeException(\"L\u0027expéditeur n\u0027existe pas dans le système User.\");\n            }\n        } catch (Exception e) {\n            // Cette erreur apparaîtra dans vos logs si le service User est HS\n            throw new RuntimeException(\"Validation de l\u0027utilisateur via Feign a échoué : \" + e.getMessage());\n        }\n\n        // 3. Récupération de la conversation dans H2\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 19
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/service/MessageService.java",
+      "timestamp": 1772409427788,
+      "startOffset": 1947,
+      "endOffset": 2033,
+      "codeContent": "                .orElseThrow(() -\u003e new RuntimeException(\"Conversation non trouvée\"));\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/service/MessageService.java",
+      "timestamp": 1772409431202,
+      "startOffset": 2425,
+      "endOffset": 2593,
+      "codeContent": "    public List\u003cMessage\u003e getMessagesByConversation(Long conversationId) {\n        return messageRepository.findByConversationIdOrderBySentAtAsc(conversationId);\n    }\n\n",
+      "aiProbability": 70,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 5
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/communication-service/src/main/java/com/yourteam/communicationservice/service/MessageService.java",
+      "timestamp": 1772409432592,
+      "startOffset": 2198,
+      "endOffset": 2409,
+      "codeContent": "        // Sécurité serveur sur la modification\n        if (contentFilterService.isContentInvalid(newContent)) {\n            throw new IllegalArgumentException(\"Modification inappropriée détectée.\");\n        }\n\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 6
     }
   ],
   "toolStats": {
@@ -1603,8 +1977,8 @@
       "totalLines": 674
     },
     "GitHub Copilot": {
-      "usageCount": 111,
-      "totalLines": 3225
+      "usageCount": 145,
+      "totalLines": 3680
     }
   }
 }
