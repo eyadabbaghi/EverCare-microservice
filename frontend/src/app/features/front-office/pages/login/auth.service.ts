@@ -71,15 +71,12 @@ export interface ChangePasswordRequest {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8096/EverCare/auth';
-  private usersUrl = 'http://localhost:8096/EverCare/users';
+  private apiUrl = 'http://localhost:8089/EverCare/auth';
+  private usersUrl = 'http://localhost:8089/EverCare/users';
 
   // Keycloak configuration – use a public client (no secret) created in Keycloak
   private keycloakUrl = 'http://localhost:8090/realms/EverCareRealm/protocol/openid-connect/token';
   private clientId = 'frontend-app'; // Replace with your public client ID
-
-  // EverCare Auth service (login/register/me/users)
-  private evercareAuthUrl = 'http://localhost:8096/EverCare/auth';
 
   // Dailyme service base (DailyMe features)
   private dailymeBaseUrl = 'http://localhost:8097/dailyme';

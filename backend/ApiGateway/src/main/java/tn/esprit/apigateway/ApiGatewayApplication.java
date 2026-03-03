@@ -31,14 +31,16 @@ public class ApiGatewayApplication {
                         .path("/EverCare/activities/**",
                                 "/EverCare/admin/activities/**")
                         .uri("lb://ACTIVITIES-SERVICE"))
+
                 .route("user-node-service", r -> r
-                        .path("/EverCare/admin/**",
-                                "/EverCare/auth/**",
-                                "/EverCare/users/**")
-                        .uri("lb://USER-SERVICE"))
+                        .path("/EverCare/auth/**",
+                                "/EverCare/users/**",
+                                "/EverCare/admin/**")
+                        .uri("lb://user-node-service"))
+
                 .route("communication-service", r -> r
                         .path("/api/calls/**",
-                                "/api/conversations/**")
+                                "/api/conversations/**","api/messages/**")
                         .uri("lb://COMMUNICATION-SERVICE"))
                 .route("medical-record-service", r -> r
                         .path("/api/medical-records/**")
@@ -46,6 +48,9 @@ public class ApiGatewayApplication {
                 .route("notification-service", r -> r
                         .path("/EverCare/api/notifications/**")   // Added route
                         .uri("lb://NOTIFICATION-SERVICE"))
+                .route("DAILYME-SERVICE", r -> r
+                        .path("/dailyme/api/daily-entries/**","/dailyme/api/daily-tasks/**")
+                        .uri("lb://DAILYME-SERVICE"))
 
                 .build();
     }
