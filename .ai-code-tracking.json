@@ -1375,12 +1375,38 @@
       "aiTool": "AI Assistant",
       "detectionMethod": "REALTIME_SPEED_ANALYSIS",
       "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/main.ts",
+      "timestamp": 1774807453432,
+      "startOffset": 0,
+      "endOffset": 126,
+      "codeContent": "\n// src/main.ts (very top)\n(window as any).global \u003d window;\n(window as any).process \u003d (window as any).process || { env: {} };\n",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 5
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/main.server.ts",
+      "timestamp": 1774807453440,
+      "startOffset": 0,
+      "endOffset": 90,
+      "codeContent": "import { AppServerModule } from \u0027./app/app.server.module\u0027;\n\nexport default AppServerModule",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
     }
   ],
   "toolStats": {
     "AI Assistant": {
       "usageCount": 125,
       "totalLines": 3338
+    },
+    "GitHub Copilot": {
+      "usageCount": 2,
+      "totalLines": 8
     }
   }
 }
