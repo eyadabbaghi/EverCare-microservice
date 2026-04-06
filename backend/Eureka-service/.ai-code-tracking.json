@@ -649,12 +649,23 @@
       "aiTool": "GitHub Copilot",
       "detectionMethod": "REALTIME_SPEED_ANALYSIS",
       "lineCount": 26
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1775482821874,
+      "startOffset": 1503,
+      "endOffset": 2020,
+      "codeContent": "// Route to NestJS user-node-service (instead of Spring Boot User-service)\n                .route(\"user-node-service\", r -\u003e r\n                        .path(\"/EverCare/auth/**\", \"/EverCare/users/**\", \"/EverCare/test/**\")\n                        .uri(\"lb://USER-NODE-SERVICE\"))\n                // Keep Spring Boot user-service as fallback (commented out)\n                // .route(\"user-service\", r -\u003e r\n                //         .path(\"/EverCare/auth/**\", \"/EverCare/users/**\", \"/EverCare/test/**\")\n                //",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 8
     }
   ],
   "toolStats": {
     "GitHub Copilot": {
-      "usageCount": 59,
-      "totalLines": 2468
+      "usageCount": 60,
+      "totalLines": 2476
     }
   }
 }

@@ -22,8 +22,16 @@ async function bootstrap() {
     express.static(path.join(process.cwd(), 'uploads')),
   );
 
-  // Enable CORS
-  app.enableCors();
+  // Enable CORS - only for API Gateway, not for direct browser access
+  // The API Gateway handles CORS for frontend requests, so we disable it here
+  // to avoid duplicate CORS headers
+  // app.enableCors({
+  //   origin: '*',
+  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  //   allowedHeaders: 'Content-Type,Authorization',
+  //   preflightContinue: false,
+  //   optionsSuccessStatus: 204,
+  // });
 
   // Set global prefix
   app.setGlobalPrefix('EverCare');

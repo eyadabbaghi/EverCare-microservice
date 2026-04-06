@@ -32,9 +32,14 @@ public class ApiGatewayApplication {
                 .route("alerts-service", r -> r
                         .path("/EverCare/incidents/**", "/EverCare/alerts/**")
                         .uri("lb://alerts-service"))
-                .route("user-service", r -> r
+                // Route to NestJS user-node-service (direct URL - keep context path)
+                .route("user-node-service", r -> r
                         .path("/EverCare/auth/**", "/EverCare/users/**", "/EverCare/test/**")
-                        .uri("lb://User-service"))
+                        .uri("http://localhost:8096/EverCare"))
+                // Keep Spring Boot user-service as fallback (commented out)
+                // .route("user-service", r -> r
+                //         .path("/EverCare/auth/**", "/EverCare/users/**", "/EverCare/test/**")
+                //         .uri("lb://User-service"))
                 .route("appointment-service", r -> r
                         .path("/EverCare/appointments/**",
                                 "/EverCare/availabilities/**",

@@ -1265,12 +1265,45 @@
       "aiTool": "GitHub Copilot",
       "detectionMethod": "REALTIME_SPEED_ANALYSIS",
       "lineCount": 26
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/appointment-service/src/main/java/everCare/appointments/AppointmentServiceApplication.java",
+      "timestamp": 1775480313017,
+      "startOffset": 225,
+      "endOffset": 308,
+      "codeContent": "import org.springframework.cloud.openfeign.EnableFeignClients;\n\n@EnableFeignClients",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/appointment-service/src/main/java/everCare/appointments/controllers/AppointmentController.java",
+      "timestamp": 1775480586545,
+      "startOffset": 332,
+      "endOffset": 5181,
+      "codeContent": "dtos.UserDto;\nimport everCare.appointments.services.AppointmentService;\nimport everCare.appointments.repositories.UserRepository;\nimport everCare.appointments.repositories.ConsultationTypeRepository;\nimport everCare.appointments.client.UserServiceClient;\nimport everCare.appointments.exceptions.ResourceNotFoundException;\nimport lombok.RequiredArgsConstructor;\nimport org.springframework.format.annotation.DateTimeFormat;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.web.bind.annotation.*;\nimport java.time.LocalDateTime;\nimport java.util.List;\nimport java.util.stream.Collectors;\n\n@RestController\n@RequestMapping(\"/appointments\")\n@RequiredArgsConstructor\npublic class AppointmentController {\n\n    private final AppointmentService appointmentService;\n    private final UserRepository userRepository;\n    private final ConsultationTypeRepository consultationTypeRepository;\n    private final UserServiceClient userServiceClient; // Feign client to call NestJS user service\n\n    // \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d CREATE WITH DTO \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n\n    @PostMapping\n    public ResponseEntity\u003cAppointment\u003e createAppointment(@RequestBody AppointmentDTO appointmentDTO) {\n        // Create new appointment entity from DTO\n        Appointment appointment \u003d new Appointment();\n\n        // Load patient from NestJS user service (via Feign client)\n        if (appointmentDTO.getPatientId() !\u003d null) {\n            UserDto patientDto \u003d userServiceClient.getUserById(appointmentDTO.getPatientId());\n            if (patientDto \u003d\u003d null) {\n                throw new ResourceNotFoundException(\"Patient not found with id: \" + appointmentDTO.getPatientId());\n            }\n            // Convert DTO to entity for local use\n            appointment.setPatient(convertDtoToUser(patientDto));\n        } else {\n            throw new ResourceNotFoundException(\"Patient ID is required\");\n        }\n\n        // Load doctor from NestJS user service\n        if (appointmentDTO.getDoctorId() !\u003d null) {\n            UserDto doctorDto \u003d userServiceClient.getUserById(appointmentDTO.getDoctorId());\n            if (doctorDto \u003d\u003d null) {\n                throw new ResourceNotFoundException(\"Doctor not found with id: \" + appointmentDTO.getDoctorId());\n            }\n            appointment.setDoctor(convertDtoToUser(doctorDto));\n        } else {\n            throw new ResourceNotFoundException(\"Doctor ID is required\");\n        }\n\n        // Load caregiver from NestJS user service (optional)\n        if (appointmentDTO.getCaregiverId() !\u003d null \u0026\u0026 !appointmentDTO.getCaregiverId().isEmpty()) {\n            UserDto caregiverDto \u003d userServiceClient.getUserById(appointmentDTO.getCaregiverId());\n            if (caregiverDto !\u003d null) {\n                appointment.setCaregiver(convertDtoToUser(caregiverDto));\n            }\n        }\n\n        // Load and set consultation type\n        if (appointmentDTO.getConsultationTypeId() !\u003d null) {\n            ConsultationType consultationType \u003d consultationTypeRepository.findById(appointmentDTO.getConsultationTypeId())\n                    .orElseThrow(() -\u003e new ResourceNotFoundException(\"Consultation type not found with id: \" + appointmentDTO.getConsultationTypeId()));\n            appointment.setConsultationType(consultationType);\n        } else {\n            throw new ResourceNotFoundException(\"Consultation type ID is required\");\n        }\n\n        // Set other fields\n        appointment.setStartDateTime(appointmentDTO.getStartDateTime());\n        appointment.setEndDateTime(appointmentDTO.getEndDateTime());\n        appointment.setStatus(appointmentDTO.getStatus() !\u003d null ? appointmentDTO.getStatus() : \"SCHEDULED\");\n        appointment.setCaregiverPresence(appointmentDTO.getCaregiverPresence());\n        appointment.setVideoLink(appointmentDTO.getVideoLink());\n        appointment.setSimpleSummary(appointmentDTO.getSimpleSummary());\n\n        // Set default values for other fields\n        appointment.setRecurring(false);\n\n        Appointment createdAppointment \u003d appointmentService.createAppointment(appointment);\n        return new ResponseEntity\u003c\u003e(createdAppointment, HttpStatus.CREATED);\n    }\n\n    // Helper method: Convert UserDto from NestJS to User entity for local use\n    private User convertDtoToUser(UserDto dto) {\n        if (dto \u003d\u003d null) return null;\n        User user \u003d new User();\n        user.setUserId(dto.getUserId());\n        user.setName(dto.getName());\n        user.setEmail(dto.getEmail());\n        user.setPhone(dto.getPhone());\n        user.setProfilePicture(dto.getProfilePicture());\n        // Set role - need to convert string to enum\n        try {\n            user.setRole(everCare.appointments.enums.UserRole.valueOf(dto.getRole()));\n        } catch (Exception e) {\n            // If role conversion fails, leave as null\n        }\n        return user",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 103
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1775482821873,
+      "startOffset": 1503,
+      "endOffset": 2020,
+      "codeContent": "// Route to NestJS user-node-service (instead of Spring Boot User-service)\n                .route(\"user-node-service\", r -\u003e r\n                        .path(\"/EverCare/auth/**\", \"/EverCare/users/**\", \"/EverCare/test/**\")\n                        .uri(\"lb://USER-NODE-SERVICE\"))\n                // Keep Spring Boot user-service as fallback (commented out)\n                // .route(\"user-service\", r -\u003e r\n                //         .path(\"/EverCare/auth/**\", \"/EverCare/users/**\", \"/EverCare/test/**\")\n                //",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 8
     }
   ],
   "toolStats": {
     "GitHub Copilot": {
-      "usageCount": 115,
-      "totalLines": 4436
+      "usageCount": 118,
+      "totalLines": 4550
     }
   }
 }

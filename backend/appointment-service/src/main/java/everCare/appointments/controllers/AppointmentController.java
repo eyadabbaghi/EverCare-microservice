@@ -5,9 +5,11 @@ import everCare.appointments.entities.User;
 import everCare.appointments.entities.ConsultationType;
 import everCare.appointments.dtos.AppointmentDTO;
 import everCare.appointments.dtos.AppointmentResponseDTO;
+import everCare.appointments.dtos.UserDto;
 import everCare.appointments.services.AppointmentService;
 import everCare.appointments.repositories.UserRepository;
 import everCare.appointments.repositories.ConsultationTypeRepository;
+import everCare.appointments.client.UserServiceClient;
 import everCare.appointments.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,6 +28,7 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
     private final UserRepository userRepository;
     private final ConsultationTypeRepository consultationTypeRepository;
+    private final UserServiceClient userServiceClient; // Feign client to call NestJS user service
 
     // ========== CREATE WITH DTO ==========
 
@@ -34,29 +37,35 @@ public class AppointmentController {
         // Create new appointment entity from DTO
         Appointment appointment = new Appointment();
 
-        // Load and set patient
+        // Load patient from NestJS user service (via Feign client)
         if (appointmentDTO.getPatientId() != null) {
-            User patient = userRepository.findById(appointmentDTO.getPatientId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + appointmentDTO.getPatientId()));
-            appointment.setPatient(patient);
+            UserDto patientDto = userServiceClient.getUserById(appointmentDTO.getPatientId());
+            if (patientDto == null) {
+                throw new ResourceNotFoundException("Patient not found with id: " + appointmentDTO.getPatientId());
+            }
+            // Convert DTO to entity for local use
+            appointment.setPatient(convertDtoToUser(patientDto));
         } else {
             throw new ResourceNotFoundException("Patient ID is required");
         }
 
-        // Load and set doctor
+        // Load doctor from NestJS user service
         if (appointmentDTO.getDoctorId() != null) {
-            User doctor = userRepository.findById(appointmentDTO.getDoctorId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + appointmentDTO.getDoctorId()));
-            appointment.setDoctor(doctor);
+            UserDto doctorDto = userServiceClient.getUserById(appointmentDTO.getDoctorId());
+            if (doctorDto == null) {
+                throw new ResourceNotFoundException("Doctor not found with id: " + appointmentDTO.getDoctorId());
+            }
+            appointment.setDoctor(convertDtoToUser(doctorDto));
         } else {
             throw new ResourceNotFoundException("Doctor ID is required");
         }
 
-        // Load and set caregiver (optional)
+        // Load caregiver from NestJS user service (optional)
         if (appointmentDTO.getCaregiverId() != null && !appointmentDTO.getCaregiverId().isEmpty()) {
-            User caregiver = userRepository.findById(appointmentDTO.getCaregiverId())
-                    .orElse(null);
-            appointment.setCaregiver(caregiver);
+            UserDto caregiverDto = userServiceClient.getUserById(appointmentDTO.getCaregiverId());
+            if (caregiverDto != null) {
+                appointment.setCaregiver(convertDtoToUser(caregiverDto));
+            }
         }
 
         // Load and set consultation type
@@ -81,6 +90,24 @@ public class AppointmentController {
 
         Appointment createdAppointment = appointmentService.createAppointment(appointment);
         return new ResponseEntity<>(createdAppointment, HttpStatus.CREATED);
+    }
+
+    // Helper method: Convert UserDto from NestJS to User entity for local use
+    private User convertDtoToUser(UserDto dto) {
+        if (dto == null) return null;
+        User user = new User();
+        user.setUserId(dto.getUserId());
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setPhone(dto.getPhone());
+        user.setProfilePicture(dto.getProfilePicture());
+        // Set role - convert string to enum from entities package
+        try {
+            user.setRole(everCare.appointments.entities.UserRole.valueOf(dto.getRole()));
+        } catch (Exception e) {
+            // If role conversion fails, leave as null
+        }
+        return user;
     }
 
     // ========== READ ALL ==========

@@ -13,6 +13,7 @@ import {
   Logger,
   UseGuards,
   BadRequestException,
+  Param,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from '../services/users.service';
@@ -22,10 +23,9 @@ import { ChangePasswordRequestDto } from '../dto/change-password-request';
 import { UserRole } from '../schemas/user-role.enum';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import type { AuthenticatedUser } from '../../auth/strategies/jwt.strategy'; // Use import type
+import type { AuthenticatedUser } from '../../auth/strategies/jwt.strategy';
 
 @Controller('users')
-@UseGuards(JwtAuthGuard)
 export class UserController {
   private readonly logger = new Logger(UserController.name);
 
@@ -34,6 +34,39 @@ export class UserController {
     private readonly fileUploadService: FileUploadService,
   ) {}
 
+  @Get('health')
+  health() {
+    return { status: 'ok', service: 'user-node-service' };
+  }
+
+  @Get('external/:userId')
+  async getUserByIdExternal(@Param('userId') userId: string) {
+    const user = await this.userService.findByUserId(userId);
+    if (!user) {
+      return null;
+    }
+    return this.userService.mapToUserDto(user);
+  }
+
+  @Get('external/email/:email')
+  async getUserByEmailExternal(@Param('email') email: string) {
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      return null;
+    }
+    return this.userService.mapToUserDto(user);
+  }
+
+  @Get('external/role/:role')
+  async getUsersByRoleExternal(@Param('role') role: UserRole) {
+    const users = await this.userService.findByRole(role);
+    const userDtos = await Promise.all(
+      users.map((user) => this.userService.mapToUserDto(user)),
+    );
+    return userDtos;
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Put('profile')
   async updateProfile(
     @Body() updateRequest: UpdateUserRequestDto,
