@@ -23,6 +23,7 @@ public class AvailabilityServiceImpl implements AvailabilityService {
 
     private final AvailabilityRepository availabilityRepository;
     private final UserRepository userRepository;
+    private final UserSyncService userSyncService;
 
     // ========== CREATE ==========
 
@@ -63,7 +64,7 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     public Availability createWeeklyAvailability(String doctorId, DayOfWeek dayOfWeek, LocalTime startTime,
                                                  LocalTime endTime, LocalDate validFrom, LocalDate validTo) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
 
         Availability availability = Availability.builder()
                 .availabilityId(UUID.randomUUID().toString())
@@ -96,28 +97,28 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     @Override
     public List<Availability> getAvailabilitiesByDoctor(String doctorId) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
         return availabilityRepository.findByDoctor(doctor);
     }
 
     @Override
     public List<Availability> getAvailabilitiesByDoctorAndDay(String doctorId, DayOfWeek dayOfWeek) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
         return availabilityRepository.findByDoctorAndDayOfWeek(doctor, dayOfWeek);
     }
 
     @Override
     public List<Availability> getValidAvailabilitiesForDate(String doctorId, LocalDate date) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
         return availabilityRepository.findValidByDoctorAndDate(doctor, date);
     }
 
     @Override
     public List<Availability> getBlockedSlots(String doctorId) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
         return availabilityRepository.findByDoctorAndIsBlockedTrue(doctor);
     }
 
@@ -129,7 +130,7 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     @Override
     public List<Availability> getAvailabilitiesByDoctorAndPeriod(String doctorId, LocalDate from, LocalDate to) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
         return availabilityRepository.findByDoctorAndValidFromLessThanEqualAndValidToGreaterThanEqual(doctor, from, to);
     }
 

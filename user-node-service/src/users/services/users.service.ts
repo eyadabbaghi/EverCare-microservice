@@ -338,6 +338,43 @@ export class UserService {
     return this.userRepository.findAll();
   }
 
+  async getAllUserDtos(): Promise<UserDto[]> {
+    const users = await this.userRepository.findAll();
+    return Promise.all(users.map((user) => this.mapToUserDto(user)));
+  }
+
+  async getUserDtoById(userId: string): Promise<UserDto> {
+    const user = await this.findById(userId);
+    return this.mapToUserDto(user);
+  }
+
+  async getPatientsByCaregiverId(caregiverId: string): Promise<UserDto[]> {
+    const caregiver = await this.findById(caregiverId);
+
+    if (caregiver.role !== UserRole.CAREGIVER) {
+      throw new BadRequestException('User is not a caregiver');
+    }
+
+    const patients = await this.userRepository.findAll();
+    return Promise.all(
+      patients
+        .filter((patient) => caregiver.patientIds?.includes(patient.userId))
+        .map((patient) => this.mapToUserDto(patient)),
+    );
+  }
+
+  async getPatientsForDoctor(doctorEmail: string): Promise<UserDto[]> {
+    const users = await this.userRepository.findAll();
+    return Promise.all(
+      users
+        .filter(
+          (user) =>
+            user.role === UserRole.PATIENT && user.doctorEmail === doctorEmail,
+        )
+        .map((user) => this.mapToUserDto(user)),
+    );
+  }
+
   async updateUserByAdmin(
     userId: string,
     request: UpdateUserByAdminDto,

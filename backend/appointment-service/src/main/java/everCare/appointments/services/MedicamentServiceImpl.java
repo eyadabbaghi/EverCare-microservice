@@ -1,4 +1,4 @@
-package everCare.appointments.services.impl;
+package everCare.appointments.services;
 
 import everCare.appointments.entities.Medicament;
 import everCare.appointments.exceptions.ResourceNotFoundException;

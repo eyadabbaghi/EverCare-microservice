@@ -28,25 +28,13 @@ export class AdminController {
   @Get('users')
   async getAllUsers() {
     const users = await this.userService.getAllUsers();
-    const userDtos = users.map((user) =>
-      this.userService.mapToUserAdminDto(user),
-    );
-
-    return {
-      data: userDtos,
-      message: 'Users retrieved successfully',
-    };
+    return users.map((user) => this.userService.mapToUserAdminDto(user));
   }
 
   @Get('users/:userId')
   async getUserById(@Param('userId') userId: string) {
     const user = await this.userService.findById(userId);
-    const userDto = this.userService.mapToUserAdminDto(user);
-
-    return {
-      data: userDto,
-      message: 'User retrieved successfully',
-    };
+    return this.userService.mapToUserAdminDto(user);
   }
 
   @Put('users/:userId')
@@ -59,12 +47,7 @@ export class AdminController {
       userId,
       updateRequest,
     );
-    const userDto = this.userService.mapToUserAdminDto(user);
-
-    return {
-      data: userDto,
-      message: 'User updated successfully',
-    };
+    return this.userService.mapToUserAdminDto(user);
   }
 
   @Delete('users/:userId')

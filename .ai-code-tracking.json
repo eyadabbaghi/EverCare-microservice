@@ -1397,6 +1397,127 @@
       "aiTool": "GitHub Copilot",
       "detectionMethod": "REALTIME_SPEED_ANALYSIS",
       "lineCount": 3
+    },
+    {
+      "filePath": "/ConfigServer.java",
+      "timestamp": 1775751018127,
+      "startOffset": 172,
+      "endOffset": 192,
+      "codeContent": "IntellijIdeaRulezzz ",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/configServer/src/main/java/com/example/demo/ConfigServer.java",
+      "timestamp": 1775751020000,
+      "startOffset": 174,
+      "endOffset": 195,
+      "codeContent": "ableAutoConfiguration",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/ConfigServer.java",
+      "timestamp": 1775751020059,
+      "startOffset": 172,
+      "endOffset": 211,
+      "codeContent": "org.springframework.boot.autoconfigure.",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/ConfigServer.java",
+      "timestamp": 1775751020068,
+      "startOffset": 78,
+      "endOffset": 148,
+      "codeContent": "import org.springframework.boot.autoconfigure.EnableAutoConfiguration;",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/configServer/src/main/java/com/example/demo/ConfigServer.java",
+      "timestamp": 1775751020088,
+      "startOffset": 78,
+      "endOffset": 149,
+      "codeContent": "import org.springframework.boot.autoconfigure.EnableAutoConfiguration;\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/configServer/src/main/java/com/example/demo/ConfigServer.java",
+      "timestamp": 1775751026811,
+      "startOffset": 243,
+      "endOffset": 286,
+      "codeContent": "org.springframework.cloud.client.discovery.",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/configServer/src/main/java/com/example/demo/ConfigServer.java",
+      "timestamp": 1775751026819,
+      "startOffset": 217,
+      "endOffset": 289,
+      "codeContent": "import org.springframework.cloud.client.discovery.EnableDiscoveryClient;",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/ConfigServer.java",
+      "timestamp": 1775751031460,
+      "startOffset": 217,
+      "endOffset": 290,
+      "codeContent": "\nimport org.springframework.cloud.client.discovery.EnableDiscoveryClient;",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 2
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/configServer/src/main/java/com/example/demo/ConfigServer.java",
+      "timestamp": 1775751037619,
+      "startOffset": 339,
+      "endOffset": 379,
+      "codeContent": "org.springframework.cloud.config.server.",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/configServer/src/main/java/com/example/demo/ConfigServer.java",
+      "timestamp": 1775751037627,
+      "startOffset": 290,
+      "endOffset": 356,
+      "codeContent": "import org.springframework.cloud.config.server.EnableConfigServer;",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1775755747625,
+      "startOffset": 1708,
+      "endOffset": 4145,
+      "codeContent": "admin/**\", \"/EverCare/test/**\")\n                        .uri(\"http://localhost:8096/EverCare\"))\n                // Keep Spring Boot user-service as fallback (commented out)\n                // .route(\"user-service\", r -\u003e r\n                //         .path(\"/EverCare/auth/**\", \"/EverCare/users/**\", \"/EverCare/test/**\")\n                //         .uri(\"lb://User-service\"))\n                .route(\"appointment-service\", r -\u003e r\n                        .path(\"/EverCare/appointments/**\",\n                                \"/EverCare/availabilities/**\",\n                                \"/EverCare/consultation-types/**\",\n                                \"/EverCare/medicaments/**\",\n                                \"/EverCare/prescriptions/**\")\n                        .uri(\"lb://APPOINTMENT-SERVICE\"))\n                .route(\"notification-service\", r -\u003e r\n                        .path(\"/EverCare/api/notifications/**\")\n                        .filters(f -\u003e f.rewritePath(\"/EverCare/(?\u003csegment\u003e.*)\", \"/${segment}\"))\n                        .uri(\"lb://notification-service\"))\n\n                .route(\"communication-service\", r -\u003e r\n                        .path(\"/api/calls/**\",\n                                \"/api/conversations/**\")\n                        .uri(\"lb://COMMUNICATION-SERVICE\"))\n                .route(\"medical-record-service\", r -\u003e r\n                        .path(\"/api/medical-records/**\")\n                        .uri(\"lb://MEDICAL-RECORD-SERVICE\"))\n                .route(\"dailyme-service\", r -\u003e r\n                        .path(\"/api/daily-entries/**\", \"/api/dailyme-alerts/**\", \"/api/daily-tasks/**\", \"/api/journal/**\", \"/api/insights\")\n                        .filters(f -\u003e f.rewritePath(\"/EverCare/(?\u003csegment\u003e.*)\", \"/${segment}\"))\n                        .uri(\"lb://DAILYME-SERVICE\"))\n\n                // 1. Route pour le WebSocket (doit être définie avant les routes HTTP générales)\n                .route(\"communication-websocket\", r -\u003e r\n                        .path(\"/ws-chat/**\")\n                        .uri(\"lb://COMMUNICATION-SERVICE\"))\n                 .route(\"communication-service\", r -\u003e r\n                                         .path(\"/communication-service/**\")\n                                         .filters(f -\u003e f.rewritePath(\"/communication-service/(?\u003csegment\u003e.*)\", \"/${segment}\"))\n                                         .uri(\"lb://COMMUNICATION-SERVICE\"))\n\n                .build();\n    }\n\n\n\n\n\n}\n",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 48
     }
   ],
   "toolStats": {
@@ -1405,8 +1526,8 @@
       "totalLines": 3338
     },
     "GitHub Copilot": {
-      "usageCount": 2,
-      "totalLines": 8
+      "usageCount": 13,
+      "totalLines": 68
     }
   }
 }

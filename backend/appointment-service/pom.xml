@@ -16,6 +16,10 @@
 	<name>appointment-service</name>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
 		<!-- The Parent already provides Lombok and Test, no need to add them here -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
