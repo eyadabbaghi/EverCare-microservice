@@ -13,24 +13,11 @@ export class TimelineAppointmentCardComponent {
   @Input() cognitiveInfo?: string;
 
   @Output() onClick = new EventEmitter<Appointment>();
-  @Output() onStart = new EventEmitter<Appointment>();
-  @Output() onJoin = new EventEmitter<string>();
   @Output() onViewProfile = new EventEmitter<string>();
 
   getDuration(): number {
     const diff = this.appointment.endDateTime.getTime() - this.appointment.startDateTime.getTime();
     return Math.round(diff / 60000);
-  }
-
-  get showStartButton(): boolean {
-    return this.appointment.status === 'SCHEDULED' ||
-      this.appointment.status === 'CONFIRMED_BY_PATIENT';
-  }
-
-  get showJoinButton(): boolean {
-    return !!(this.appointment.videoLink &&
-      (this.appointment.status === 'CONFIRMED_BY_PATIENT' ||
-        this.appointment.status === 'CONFIRMED_BY_CAREGIVER'));
   }
 
   getStatusClass(status: string): string {

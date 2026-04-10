@@ -45,15 +45,13 @@ export class AvailabilityManagerComponent implements OnInit {
       'SUNDAY': 'Sunday'
     };
 
-    // IMPORTANT: Send doctor as object with userId, not just doctorId string
     const newSlot = {
-      doctor: { userId: this.doctorId }, // This is what the backend expects
+      doctorId: this.doctorId,
       dayOfWeek: this.newAvailability.dayCode,
       startTime: this.newAvailability.startTime,
       endTime: this.newAvailability.endTime,
-      slotDuration: this.newAvailability.slotDuration,
-      validFrom: new Date(this.newAvailability.validFrom),
-      validTo: new Date(this.newAvailability.validTo),
+      validFrom: new Date(this.newAvailability.validFromDate),
+      validTo: new Date(this.newAvailability.validToDate),
       recurrence: this.newAvailability.recurrence,
       isBlocked: false,
       blockReason: null,

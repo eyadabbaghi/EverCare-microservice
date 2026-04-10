@@ -159,11 +159,6 @@ public class ConsultationTypeServiceImpl implements ConsultationTypeService {
     // ========== BUSINESS LOGIC ==========
 
     @Override
-    public int calculateAlzheimerDuration(int defaultDuration) {
-        return (int)(defaultDuration * 1.25); // +25%
-    }
-
-    @Override
     public boolean isTypeAvailableForPatient(String typeId, String patientStage) {
         ConsultationType type = getConsultationTypeById(typeId);
 

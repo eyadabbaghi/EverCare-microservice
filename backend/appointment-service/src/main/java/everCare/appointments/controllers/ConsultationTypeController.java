@@ -156,12 +156,6 @@ public class ConsultationTypeController {
 
     // ========== BUSINESS LOGIC ==========
 
-    @GetMapping("/calculate-alzheimer-duration")
-    public ResponseEntity<Integer> calculateAlzheimerDuration(@RequestParam int defaultDuration) {
-        int alzheimerDuration = consultationTypeService.calculateAlzheimerDuration(defaultDuration);
-        return ResponseEntity.ok(alzheimerDuration);
-    }
-
     @GetMapping("/{id}/available-for-patient")
     public ResponseEntity<Boolean> isTypeAvailableForPatient(
             @PathVariable String id,

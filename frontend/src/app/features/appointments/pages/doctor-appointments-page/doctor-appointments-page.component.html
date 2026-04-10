@@ -12,12 +12,32 @@
       <!-- Stats Cards Component -->
       <app-stats-cards [stats]="doctorStats"></app-stats-cards>
 
+      <div class="bg-white rounded-xl border border-[#C4B5FD] shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-lg font-semibold text-[#2D1B4E]">7-Day Appointment Trend</h3>
+            <p class="text-sm text-[#6B5B8C]">How your appointment load evolved this week</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-7 gap-3" *ngIf="doctorTrend.length > 0">
+          <div *ngFor="let point of doctorTrend" class="flex flex-col items-center gap-2">
+            <div class="h-28 w-full flex items-end justify-center bg-[#FAF8FC] rounded-lg px-2 py-3">
+              <div
+                class="w-full max-w-[28px] rounded-md bg-gradient-to-t from-[#7C3AED] to-[#C4B5FD]"
+                [style.height.%]="(point.count / getTrendMax()) * 100">
+              </div>
+            </div>
+            <div class="text-xs font-medium text-[#2D1B4E]">{{ point.day }}</div>
+            <div class="text-sm text-[#6B5B8C]">{{ point.count }}</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Today's Schedule Component -->
       <app-today-schedule
         [appointments]="todayAppointments"
         (onCardClick)="viewAppointmentDetails($event)"
-        (onStart)="startConsultation($event)"
-        (onJoin)="joinVideoCall($event)"
         (onViewProfile)="viewPatientProfile($event)">
       </app-today-schedule>
 
@@ -71,8 +91,6 @@
       [emergencyContact]="selectedPatientEmergency"
       [previousVisits]="selectedPatientVisits"
       (onClose)="closeDetailsDialog()"
-      (onStart)="startConsultation($event)"
-      (onPrescribe)="openPrescription()"
       (onEditNotes)="enableNotesEditing()"
       (onNotesChange)="updateNotes($event)">
     </app-appointment-details-modal>

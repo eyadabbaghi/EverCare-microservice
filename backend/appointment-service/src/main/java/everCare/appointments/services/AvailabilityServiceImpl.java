@@ -1,20 +1,23 @@
 package everCare.appointments.services;
 
 import everCare.appointments.entities.Availability;
-import everCare.appointments.entities.User;
 import everCare.appointments.exceptions.ResourceNotFoundException;
+import everCare.appointments.repositories.AppointmentRepository;
 import everCare.appointments.repositories.AvailabilityRepository;
-import everCare.appointments.repositories.UserRepository;
 import everCare.appointments.services.AvailabilityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Service
 @RequiredArgsConstructor
@@ -22,13 +25,15 @@ import java.util.UUID;
 public class AvailabilityServiceImpl implements AvailabilityService {
 
     private final AvailabilityRepository availabilityRepository;
-    private final UserRepository userRepository;
-    private final UserSyncService userSyncService;
+    private final AppointmentRepository appointmentRepository;
+    private final UserDirectoryService userDirectoryService;
 
     // ========== CREATE ==========
 
     @Override
     public Availability createAvailability(Availability availability) {
+        userDirectoryService.getRequiredDoctor(availability.getDoctorId());
+
         // Generate ID if not present
         if (availability.getAvailabilityId() == null) {
             availability.setAvailabilityId(UUID.randomUUID().toString());
@@ -48,6 +53,8 @@ public class AvailabilityServiceImpl implements AvailabilityService {
             availability.setRecurrence("WEEKLY");
         }
 
+        validateAvailability(availability, null);
+
         return availabilityRepository.save(availability);
     }
 
@@ -63,12 +70,11 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     @Override
     public Availability createWeeklyAvailability(String doctorId, DayOfWeek dayOfWeek, LocalTime startTime,
                                                  LocalTime endTime, LocalDate validFrom, LocalDate validTo) {
-        User doctor = userRepository.findById(doctorId)
-                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
+        userDirectoryService.getRequiredDoctor(doctorId);
 
         Availability availability = Availability.builder()
                 .availabilityId(UUID.randomUUID().toString())
-                .doctor(doctor)
+                .doctorId(doctorId)
                 .dayOfWeek(dayOfWeek)
                 .startTime(startTime)
                 .endTime(endTime)
@@ -77,6 +83,8 @@ public class AvailabilityServiceImpl implements AvailabilityService {
                 .recurrence("WEEKLY")
                 .isBlocked(false)
                 .build();
+
+        validateAvailability(availability, null);
 
         return availabilityRepository.save(availability);
     }
@@ -96,30 +104,26 @@ public class AvailabilityServiceImpl implements AvailabilityService {
 
     @Override
     public List<Availability> getAvailabilitiesByDoctor(String doctorId) {
-        User doctor = userRepository.findById(doctorId)
-                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
-        return availabilityRepository.findByDoctor(doctor);
+        userDirectoryService.getRequiredDoctor(doctorId);
+        return availabilityRepository.findByDoctorId(doctorId);
     }
 
     @Override
     public List<Availability> getAvailabilitiesByDoctorAndDay(String doctorId, DayOfWeek dayOfWeek) {
-        User doctor = userRepository.findById(doctorId)
-                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
-        return availabilityRepository.findByDoctorAndDayOfWeek(doctor, dayOfWeek);
+        userDirectoryService.getRequiredDoctor(doctorId);
+        return availabilityRepository.findByDoctorIdAndDayOfWeek(doctorId, dayOfWeek);
     }
 
     @Override
     public List<Availability> getValidAvailabilitiesForDate(String doctorId, LocalDate date) {
-        User doctor = userRepository.findById(doctorId)
-                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
-        return availabilityRepository.findValidByDoctorAndDate(doctor, date);
+        userDirectoryService.getRequiredDoctor(doctorId);
+        return availabilityRepository.findValidByDoctorAndDate(doctorId, date);
     }
 
     @Override
     public List<Availability> getBlockedSlots(String doctorId) {
-        User doctor = userRepository.findById(doctorId)
-                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
-        return availabilityRepository.findByDoctorAndIsBlockedTrue(doctor);
+        userDirectoryService.getRequiredDoctor(doctorId);
+        return availabilityRepository.findByDoctorIdAndIsBlockedTrue(doctorId);
     }
 
     @Override
@@ -129,9 +133,8 @@ public class AvailabilityServiceImpl implements AvailabilityService {
 
     @Override
     public List<Availability> getAvailabilitiesByDoctorAndPeriod(String doctorId, LocalDate from, LocalDate to) {
-        User doctor = userRepository.findById(doctorId)
-                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
-        return availabilityRepository.findByDoctorAndValidFromLessThanEqualAndValidToGreaterThanEqual(doctor, from, to);
+        userDirectoryService.getRequiredDoctor(doctorId);
+        return availabilityRepository.findByDoctorIdAndValidFromLessThanEqualAndValidToGreaterThanEqual(doctorId, from, to);
     }
 
     // ========== UPDATE ==========
@@ -170,6 +173,8 @@ public class AvailabilityServiceImpl implements AvailabilityService {
             existingAvailability.setBlockReason(availabilityDetails.getBlockReason());
         }
 
+        validateAvailability(existingAvailability, existingAvailability.getAvailabilityId());
+
         return availabilityRepository.save(existingAvailability);
     }
 
@@ -206,9 +211,8 @@ public class AvailabilityServiceImpl implements AvailabilityService {
 
     @Override
     public void deleteAvailabilitiesByDoctor(String doctorId) {
-        User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
-        List<Availability> availabilities = availabilityRepository.findByDoctor(doctor);
+        userDirectoryService.getRequiredDoctor(doctorId);
+        List<Availability> availabilities = availabilityRepository.findByDoctorId(doctorId);
         availabilityRepository.deleteAll(availabilities);
     }
 
@@ -228,6 +232,14 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     @Override
     public boolean isSlotAvailable(String doctorId, LocalDate date, LocalTime time) {
         List<Availability> availabilities = getValidAvailabilitiesForDate(doctorId, date);
+
+        LocalDateTime slotStart = date.atTime(time);
+        LocalDateTime slotEnd = slotStart.plusMinutes(15);
+
+        boolean booked = appointmentRepository.countOverlappingAppointments(doctorId, slotStart, slotEnd) > 0;
+        if (booked) {
+            return false;
+        }
 
         // Check if there's an availability that covers this time slot
         DayOfWeek dayOfWeek = date.getDayOfWeek();
@@ -296,6 +308,40 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     }
 
     private boolean timeRangesOverlap(LocalTime start1, LocalTime end1, LocalTime start2, LocalTime end2) {
-        return !start1.isAfter(end2) && !start2.isAfter(end1);
+        return start1.isBefore(end2) && start2.isBefore(end1);
+    }
+
+    private void validateAvailability(Availability availability, String existingAvailabilityId) {
+        if (availability.getDoctorId() == null || availability.getDoctorId().isBlank()) {
+            throw new ResponseStatusException(BAD_REQUEST, "Doctor ID is required");
+        }
+
+        if (availability.getDayOfWeek() == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "Day of week is required");
+        }
+
+        if (availability.getStartTime() == null || availability.getEndTime() == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "Availability start and end times are required");
+        }
+
+        if (!availability.getStartTime().isBefore(availability.getEndTime())) {
+            throw new ResponseStatusException(BAD_REQUEST, "Availability start time must be before end time");
+        }
+
+        if (availability.getValidFrom() == null || availability.getValidTo() == null) {
+            throw new ResponseStatusException(BAD_REQUEST, "Availability validFrom and validTo are required");
+        }
+
+        if (availability.getValidFrom().isAfter(availability.getValidTo())) {
+            throw new ResponseStatusException(BAD_REQUEST, "Availability validFrom must be on or before validTo");
+        }
+
+        List<Availability> conflicts = findConflictingAvailabilities(availability.getDoctorId(), availability).stream()
+                .filter(existing -> existingAvailabilityId == null || !existing.getAvailabilityId().equals(existingAvailabilityId))
+                .toList();
+
+        if (!conflicts.isEmpty()) {
+            throw new ResponseStatusException(BAD_REQUEST, "Availability conflicts with an existing slot");
+        }
     }
 }

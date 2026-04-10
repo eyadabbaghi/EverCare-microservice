@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Appointment } from '../../models/appointment';
-import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-appointment-details',
@@ -12,14 +11,7 @@ export class AppointmentDetailsComponent {
   @Output() onClose = new EventEmitter<void>();
   @Output() onConfirm = new EventEmitter<string>();
   @Output() onCancel = new EventEmitter<string>();
-  @Output() onJoinCall = new EventEmitter<string>();
-  constructor(private router: Router) {}
-
-  joinVideoCall(): void {
-    if (this.appointment) {
-      this.router.navigate(['/appointments/video', this.appointment.appointmentId]);
-    }
-  }
+  constructor() {}
 
 
   getStatusClass(status: any): string {

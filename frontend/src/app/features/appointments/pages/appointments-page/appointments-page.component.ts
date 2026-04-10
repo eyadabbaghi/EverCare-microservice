@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Appointment } from '../../models/appointment';
+import { Appointment, AppointmentStatus } from '../../models/appointment';
 import { User } from '../../models/user';
 import { ConsultationType } from '../../models/consultation-type.model';
 import { AppointmentService } from '../../services/appointments.service';
@@ -10,6 +10,8 @@ import { ConsultationTypeService } from '../../services/consultation-type.servic
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs/operators';
+import { AppointmentFilter } from '../../models/appointment-filter';
+import { PageResponse } from '../../models/api-response';
 
 @Component({
   selector: 'app-appointments-page',
@@ -42,6 +44,13 @@ export class AppointmentsPageComponent implements OnInit {
 
   // Filters
   filters = { status: '', doctorId: '' };
+
+  // Pagination
+  pageResponse: PageResponse<Appointment> | null = null;
+  currentPage = 0;
+  pageSize = 10;
+  totalElements = 0;
+  totalPages = 0;
 
   // New appointment form
   newAppointment: any = {
@@ -210,74 +219,96 @@ export class AppointmentsPageComponent implements OnInit {
         return;
       }
 
-      const patientId = this.currentPatient.userId;
-      console.log('📅 Loading appointments for patient:', patientId);
-      console.log('🔑 Auth token present:', !!this.authService.getToken());
-
-      this.appointmentService.getAppointmentsByPatient(patientId).subscribe({
-        next: (data) => {
-          console.log('📦 Appointments received:', data);
-
-          // Ensure data is an array and matches the Appointment interface
-          if (Array.isArray(data)) {
-            // Validate and cast the data
-            this.appointments = data.map(item => ({
-              ...item,
-              startDateTime: new Date(item.startDateTime),
-              endDateTime: new Date(item.endDateTime),
-              createdAt: new Date(item.createdAt),
-              updatedAt: item.updatedAt ? new Date(item.updatedAt) : undefined,
-              confirmationDatePatient: item.confirmationDatePatient ? new Date(item.confirmationDatePatient) : undefined,
-              confirmationDateCaregiver: item.confirmationDateCaregiver ? new Date(item.confirmationDateCaregiver) : undefined
-            }));
-
-            console.log(`✅ Loaded ${this.appointments.length} appointments`);
-
-            if (this.appointments.length === 0) {
-              this.errorMessage = 'No appointments found for this patient';
-            } else {
-              this.errorMessage = ''; // Clear any previous error
-            }
-          } else {
-            console.error('❌ Received data is not an array:', data);
-            this.errorMessage = 'Invalid data format received from server';
-            this.appointments = [];
-          }
-
-          resolve();
-        },
-        error: (error) => {
-          console.error('❌ Error loading appointments:', error);
-
-          // Handle different error types with specific messages
-          if (error.status === 0) {
-            this.errorMessage = 'Cannot connect to server. Please check if backend is running.';
-            console.error('🔴 Network error - Is the backend running on port 8089?');
-          } else if (error.status === 401) {
-            this.errorMessage = 'Your session has expired. Please login again.';
-            console.error('🔴 Authentication error - Token may be expired');
-            setTimeout(() => this.router.navigate(['/login']), 2000);
-          } else if (error.status === 403) {
-            this.errorMessage = 'You do not have permission to access these appointments.';
-            console.error('🔴 Authorization error');
-          } else if (error.status === 404) {
-            this.errorMessage = 'Appointment endpoint not found.';
-            console.error('🔴 404 - Check if the URL is correct:', `${this.appointmentService['baseUrl']}/patient/${patientId}`);
-          } else if (error.status === 500) {
-            this.errorMessage = 'Server error. Please try again later.';
-            console.error('🔴 Server error - Check backend logs');
-          } else if (error.message && error.message.includes('incomplete')) {
-            this.errorMessage = 'Server sent incomplete data. Please contact support.';
-            console.error('🔴 Incomplete chunked encoding - Backend issue');
-          } else {
-            this.errorMessage = 'Failed to load appointments. Please try again.';
-          }
-
-          this.appointments = [];
-          resolve();
-        }
-      });
+      this.loadAppointmentsPage(0);
+      resolve();
     });
+  }
+
+  loadAppointmentsPage(page: number): void {
+    const filter: AppointmentFilter = {
+      patientId: this.currentPatient.userId!,
+      page: page,
+      size: this.pageSize,
+      sort: 'startDateTime',
+      direction: 'DESC'
+    };
+
+    if (this.filters.status) {
+      filter.status = this.filters.status as AppointmentStatus;
+    }
+    if (this.filters.doctorId) {
+      filter.doctorId = this.filters.doctorId;
+    }
+
+    console.log('📅 Loading appointments page:', page, 'with filter:', filter);
+
+    this.loading = true;
+
+    this.appointmentService.searchAppointments(filter).subscribe({
+      next: (response) => {
+        console.log('📦 PageResponse received:', response);
+
+        this.pageResponse = response;
+        this.currentPage = response.number;
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+
+        this.appointments = response.content.map(item => ({
+          ...item,
+          startDateTime: new Date(item.startDateTime),
+          endDateTime: new Date(item.endDateTime),
+          createdAt: new Date(item.createdAt),
+          updatedAt: item.updatedAt ? new Date(item.updatedAt) : undefined,
+          confirmationDatePatient: item.confirmationDatePatient ? new Date(item.confirmationDatePatient) : undefined,
+          confirmationDateCaregiver: item.confirmationDateCaregiver ? new Date(item.confirmationDateCaregiver) : undefined
+        }));
+
+        console.log(`✅ Loaded ${this.appointments.length} appointments (page ${this.currentPage + 1} of ${this.totalPages})`);
+
+        if (this.appointments.length === 0) {
+          this.errorMessage = 'No appointments found for this patient';
+        } else {
+          this.errorMessage = '';
+        }
+
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('❌ Error loading appointments:', error);
+
+        if (error.status === 0) {
+          this.errorMessage = 'Cannot connect to server. Please check if backend is running.';
+        } else if (error.status === 401) {
+          this.errorMessage = 'Your session has expired. Please login again.';
+          setTimeout(() => this.router.navigate(['/login']), 2000);
+        } else if (error.status === 403) {
+          this.errorMessage = 'You do not have permission to access these appointments.';
+        } else if (error.status === 404) {
+          this.errorMessage = 'Appointment endpoint not found.';
+        } else if (error.status === 500) {
+          this.errorMessage = 'Server error. Please try again later.';
+        } else {
+          this.errorMessage = 'Failed to load appointments. Please try again.';
+        }
+
+        this.appointments = [];
+        this.loading = false;
+      }
+    });
+  }
+
+  goToPage(page: number): void {
+    if (page >= 0 && page < this.totalPages) {
+      this.loadAppointmentsPage(page);
+    }
+  }
+
+  nextPage(): void {
+    this.goToPage(this.currentPage + 1);
+  }
+
+  previousPage(): void {
+    this.goToPage(this.currentPage - 1);
   }
 
   // ========== GETTERS ==========
@@ -312,6 +343,8 @@ export class AppointmentsPageComponent implements OnInit {
 
   onFiltersChanged(filters: { status: string; doctorId: string }): void {
     this.filters = filters;
+    this.currentPage = 0;
+    this.loadAppointmentsPage(0);
   }
 
   onMonthChanged(newDate: Date): void {
@@ -484,7 +517,17 @@ export class AppointmentsPageComponent implements OnInit {
     }
 
     const startDateTime = new Date(formData.date + 'T' + formData.time);
-    const endDateTime = new Date(startDateTime.getTime() + (selectedType?.alzheimerDuration || 20) * 60000);
+    const endDateTime = new Date(startDateTime.getTime() + ((selectedType?.defaultDurationMinutes || 20) * 60000));
+
+    const formatDateTime = (date: Date): string => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+    };
 
     const newAppointmentPayload: CreateAppointmentRequest = {
       patientId: this.currentPatient.userId!,
@@ -495,8 +538,8 @@ export class AppointmentsPageComponent implements OnInit {
       caregiverName: selectedCaregiver?.name,
       consultationTypeId: formData.consultationTypeId,
       consultationTypeName: selectedType?.name || '',
-      startDateTime: startDateTime,
-      endDateTime: endDateTime,
+      startDateTime: formatDateTime(startDateTime) as any,
+      endDateTime: formatDateTime(endDateTime) as any,
       status: 'SCHEDULED',
       caregiverPresence: formData.caregiverPresence,
       videoLink: `https://consult.evercare.com/room/${formData.doctorId}-${this.currentPatient.userId}`,

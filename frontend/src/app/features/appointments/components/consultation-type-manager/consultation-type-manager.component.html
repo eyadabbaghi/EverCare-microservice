@@ -26,18 +26,9 @@
       <!-- Default Duration -->
       <div>
         <label class="block text-sm font-medium text-[#2D1B4E] mb-2">Default Duration (min)</label>
-        <input type="number" [(ngModel)]="newType.defaultDuration"
+        <input type="number" [(ngModel)]="newType.defaultDurationMinutes"
                min="5" max="120" step="5"
-               class="w-full px-3 py-2 border border-[#E2E8F0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#7C3AED]">
-      </div>
-
-      <!-- Alzheimer Duration -->
-      <div>
-        <label class="block text-sm font-medium text-[#2D1B4E] mb-2">Alzheimer Duration (min)</label>
-        <input type="number" [(ngModel)]="newType.alzheimerDuration"
-               min="5" max="120" step="5"
-               [value]="newType.defaultDuration * 1.25"
-               class="w-full px-3 py-2 border border-[#E2E8F0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#7C3AED]">
+                class="w-full px-3 py-2 border border-[#E2E8F0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#7C3AED]">
       </div>
 
       <!-- Environment Preset -->
@@ -100,13 +91,7 @@
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
           </svg>
-          <span>Standard: {{ type.defaultDuration }}min</span>
-        </div>
-        <div class="flex items-center space-x-1 text-[#6B5B8C]">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M12 8v8M8 12h8"/>
-          </svg>
-          <span>Alzheimer: {{ type.alzheimerDuration }}min</span>
+          <span>Duration: {{ type.defaultDurationMinutes }}min</span>
         </div>
         <div class="flex items-center space-x-1 text-[#6B5B8C]">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">

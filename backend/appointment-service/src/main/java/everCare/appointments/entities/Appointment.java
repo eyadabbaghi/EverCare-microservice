@@ -27,17 +27,14 @@ public class Appointment {
 
     // ========== LIENS VERS AUTRES ENTITÉS ==========
 
-    @ManyToOne
-    @JoinColumn(name = "patient_id", nullable = false)
-    private User patient;  // User with role = PATIENT
+    @Column(name = "patient_id", nullable = false)
+    private String patientId;
 
-    @ManyToOne
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private User doctor;   // User with role = DOCTOR
+    @Column(name = "doctor_id", nullable = false)
+    private String doctorId;
 
-    @ManyToOne
-    @JoinColumn(name = "caregiver_id")
-    private User caregiver; // User with role = CAREGIVER (optional)
+    @Column(name = "caregiver_id")
+    private String caregiverId;
 
     @ManyToOne
     @JoinColumn(name = "consultation_type_id")

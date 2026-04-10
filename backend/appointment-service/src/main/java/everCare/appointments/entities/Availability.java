@@ -29,9 +29,8 @@ public class Availability {
 
     // ========== LIEN VERS MÉDECIN ==========
 
-    @ManyToOne
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private User doctor; // User with role = DOCTOR
+    @Column(name = "doctor_id", nullable = false)
+    private String doctorId;
 
     // ========== CRÉNEAU ==========
 

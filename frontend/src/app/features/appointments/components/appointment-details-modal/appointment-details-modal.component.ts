@@ -1,8 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Appointment } from '../../models/appointment';
-import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../../front-office/pages/login/auth.service';
 
 @Component({
@@ -18,16 +16,12 @@ export class AppointmentDetailsModalComponent {
   @Input() previousVisits?: number;
 
   @Output() onClose = new EventEmitter<void>();
-  @Output() onStart = new EventEmitter<Appointment>();
-  @Output() onPrescribe = new EventEmitter<void>();
   @Output() onEditNotes = new EventEmitter<void>();
   @Output() onNotesChange = new EventEmitter<string>();
 
   userRole: string = '';
 
   constructor(
-    private router: Router,
-    private toastr: ToastrService,
     private authService: AuthService
   ) {
     this.authService.currentUser$.subscribe(user => {
@@ -48,28 +42,6 @@ export class AppointmentDetailsModalComponent {
     return !!(this.appointment &&
       (this.appointment.status === 'SCHEDULED' ||
         this.appointment.status === 'CONFIRMED_BY_PATIENT'));
-  }
-
-  canStartVideoCall(): boolean {
-    return !!(this.appointment && (
-      this.appointment.status === 'CONFIRMED_BY_PATIENT' ||
-      this.appointment.status === 'CONFIRMED_BY_CAREGIVER' ||
-      this.appointment.status === 'SCHEDULED'
-    ));
-  }
-
-  isDoctor(): boolean {
-    return this.userRole === 'DOCTOR';
-  }
-
-  // ✅ Simple Jitsi navigation — same room for doctor and patient
-  startVideoConsultation(): void {
-    if (!this.appointment) {
-      this.toastr.error('No appointment selected');
-      return;
-    }
-    this.onClose.emit();
-    this.router.navigate(['/appointments/video', this.appointment.appointmentId]);
   }
 
   getStatusClass(status: string): string {

@@ -31,9 +31,6 @@ import { AppointmentsListComponent } from './components/appointments-list/appoin
 import { RouterModule } from '@angular/router';
 import { ToastrModule } from 'ngx-toastr';
 
-// NEW: Video consultation
-import { VideoConsultationPageComponent } from './pages/video-consultation-page/video-consultation-page.component';
-import { JitsiMeetComponent } from './components/jitsi-meet/jitsi-meet.component';
 import { UserAppointmentsComponent } from './pages/user-appointments/user-appointments.component';
 
 @NgModule({
@@ -63,9 +60,6 @@ import { UserAppointmentsComponent } from './pages/user-appointments/user-appoin
     CaregiverAppointmentsPageComponent,
     PatientInfoCardComponent,
     AppointmentsListComponent,
-    // NEW
-    VideoConsultationPageComponent,
-    JitsiMeetComponent,
     UserAppointmentsComponent,
   ],
   imports: [

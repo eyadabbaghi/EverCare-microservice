@@ -18,8 +18,7 @@ export class ConsultationTypeManagerComponent {
   newType: any = {
     name: '',
     description: '',
-    defaultDuration: 20,
-    alzheimerDuration: 25,
+    defaultDurationMinutes: 20,
     requiresCaregiver: false,
     environmentPreset: 'STANDARD',
     active: true
@@ -27,7 +26,7 @@ export class ConsultationTypeManagerComponent {
 
 
   onAddType(): void {
-    if (!this.newType.name || !this.newType.defaultDuration) {
+    if (!this.newType.name || !this.newType.defaultDurationMinutes) {
       // You could emit an error event here
       return;
     }
@@ -37,8 +36,7 @@ export class ConsultationTypeManagerComponent {
     this.newType = {
       name: '',
       description: '',
-      defaultDuration: 20,
-      alzheimerDuration: 25,
+      defaultDurationMinutes: 20,
       requiresCaregiver: false,
       environmentPreset: 'STANDARD',
       active: true

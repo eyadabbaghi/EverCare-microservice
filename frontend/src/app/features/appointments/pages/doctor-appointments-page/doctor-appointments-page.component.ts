@@ -10,6 +10,7 @@ import { AvailabilityService } from '../../services/availability.service';
 import { ConsultationTypeService } from '../../services/consultation-type.service';
 import { Availability, AvailabilityStats } from '../../models/availability.model';
 import { ConsultationType } from '../../models/consultation-type.model';
+import { DoctorTrendPoint } from '../../models/doctor-trend-point';
 
 @Component({
   selector: 'app-doctor-appointments-page',
@@ -36,11 +37,16 @@ export class DoctorAppointmentsPageComponent implements OnInit {
     todayCount: 0,
     upcomingCount: 0,
     totalPatients: 0,
+    weeklyCount: 0,
+    completedCount: 0,
+    cancelledCount: 0,
+    missedCount: 0,
     completionRate: 0
   };
 
   // Recent patients
   recentPatients: RecentPatient[] = [];
+  doctorTrend: DoctorTrendPoint[] = [];
 
   // Selected patient details
   selectedPatientBirthDate?: Date;
@@ -78,8 +84,7 @@ export class DoctorAppointmentsPageComponent implements OnInit {
   newConsultationType: any = {
     name: '',
     description: '',
-    defaultDuration: 20,
-    alzheimerDuration: 25,
+    defaultDurationMinutes: 20,
     requiresCaregiver: false,
     environmentPreset: 'STANDARD',
     active: true
@@ -121,9 +126,45 @@ export class DoctorAppointmentsPageComponent implements OnInit {
   }
 
   loadAllData(): void {
+    this.loadDoctorStats();
+    this.loadDoctorTrend();
     this.loadAppointments();
     this.loadAvailabilities();
     this.loadConsultationTypes();
+  }
+
+  loadDoctorStats(): void {
+    if (!this.currentDoctor.userId) {
+      return;
+    }
+
+    this.appointmentService.getDoctorWorkloadStats(this.currentDoctor.userId).subscribe({
+      next: (stats) => {
+        this.doctorStats = stats;
+      },
+      error: (error) => {
+        console.error('Error loading doctor workload stats:', error);
+      }
+    });
+  }
+
+  loadDoctorTrend(): void {
+    if (!this.currentDoctor.userId) {
+      return;
+    }
+
+    this.appointmentService.getDoctorWorkloadTrend(this.currentDoctor.userId).subscribe({
+      next: (trend) => {
+        this.doctorTrend = trend;
+      },
+      error: (error) => {
+        console.error('Error loading doctor workload trend:', error);
+      }
+    });
+  }
+
+  getTrendMax(): number {
+    return Math.max(...this.doctorTrend.map(point => point.count), 1);
   }
 
   loadAppointments(): void {
@@ -150,15 +191,14 @@ export class DoctorAppointmentsPageComponent implements OnInit {
   private transformAppointments(data: any[]): Appointment[] {
     return data.map(item => ({
       appointmentId: item.appointmentId,
-      // Fix: handle both nested object and flat structure
-      patientId: item.patient?.userId || item.patientId || '',
-      patientName: item.patient?.name || item.patientName || '',
-      doctorId: item.doctor?.userId || item.doctorId || '',
-      doctorName: item.doctor?.name || item.doctorName || '',
-      caregiverId: item.caregiver?.userId || item.caregiverId,
-      caregiverName: item.caregiver?.name || item.caregiverName,
-      consultationTypeId: item.consultationType?.typeId || item.consultationTypeId || '',
-      consultationTypeName: item.consultationType?.name || item.consultationTypeName || '',
+      patientId: item.patientId || '',
+      patientName: item.patientName || '',
+      doctorId: item.doctorId || '',
+      doctorName: item.doctorName || '',
+      caregiverId: item.caregiverId,
+      caregiverName: item.caregiverName,
+      consultationTypeId: item.consultationTypeId || '',
+      consultationTypeName: item.consultationTypeName || '',
       startDateTime: new Date(item.startDateTime),  // ← convert to Date
       endDateTime: new Date(item.endDateTime),       // ← convert to Date
       status: item.status,
@@ -210,10 +250,18 @@ export class DoctorAppointmentsPageComponent implements OnInit {
   }
 
   calculateStats(): void {
+    if (this.currentDoctor.userId) {
+      return;
+    }
+
     this.doctorStats = {
       todayCount: this.todayAppointments.length,
       upcomingCount: this.upcomingAppointments.length,
       totalPatients: new Set(this.appointments.map(apt => apt.patientId)).size,
+      weeklyCount: this.appointments.filter(apt => new Date(apt.startDateTime) >= new Date(Date.now() - 6 * 24 * 60 * 60 * 1000)).length,
+      completedCount: this.appointments.filter(apt => apt.status === 'COMPLETED').length,
+      cancelledCount: this.appointments.filter(apt => apt.status === 'CANCELLED').length,
+      missedCount: this.appointments.filter(apt => apt.status === 'MISSED').length,
       completionRate: this.getCompletionRate()
     };
   }
@@ -308,13 +356,11 @@ export class DoctorAppointmentsPageComponent implements OnInit {
 
   // In doctor-appointments-page.component.ts
   addAvailability(slotData: any): void {
-    // The payload should have doctor as object with userId
     const availabilityPayload = {
-      doctor: { userId: this.currentDoctor.userId }, // This is what backend expects
+      doctorId: this.currentDoctor.userId || '',
       dayOfWeek: slotData.dayOfWeek || slotData.dayCode,
       startTime: slotData.startTime,
       endTime: slotData.endTime,
-      slotDuration: slotData.slotDuration,
       validFrom: slotData.validFrom,
       validTo: slotData.validTo,
       recurrence: slotData.recurrence,
@@ -389,7 +435,7 @@ export class DoctorAppointmentsPageComponent implements OnInit {
 
   addConsultationType($event: any): void {
 
-    if (!$event.name || !$event.defaultDuration) {
+    if (!$event.name || !$event.defaultDurationMinutes) {
       this.errorMessage = 'Please fill in all required fields';
       setTimeout(() => this.errorMessage = '', 3000);
       return;
@@ -398,8 +444,7 @@ export class DoctorAppointmentsPageComponent implements OnInit {
     const payload = {
       name: $event.name,
       description: $event.description,
-      defaultDurationMinutes: $event.defaultDuration,
-      alzheimerDurationMinutes: $event.alzheimerDuration || Math.round($event.defaultDuration * 1.25),
+      defaultDurationMinutes: $event.defaultDurationMinutes,
       requiresCaregiver: $event.requiresCaregiver,
       environmentPreset: $event.environmentPreset,
       active: $event.active
@@ -429,8 +474,7 @@ export class DoctorAppointmentsPageComponent implements OnInit {
     this.newConsultationType = {
       name: type.name,
       description: type.description,
-      defaultDuration: type.defaultDuration,
-      alzheimerDuration: type.alzheimerDuration,
+      defaultDurationMinutes: type.defaultDurationMinutes,
       requiresCaregiver: type.requiresCaregiver,
       environmentPreset: type.environmentPreset,
       active: type.active
@@ -494,8 +538,7 @@ export class DoctorAppointmentsPageComponent implements OnInit {
     this.newConsultationType = {
       name: '',
       description: '',
-      defaultDuration: 20,
-      alzheimerDuration: 25,
+      defaultDurationMinutes: 20,
       requiresCaregiver: false,
       environmentPreset: 'STANDARD',
       active: true

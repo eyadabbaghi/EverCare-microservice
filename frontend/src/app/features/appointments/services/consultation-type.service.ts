@@ -107,13 +107,6 @@ export class ConsultationTypeService {
 
   // ========== BUSINESS LOGIC OPERATIONS ==========
 
-  calculateAlzheimerDuration(defaultDuration: number): Observable<number> {
-    const params = new HttpParams()
-      .set('defaultDuration', defaultDuration.toString());
-
-    return this.http.get<number>(`${this.baseUrl}/calculate-alzheimer-duration`, { params });
-  }
-
   isTypeAvailableForPatient(id: string, patientStage: string): Observable<boolean> {
     const params = new HttpParams().set('patientStage', patientStage);
     return this.http.get<boolean>(`${this.baseUrl}/${id}/available-for-patient`, { params });

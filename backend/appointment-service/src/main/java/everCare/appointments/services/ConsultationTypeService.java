@@ -31,7 +31,6 @@ public interface ConsultationTypeService {
     void deleteAllConsultationTypes();
 
     // ========== BUSINESS LOGIC ==========
-    int calculateAlzheimerDuration(int defaultDuration);
     boolean isTypeAvailableForPatient(String typeId, String patientStage);
     List<ConsultationType> getRecommendedTypesForPatient(String patientStage);
     long countConsultationsByType(String typeId);

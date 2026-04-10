@@ -10,8 +10,6 @@
           [isLast]="i === appointments.length - 1"
           [cognitiveInfo]=""
           (onClick)="onCardClick.emit($event)"
-          (onStart)="onStart.emit($event)"
-          (onJoin)="onJoin.emit($event)"
           (onViewProfile)="onViewProfile.emit($event)">
         </app-timeline-appointment-card>
       </ng-container>

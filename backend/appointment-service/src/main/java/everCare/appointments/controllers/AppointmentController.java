@@ -1,21 +1,29 @@
 package everCare.appointments.controllers;
 
 import everCare.appointments.entities.Appointment;
-import everCare.appointments.entities.User;
 import everCare.appointments.entities.ConsultationType;
-import everCare.appointments.dtos.AppointmentDTO;
 import everCare.appointments.dtos.AppointmentResponseDTO;
+import everCare.appointments.dtos.CreateAppointmentRequest;
+import everCare.appointments.dtos.DoctorTrendPointDto;
+import everCare.appointments.dtos.DoctorWorkloadStatsDto;
+import everCare.appointments.dtos.UpdateAppointmentRequest;
 import everCare.appointments.dtos.UserDto;
 import everCare.appointments.services.AppointmentService;
-import everCare.appointments.repositories.UserRepository;
 import everCare.appointments.repositories.ConsultationTypeRepository;
-import everCare.appointments.client.UserServiceClient;
+import everCare.appointments.services.UserDirectoryService;
 import everCare.appointments.exceptions.ResourceNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,88 +34,51 @@ import java.util.stream.Collectors;
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
-    private final UserRepository userRepository;
     private final ConsultationTypeRepository consultationTypeRepository;
-    private final UserServiceClient userServiceClient; // Feign client to call NestJS user service
+    private final UserDirectoryService userDirectoryService;
 
     // ========== CREATE WITH DTO ==========
 
     @PostMapping
-    public ResponseEntity<Appointment> createAppointment(@RequestBody AppointmentDTO appointmentDTO) {
-        // Create new appointment entity from DTO
+    public ResponseEntity<AppointmentResponseDTO> createAppointment(@Valid @RequestBody CreateAppointmentRequest request) {
         Appointment appointment = new Appointment();
 
-        // Load patient from NestJS user service (via Feign client)
-        if (appointmentDTO.getPatientId() != null) {
-            UserDto patientDto = userServiceClient.getUserById(appointmentDTO.getPatientId());
-            if (patientDto == null) {
-                throw new ResourceNotFoundException("Patient not found with id: " + appointmentDTO.getPatientId());
-            }
-            // Convert DTO to entity for local use
-            appointment.setPatient(convertDtoToUser(patientDto));
+        if (request.getPatientId() != null) {
+            appointment.setPatientId(request.getPatientId());
         } else {
             throw new ResourceNotFoundException("Patient ID is required");
         }
 
-        // Load doctor from NestJS user service
-        if (appointmentDTO.getDoctorId() != null) {
-            UserDto doctorDto = userServiceClient.getUserById(appointmentDTO.getDoctorId());
-            if (doctorDto == null) {
-                throw new ResourceNotFoundException("Doctor not found with id: " + appointmentDTO.getDoctorId());
-            }
-            appointment.setDoctor(convertDtoToUser(doctorDto));
+        if (request.getDoctorId() != null) {
+            appointment.setDoctorId(request.getDoctorId());
         } else {
             throw new ResourceNotFoundException("Doctor ID is required");
         }
 
-        // Load caregiver from NestJS user service (optional)
-        if (appointmentDTO.getCaregiverId() != null && !appointmentDTO.getCaregiverId().isEmpty()) {
-            UserDto caregiverDto = userServiceClient.getUserById(appointmentDTO.getCaregiverId());
-            if (caregiverDto != null) {
-                appointment.setCaregiver(convertDtoToUser(caregiverDto));
-            }
+        if (request.getCaregiverId() != null && !request.getCaregiverId().isEmpty()) {
+            appointment.setCaregiverId(request.getCaregiverId());
         }
 
-        // Load and set consultation type
-        if (appointmentDTO.getConsultationTypeId() != null) {
-            ConsultationType consultationType = consultationTypeRepository.findById(appointmentDTO.getConsultationTypeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Consultation type not found with id: " + appointmentDTO.getConsultationTypeId()));
+        if (request.getConsultationTypeId() != null) {
+            ConsultationType consultationType = consultationTypeRepository.findById(request.getConsultationTypeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Consultation type not found with id: " + request.getConsultationTypeId()));
             appointment.setConsultationType(consultationType);
         } else {
             throw new ResourceNotFoundException("Consultation type ID is required");
         }
 
-        // Set other fields
-        appointment.setStartDateTime(appointmentDTO.getStartDateTime());
-        appointment.setEndDateTime(appointmentDTO.getEndDateTime());
-        appointment.setStatus(appointmentDTO.getStatus() != null ? appointmentDTO.getStatus() : "SCHEDULED");
-        appointment.setCaregiverPresence(appointmentDTO.getCaregiverPresence());
-        appointment.setVideoLink(appointmentDTO.getVideoLink());
-        appointment.setSimpleSummary(appointmentDTO.getSimpleSummary());
-
-        // Set default values for other fields
-        appointment.setRecurring(false);
+        appointment.setStartDateTime(request.getStartDateTime());
+        appointment.setEndDateTime(request.getEndDateTime());
+        appointment.setStatus(request.getStatus() != null ? request.getStatus() : "SCHEDULED");
+        appointment.setCaregiverPresence(request.getCaregiverPresence());
+        appointment.setVideoLink(request.getVideoLink());
+        appointment.setSimpleSummary(request.getSimpleSummary());
+        appointment.setDoctorNotes(request.getDoctorNotes());
+        appointment.setRecurring(request.isRecurring());
+        appointment.setRecurrencePattern(request.getRecurrencePattern());
 
         Appointment createdAppointment = appointmentService.createAppointment(appointment);
-        return new ResponseEntity<>(createdAppointment, HttpStatus.CREATED);
-    }
-
-    // Helper method: Convert UserDto from NestJS to User entity for local use
-    private User convertDtoToUser(UserDto dto) {
-        if (dto == null) return null;
-        User user = new User();
-        user.setUserId(dto.getUserId());
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        user.setPhone(dto.getPhone());
-        user.setProfilePicture(dto.getProfilePicture());
-        // Set role - convert string to enum from entities package
-        try {
-            user.setRole(everCare.appointments.entities.UserRole.valueOf(dto.getRole()));
-        } catch (Exception e) {
-            // If role conversion fails, leave as null
-        }
-        return user;
+        return new ResponseEntity<>(convertToDTO(createdAppointment), HttpStatus.CREATED);
     }
 
     // ========== READ ALL ==========
@@ -129,28 +100,16 @@ public class AppointmentController {
         return ResponseEntity.ok(convertToDTO(appointment));
     }
 
-    // ========== READ BY PATIENT - FIXED ==========
+    // ========== READ BY PATIENT ==========
 
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByPatient(@PathVariable String patientId) {
-        try {
-            System.out.println("🔍 Fetching appointments for patient: " + patientId);
+        List<Appointment> appointments = appointmentService.getAppointmentsByPatient(patientId);
+        List<AppointmentResponseDTO> dtos = appointments.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
 
-            List<Appointment> appointments = appointmentService.getAppointmentsByPatient(patientId);
-
-            System.out.println("📊 Found " + appointments.size() + " appointments");
-
-            // Convert to DTOs to avoid circular references
-            List<AppointmentResponseDTO> dtos = appointments.stream()
-                    .map(this::convertToDTO)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(dtos);
-        } catch (Exception e) {
-            System.err.println("❌ Error fetching appointments: " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.ok(dtos);
     }
 
     // ========== READ BY DOCTOR ==========
@@ -224,6 +183,41 @@ public class AppointmentController {
         return ResponseEntity.ok(dtos);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<Page<AppointmentResponseDTO>> searchAppointments(
+            @RequestParam(required = false) String patientId,
+            @RequestParam(required = false) String doctorId,
+            @RequestParam(required = false) String caregiverId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(required = false) String consultationTypeId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "startDateTime") String sort,
+            @RequestParam(defaultValue = "DESC") String direction) {
+
+        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
+
+        Page<Appointment> appointments = appointmentService.searchAppointments(
+                patientId,
+                doctorId,
+                caregiverId,
+                status,
+                startDate,
+                endDate,
+                consultationTypeId,
+                pageable
+        );
+
+        List<AppointmentResponseDTO> content = appointments.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new PageImpl<>(content, pageable, appointments.getTotalElements()));
+    }
+
     // ========== CHECK DOCTOR AVAILABILITY ==========
 
     @GetMapping("/check-availability")
@@ -239,7 +233,28 @@ public class AppointmentController {
     @PutMapping("/{id}")
     public ResponseEntity<AppointmentResponseDTO> updateAppointment(
             @PathVariable String id,
-            @RequestBody Appointment appointment) {
+            @Valid @RequestBody UpdateAppointmentRequest request) {
+        Appointment appointment = new Appointment();
+
+        appointment.setCaregiverId(request.getCaregiverId());
+        appointment.setStartDateTime(request.getStartDateTime());
+        appointment.setEndDateTime(request.getEndDateTime());
+        appointment.setStatus(request.getStatus());
+        appointment.setCaregiverPresence(request.getCaregiverPresence());
+        appointment.setVideoLink(request.getVideoLink());
+        appointment.setDoctorNotes(request.getDoctorNotes());
+        appointment.setSimpleSummary(request.getSimpleSummary());
+        if (request.getIsRecurring() != null) {
+            appointment.setRecurring(request.getIsRecurring());
+        }
+        appointment.setRecurrencePattern(request.getRecurrencePattern());
+
+        if (request.getConsultationTypeId() != null) {
+            ConsultationType consultationType = consultationTypeRepository.findById(request.getConsultationTypeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Consultation type not found with id: " + request.getConsultationTypeId()));
+            appointment.setConsultationType(consultationType);
+        }
+
         Appointment updatedAppointment = appointmentService.updateAppointment(id, appointment);
         return ResponseEntity.ok(convertToDTO(updatedAppointment));
     }
@@ -324,6 +339,19 @@ public class AppointmentController {
         return ResponseEntity.ok(count);
     }
 
+    @GetMapping("/stats/doctor/{doctorId}")
+    public ResponseEntity<DoctorWorkloadStatsDto> getDoctorWorkloadStats(@PathVariable String doctorId) {
+        return ResponseEntity.ok(appointmentService.getDoctorWorkloadStats(doctorId));
+    }
+
+    @GetMapping("/stats/doctor/{doctorId}/trend")
+    public ResponseEntity<List<DoctorTrendPointDto>> getDoctorWorkloadTrend(
+            @PathVariable String doctorId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(defaultValue = "7") int days) {
+        return ResponseEntity.ok(appointmentService.getDoctorWorkloadTrend(doctorId, fromDate, days));
+    }
+
     // ========== TRIGGER REMINDERS ==========
 
     @PostMapping("/send-reminders")
@@ -356,23 +384,40 @@ public class AppointmentController {
         dto.setUpdatedAt(appointment.getUpdatedAt());
 
         // Patient info - only primitive fields, no circular references
-        if (appointment.getPatient() != null) {
-            dto.setPatientId(appointment.getPatient().getUserId());
-            dto.setPatientName(appointment.getPatient().getName());
-            dto.setPatientPhoto(appointment.getPatient().getProfilePicture());
+        dto.setPatientId(appointment.getPatientId());
+        if (appointment.getPatientId() != null) {
+            try {
+                UserDto patient = userDirectoryService.getRequiredPatient(appointment.getPatientId());
+                dto.setPatientName(patient.getName());
+                dto.setPatientPhoto(patient.getProfilePicture());
+            } catch (RuntimeException ignored) {
+                dto.setPatientName(null);
+                dto.setPatientPhoto(null);
+            }
         }
 
-        // Doctor info - only primitive fields
-        if (appointment.getDoctor() != null) {
-            dto.setDoctorId(appointment.getDoctor().getUserId());
-            dto.setDoctorName(appointment.getDoctor().getName());
-            dto.setDoctorPhoto(appointment.getDoctor().getProfilePicture());
+        dto.setDoctorId(appointment.getDoctorId());
+        if (appointment.getDoctorId() != null) {
+            try {
+                UserDto doctor = userDirectoryService.getRequiredDoctor(appointment.getDoctorId());
+                dto.setDoctorName(doctor.getName());
+                dto.setDoctorPhoto(doctor.getProfilePicture());
+            } catch (RuntimeException ignored) {
+                dto.setDoctorName(null);
+                dto.setDoctorPhoto(null);
+            }
         }
 
-        // Caregiver info - only primitive fields
-        if (appointment.getCaregiver() != null) {
-            dto.setCaregiverId(appointment.getCaregiver().getUserId());
-            dto.setCaregiverName(appointment.getCaregiver().getName());
+        dto.setCaregiverId(appointment.getCaregiverId());
+        if (appointment.getCaregiverId() != null) {
+            try {
+                UserDto caregiver = userDirectoryService.getOptionalCaregiver(appointment.getCaregiverId());
+                if (caregiver != null) {
+                    dto.setCaregiverName(caregiver.getName());
+                }
+            } catch (RuntimeException ignored) {
+                dto.setCaregiverName(null);
+            }
         }
 
         // Consultation type info

@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { Availability } from '../models/availability.model';
+import { CreateAvailabilityRequest } from '../models/availability-request';
 
 @Injectable({
   providedIn: 'root'
@@ -76,22 +77,8 @@ export class AvailabilityService {
   // ========== CREATE OPERATIONS ==========
 
   // In availability.service.ts - update createAvailability method
-  createAvailability(availability: any): Observable<Availability> {
-    // Make sure the payload structure matches what backend expects
-    const payload = {
-      doctor: { userId: availability.doctor.userId }, // Backend expects a User object
-      dayOfWeek: availability.dayOfWeek,
-      startTime: availability.startTime,
-      endTime: availability.endTime,
-      slotDuration: availability.slotDuration,
-      validFrom: availability.validFrom,
-      validTo: availability.validTo,
-      recurrence: availability.recurrence,
-      isBlocked: availability.isBlocked || false,
-      blockReason: availability.blockReason || null
-    };
-
-    return this.http.post<Availability>(this.baseUrl, payload);
+  createAvailability(availability: CreateAvailabilityRequest): Observable<Availability> {
+    return this.http.post<Availability>(this.baseUrl, availability);
   }
 
   createMultipleAvailabilities(availabilities: Partial<Availability>[]): Observable<Availability[]> {

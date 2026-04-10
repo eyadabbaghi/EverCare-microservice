@@ -1,10 +1,14 @@
 // services/appointment.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, timeout, retry, map } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, timeout, retry } from 'rxjs/operators';
 import { Appointment, AppointmentStatus, CaregiverPresence, RecurrencePattern } from '../models/appointment';
+import { AppointmentFilter } from '../models/appointment-filter';
 import { CreateAppointmentRequest } from '../models/appointment-request';
+import { PageResponse } from '../models/api-response';
+import { DoctorStats } from '../models/doctor-stats';
+import { DoctorTrendPoint } from '../models/doctor-trend-point';
 
 @Injectable({
   providedIn: 'root'
@@ -41,58 +45,9 @@ export class AppointmentService {
   }
 
   getAppointmentsByPatient(patientId: string): Observable<Appointment[]> {
-    console.log('📡 Fetching appointments for patient:', patientId);
-
-    const url = `${this.baseUrl}/patient/${patientId}`;
-
-    // Add cache-busting parameter
-    const urlWithCache = `${url}?_=${Date.now()}`;
-
-    return this.http.get(urlWithCache, {
-      responseType: 'text' // Get as text first to handle malformed JSON
-    }).pipe(
+    return this.http.get<Appointment[]>(`${this.baseUrl}/patient/${patientId}`).pipe(
       timeout(this.TIMEOUT),
-      map(response => {
-        console.log('📦 Raw response length:', response.length);
-
-        // Try to parse the response as JSON
-        try {
-          if (!response || response.trim() === '') {
-            console.warn('Empty response from server');
-            return [];
-          }
-
-          const data = JSON.parse(response);
-
-          // Ensure we return an array
-          if (Array.isArray(data)) {
-            // Validate and cast to Appointment type
-            return data as Appointment[];
-          } else if (data && typeof data === 'object') {
-            // If it's a single object, wrap it in an array
-            return [data] as Appointment[];
-          } else {
-            console.warn('Response is not an array or object');
-            return [];
-          }
-        } catch (e) {
-          console.error('❌ Failed to parse JSON response:', e);
-          console.error('First 200 chars:', response.substring(0, 200));
-          // Throw error instead of returning empty array
-          throw new Error('Invalid JSON response from server');
-        }
-      }),
       catchError(error => {
-        console.error('❌ Error in getAppointmentsByPatient:', error);
-
-        // Special handling for incomplete chunked encoding
-        if (error.status === 200) {
-          console.error('⚠️ Server returned status 200 but response is incomplete');
-          console.error('This is a BACKEND issue - the server is sending malformed JSON');
-          return throwError(() => new Error('Server sent incomplete data'));
-        }
-
-        // Pass through the original error
         return throwError(() => error);
       })
     );
@@ -310,6 +265,55 @@ export class AppointmentService {
       retry(1),
       catchError(error => {
         console.error('Error in countAppointmentsByDoctorAndDate:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  searchAppointments(filter: AppointmentFilter = {}): Observable<PageResponse<Appointment>> {
+    let params = new HttpParams()
+      .set('page', (filter.page ?? 0).toString())
+      .set('size', (filter.size ?? 10).toString())
+      .set('sort', filter.sort ?? 'startDateTime')
+      .set('direction', filter.direction ?? 'DESC');
+
+    if (filter.patientId) params = params.set('patientId', filter.patientId);
+    if (filter.doctorId) params = params.set('doctorId', filter.doctorId);
+    if (filter.caregiverId) params = params.set('caregiverId', filter.caregiverId);
+    if (filter.status) params = params.set('status', filter.status);
+    if (filter.startDate) params = params.set('startDate', filter.startDate.toISOString());
+    if (filter.endDate) params = params.set('endDate', filter.endDate.toISOString());
+    if (filter.consultationTypeId) params = params.set('consultationTypeId', filter.consultationTypeId);
+
+    return this.http.get<PageResponse<Appointment>>(`${this.baseUrl}/search`, { params }).pipe(
+      timeout(this.TIMEOUT),
+      retry(1),
+      catchError(error => {
+        console.error('Error in searchAppointments:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getDoctorWorkloadStats(doctorId: string): Observable<DoctorStats> {
+    return this.http.get<DoctorStats>(`${this.baseUrl}/stats/doctor/${doctorId}`).pipe(
+      timeout(this.TIMEOUT),
+      retry(1),
+      catchError(error => {
+        console.error('Error in getDoctorWorkloadStats:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getDoctorWorkloadTrend(doctorId: string, days: number = 7): Observable<DoctorTrendPoint[]> {
+    const params = new HttpParams().set('days', days.toString());
+
+    return this.http.get<DoctorTrendPoint[]>(`${this.baseUrl}/stats/doctor/${doctorId}/trend`, { params }).pipe(
+      timeout(this.TIMEOUT),
+      retry(1),
+      catchError(error => {
+        console.error('Error in getDoctorWorkloadTrend:', error);
         return throwError(() => error);
       })
     );

@@ -35,10 +35,8 @@
       emptyMessage="No upcoming appointments"
       [appointments]="getUpcomingAppointments()"
       [canConfirmFn]="canConfirm.bind(this)"
-      [canJoinCallFn]="canJoinCall.bind(this)"
       (onCardClick)="viewAppointmentDetails($event)"
-      (onConfirm)="confirmAppointment($event)"
-      (onJoinCall)="joinVideoCall($event)">
+      (onConfirm)="confirmAppointment($event)">
     </app-appointments-list>
 
     <!-- Past Appointments List Component -->
