@@ -13,6 +13,7 @@ import {
   Logger,
   UseGuards,
   BadRequestException,
+  Param,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from '../services/users.service';
@@ -22,10 +23,10 @@ import { ChangePasswordRequestDto } from '../dto/change-password-request';
 import { UserRole } from '../schemas/user-role.enum';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import type { AuthenticatedUser } from '../../auth/strategies/jwt.strategy'; // Use import type
+import type { AuthenticatedUser } from '../../auth/strategies/jwt.strategy';
+import { Public } from '../../auth/decorators/public.decorator';
 
 @Controller('users')
-@UseGuards(JwtAuthGuard)
 export class UserController {
   private readonly logger = new Logger(UserController.name);
 
@@ -34,6 +35,61 @@ export class UserController {
     private readonly fileUploadService: FileUploadService,
   ) {}
 
+  @Public()
+  @Get('health')
+  health() {
+    return { status: 'ok', service: 'user-node-service' };
+  }
+
+  @Public()
+  @Get('external/:userId')
+  async getUserByIdExternal(@Param('userId') userId: string) {
+    const user = await this.userService.findByUserId(userId);
+    if (!user) {
+      return null;
+    }
+    return this.userService.mapToUserDto(user);
+  }
+
+  @Public()
+  @Get('external/email/:email')
+  async getUserByEmailExternal(@Param('email') email: string) {
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      return null;
+    }
+    return this.userService.mapToUserDto(user);
+  }
+
+  @Public()
+  @Get('external/role/:role')
+  async getUsersByRoleExternal(@Param('role') role: UserRole) {
+    const users = await this.userService.findByRole(role);
+    const userDtos = await Promise.all(
+      users.map((user) => this.userService.mapToUserDto(user)),
+    );
+    return userDtos;
+  }
+
+  @Public()
+  @Get(':userId/patients')
+  async getPatientsByCaregiverId(@Param('userId') userId: string) {
+    return this.userService.getPatientsByCaregiverId(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('patients')
+  async getPatientsForDoctor(@CurrentUser() user: AuthenticatedUser) {
+    return this.userService.getPatientsForDoctor(user.email);
+  }
+
+  @Public()
+  @Get('all')
+  async getAllUsers() {
+    return this.userService.getAllUserDtos();
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Put('profile')
   async updateProfile(
     @Body() updateRequest: UpdateUserRequestDto,
@@ -115,11 +171,11 @@ export class UserController {
 
   @Get('search')
   async searchUsers(@Query('q') query: string, @Query('role') role: UserRole) {
-    if (!query || !role) {
-      throw new BadRequestException('Query and role are required');
+    if (!role) {
+      throw new BadRequestException('Role is required');
     }
 
-    const users = await this.userService.searchUsersByRole(query, role);
+    const users = await this.userService.searchUsersByRole(query || '', role);
     const userDtos = await Promise.all(
       users.map((user) => this.userService.mapToUserDto(user)),
     );
@@ -127,6 +183,7 @@ export class UserController {
     return userDtos;
   }
 
+  @Public()
   @Get('by-email')
   async getUserByEmail(@Query('email') email: string) {
     if (!email) {
@@ -135,6 +192,12 @@ export class UserController {
 
     const user = await this.userService.findByEmail(email);
     return this.userService.mapToUserDto(user);
+  }
+
+  @Public()
+  @Get(':userId')
+  async getUserById(@Param('userId') userId: string) {
+    return this.userService.getUserDtoById(userId);
   }
 
   @Get('profile')

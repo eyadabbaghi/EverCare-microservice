@@ -23,6 +23,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
     private final ConsultationTypeRepository consultationTypeRepository;
+    private final UserSyncService userSyncService;
 
     // ========== CREATE ==========
 
@@ -40,8 +41,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // Load patient from database
         if (appointment.getPatient() != null && appointment.getPatient().getUserId() != null) {
-            User patient = userRepository.findById(appointment.getPatient().getUserId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + appointment.getPatient().getUserId()));
+            User patient = userSyncService.findByIdOrSync(appointment.getPatient().getUserId());
             appointment.setPatient(patient);
         } else {
             throw new ResourceNotFoundException("Patient is required");
@@ -49,8 +49,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // Load doctor from database
         if (appointment.getDoctor() != null && appointment.getDoctor().getUserId() != null) {
-            User doctor = userRepository.findById(appointment.getDoctor().getUserId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + appointment.getDoctor().getUserId()));
+            User doctor = userSyncService.findByIdOrSync(appointment.getDoctor().getUserId());
             appointment.setDoctor(doctor);
         } else {
             throw new ResourceNotFoundException("Doctor is required");
@@ -58,8 +57,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // Load caregiver if present
         if (appointment.getCaregiver() != null && appointment.getCaregiver().getUserId() != null) {
-            User caregiver = userRepository.findById(appointment.getCaregiver().getUserId())
-                    .orElse(null); // Caregiver is optional
+            User caregiver = userSyncService.findOptionalByIdOrSync(appointment.getCaregiver().getUserId());
             appointment.setCaregiver(caregiver);
         }
 
@@ -116,21 +114,21 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<Appointment> getAppointmentsByPatient(String patientId) {
         User patient = userRepository.findById(patientId)
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + patientId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(patientId));
         return appointmentRepository.findByPatient(patient);
     }
 
     @Override
     public List<Appointment> getAppointmentsByDoctor(String doctorId) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
         return appointmentRepository.findByDoctor(doctor);
     }
 
     @Override
     public List<Appointment> getAppointmentsByCaregiver(String caregiverId) {
         User caregiver = userRepository.findById(caregiverId)
-                .orElseThrow(() -> new ResourceNotFoundException("Caregiver not found with id: " + caregiverId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(caregiverId));
         return appointmentRepository.findByCaregiver(caregiver);
     }
 
@@ -147,21 +145,21 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<Appointment> getAppointmentsByDoctorAndDateRange(String doctorId, LocalDateTime start, LocalDateTime end) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
         return appointmentRepository.findByDoctorAndStartDateTimeBetween(doctor, start, end);
     }
 
     @Override
     public List<Appointment> getFutureAppointmentsByPatient(String patientId) {
         User patient = userRepository.findById(patientId)
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + patientId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(patientId));
         return appointmentRepository.findFutureByPatient(patient, LocalDateTime.now());
     }
 
     @Override
     public boolean isDoctorAvailable(String doctorId, LocalDateTime dateTime) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
         int count = appointmentRepository.countByDoctorAndDateTime(doctor, dateTime);
         return count == 0;
     }
@@ -199,8 +197,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // Load caregiver if provided
         if (appointmentDetails.getCaregiver() != null && appointmentDetails.getCaregiver().getUserId() != null) {
-            User caregiver = userRepository.findById(appointmentDetails.getCaregiver().getUserId())
-                    .orElse(null);
+            User caregiver = userSyncService.findOptionalByIdOrSync(appointmentDetails.getCaregiver().getUserId());
             existingAppointment.setCaregiver(caregiver);
         }
 
@@ -285,7 +282,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public void deleteAppointmentsByPatient(String patientId) {
         User patient = userRepository.findById(patientId)
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + patientId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(patientId));
         List<Appointment> appointments = appointmentRepository.findByPatient(patient);
         appointmentRepository.deleteAll(appointments);
     }
@@ -295,7 +292,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public long countAppointmentsByDoctorAndDate(String doctorId, LocalDateTime date) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
         return appointmentRepository.countByDoctorAndDateTime(doctor, date);
     }
 

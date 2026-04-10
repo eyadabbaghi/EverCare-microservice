@@ -56,4 +56,9 @@ public class UserActivityController {
     public ResponseEntity<List<ActivityDTO>> getPublicActivities() {
         return ResponseEntity.ok(activityService.getAllActivities());
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ActivityWithUserDataDTO> getPublicActivityById(@PathVariable String id) {
+        return ResponseEntity.ok(activityService.getPublicActivityById(id));
+    }
 }

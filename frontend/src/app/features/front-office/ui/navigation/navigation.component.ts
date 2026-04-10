@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subscription, interval } from 'rxjs';
@@ -29,60 +29,69 @@ export class NavigationComponent implements OnInit, OnDestroy {
   user: User | null = null;
   private userSub!: Subscription;
   private pollingSub!: Subscription;
+  private clearedIds = new Set<string>();
+  private readonly CLEARED_KEY = 'clearedNotificationIds';
 
   isMobileMenuOpen = false;
   notificationsOpen = false;
   profileOpen = false;
+  bellShaking = false;
 
-  // Activity notifications fetched from the microservice, enriched with local read flag
   activityNotifications: (ActivityNotification & { read: boolean })[] = [];
 
   constructor(
     private readonly router: Router,
     private authService: AuthService,
     private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to user changes
-    this.userSub = this.authService.currentUser$.subscribe({
-      next: (user) => {
-        this.user = user;
-        console.log('Navigation user updated:', user);
-      },
-      error: (err) => console.error('User subscription error:', err)
+    this.userSub = this.authService.currentUser$.subscribe(user => {
+      this.user = user;
     });
 
-    // If token exists but user is null, try to fetch user (only in browser)
-    if (isPlatformBrowser(this.platformId) && this.authService.getToken() && !this.user) {
+    if (this.authService.getToken()) {
       this.authService.fetchCurrentUser().subscribe({
-        next: (user) => console.log('Fetched user on navigation init:', user),
-        error: (err) => console.error('Failed to fetch user on init', err)
+        error: () => this.authService.logout()
       });
     }
 
-    // Only run HTTP calls and polling in the browser (not during SSR)
     if (isPlatformBrowser(this.platformId)) {
-      // Fetch immediately on init
+      this.loadClearedIds();
+
       this.notificationService.getNotifications().subscribe({
         next: (data) => {
-          this.activityNotifications = data.map(n => ({ ...n, read: false }));
+          this.activityNotifications = data
+            .filter(n => !this.clearedIds.has(n.id))
+            .map(n => ({ ...n, read: false }));
         },
         error: (err) => console.error('Initial notification fetch failed', err)
       });
 
-      // Start polling for activity notifications every 30 seconds
-      this.pollingSub = interval(30000)
+      this.pollingSub = interval(10000)
         .pipe(switchMap(() => this.notificationService.getNotifications()))
         .subscribe({
           next: (fetched) => {
-            // Merge with existing to preserve read status
+            const filtered = fetched.filter(n => !this.clearedIds.has(n.id));
+            const existingIds = new Set(this.activityNotifications.map(n => n.id));
             const existingMap = new Map(this.activityNotifications.map(n => [n.id, n]));
-            this.activityNotifications = fetched.map(n => ({
+
+            const merged = filtered.map(n => ({
               ...n,
-              read: existingMap.get(n.id)?.read ?? false
+              read: existingIds.has(n.id) ? (existingMap.get(n.id)?.read ?? false) : false
             }));
+
+            const hasNewItems = filtered.some(n => !existingIds.has(n.id));
+            const hasRemovedItems = this.activityNotifications.some(n => !filtered.find(f => f.id === n.id));
+
+            if (hasNewItems || hasRemovedItems) {
+              this.activityNotifications = merged;
+              if (hasNewItems) {
+                this.shakeBell();
+              }
+            }
           },
           error: (err) => console.error('Failed to fetch notifications', err)
         });
@@ -94,9 +103,37 @@ export class NavigationComponent implements OnInit, OnDestroy {
     if (this.pollingSub) this.pollingSub.unsubscribe();
   }
 
-  // Notifications for display (only activity notifications)
-  get displayNotifications(): (ActivityNotification & { read: boolean })[] {
-    return this.activityNotifications;
+  private loadClearedIds(): void {
+    try {
+      const stored = localStorage.getItem(this.CLEARED_KEY);
+      if (stored) {
+        const ids: string[] = JSON.parse(stored);
+        this.clearedIds = new Set(ids);
+      }
+    } catch {
+      this.clearedIds = new Set();
+    }
+  }
+
+  private saveClearedIds(): void {
+    try {
+      localStorage.setItem(this.CLEARED_KEY, JSON.stringify([...this.clearedIds]));
+    } catch {
+      console.error('Failed to persist cleared notification IDs');
+    }
+  }
+
+  shakeBell(): void {
+    this.bellShaking = false;
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.bellShaking = true;
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        this.bellShaking = false;
+        this.cdr.detectChanges();
+      }, 800);
+    }, 10);
   }
 
   get unreadCount(): number {
@@ -108,12 +145,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   navigate(route: string): void {
-    // Protected routes that require authentication
     const protectedRoutes = [
-      '/medical-folder', '/alerts',
-      '/profile', '/messages', '/daily', '/blog', '/appointments',
+       '/appointments', '/medical-folder', '/alerts',
+      '/profile', '/messages', '/daily', '/blog'
     ];
-
     if (protectedRoutes.includes(route) && !this.user) {
       this.router.navigateByUrl('/login');
     } else {
@@ -135,25 +170,30 @@ export class NavigationComponent implements OnInit, OnDestroy {
     this.profileOpen = !this.profileOpen;
   }
 
-  markAsRead(id: string): void {
+  markAllAsRead(): void {
+    this.activityNotifications = this.activityNotifications.map(n => ({ ...n, read: true }));
+  }
+
+  markActivityAsRead(id: string): void {
     this.activityNotifications = this.activityNotifications.map(n =>
       n.id === id ? { ...n, read: true } : n
     );
   }
 
-  markAllAsRead(): void {
-    this.activityNotifications = this.activityNotifications.map(n => ({ ...n, read: true }));
-  }
-
-  handleNotificationClick(notification: ActivityNotification & { read: boolean }): void {
-    this.markAsRead(notification.id);
-    // Navigate to the public activity details page
+  handleActivityNotificationClick(notification: ActivityNotification & { read: boolean }): void {
+    this.markActivityAsRead(notification.id);
     this.navigate(`/activities/${notification.activityId}`);
   }
 
-  // Helper for activity notification icon
+  clearAllNotifications(): void {
+    this.activityNotifications.forEach(n => this.clearedIds.add(n.id));
+    this.saveClearedIds();
+    this.activityNotifications = [];
+  }
+
   getActivityIcon(action: string): string {
     switch (action) {
+      
       case 'CREATED': return '🆕';
       case 'UPDATED': return '✏️';
       case 'DELETED': return '🗑️';
@@ -161,9 +201,9 @@ export class NavigationComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Helper for activity notification title
   getActivityTitle(action: string): string {
     switch (action) {
+      
       case 'CREATED': return 'New activity available';
       case 'UPDATED': return 'Activity updated';
       case 'DELETED': return 'Activity removed';
@@ -173,11 +213,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   getInitials(name: string | undefined): string {
     if (!name) return 'U';
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase();
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }
 
   logout(): void {
@@ -189,12 +225,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
     this.profileOpen = false;
     this.navigate('/profile');
   }
-
-  clearAllNotifications(): void {
-  this.activityNotifications = []; // clear all activity notifications
-  // Optionally, you could also call a backend endpoint to delete them
-  // this.notificationService.deleteAll().subscribe(...);
-}
 
   @HostListener('document:click', ['$event.target'])
   onClickOutside(target: HTMLElement) {

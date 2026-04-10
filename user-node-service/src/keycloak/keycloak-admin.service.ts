@@ -296,4 +296,63 @@ export class KeycloakAdminService {
       );
     }
   }
+
+  async getUserBySessionId(
+    sessionId: string,
+  ): Promise<{ id: string; email: string; username: string } | null> {
+    try {
+      const token = await this.getAdminAccessToken();
+      const authServerUrl = this.configService.get<string>(
+        'keycloak.authServerUrl',
+      );
+      const realm = this.configService.get<string>('keycloak.realm');
+
+      if (!authServerUrl || !realm) {
+        throw new HttpException(
+          'Keycloak configuration is incomplete',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      // Get user sessions from Keycloak Admin API
+      const url = `${authServerUrl}/admin/realms/${realm}/sessions/${sessionId}`;
+
+      const response = await firstValueFrom(
+        this.httpService.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+      );
+
+      const session = response.data;
+      if (session && session.userId) {
+        // Get user details
+        const userUrl = `${authServerUrl}/admin/realms/${realm}/users/${session.userId}`;
+        const userResponse = await firstValueFrom(
+          this.httpService.get(userUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+        );
+
+        const user = userResponse.data;
+        return {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+        };
+      }
+
+      return null;
+    } catch (error) {
+      const axiosError = error as AxiosError<KeycloakErrorResponse>;
+      this.logger.error(
+        'Failed to get user by session from Keycloak',
+        axiosError.response?.data || axiosError.message,
+      );
+      return null;
+    }
+  }
 }

@@ -68,8 +68,78 @@ export class UserService {
     return user;
   }
 
+  async findByUserId(userId: string): Promise<UserDocument | null> {
+    return this.userRepository.findById(userId);
+  }
+
+  async findByRole(role: UserRole): Promise<UserDocument[]> {
+    return this.userRepository.findByRole(role);
+  }
+
   async findByKeycloakId(keycloakId: string): Promise<UserDocument | null> {
     return this.userRepository.findByKeycloakId(keycloakId);
+  }
+
+  // === Create user from Keycloak token (for auto-creation on first login) ===
+  async createFromKeycloak(payload: {
+    sub?: string;
+    email?: string;
+    preferred_username?: string;
+    given_name?: string;
+    family_name?: string;
+    realm_access?: { roles: string[] };
+  }): Promise<UserDocument> {
+    const email = payload.email || payload.preferred_username;
+
+    if (!email) {
+      throw new BadRequestException(
+        'Email is required to create user from Keycloak',
+      );
+    }
+
+    // Check if user already exists
+    const existingUser = await this.userRepository
+      .findByEmail(email)
+      .catch(() => null);
+    if (existingUser) {
+      return existingUser;
+    }
+
+    // Determine role from Keycloak token roles
+    const keycloakRoles = payload.realm_access?.roles || [];
+    const role = this.mapKeycloakRoleToUserRole(keycloakRoles);
+
+    // Create name from Keycloak token
+    const firstName = payload.given_name || '';
+    const lastName = payload.family_name || '';
+    const name =
+      firstName && lastName
+        ? `${firstName} ${lastName}`
+        : firstName || email.split('@')[0];
+
+    // Create user in MongoDB
+    const user = await this.userRepository.create({
+      keycloakId: payload.sub,
+      name,
+      email,
+      role,
+      isVerified: true,
+    });
+
+    this.logger.log(`User auto-created from Keycloak: ${user.email}`);
+    return user;
+  }
+
+  // Map Keycloak roles to UserRole enum
+  private mapKeycloakRoleToUserRole(keycloakRoles: string[]): UserRole {
+    const normalizedRoles = keycloakRoles.map((r) => r.toLowerCase());
+
+    if (normalizedRoles.includes('admin')) return UserRole.ADMIN;
+    if (normalizedRoles.includes('doctor')) return UserRole.DOCTOR;
+    if (normalizedRoles.includes('caregiver')) return UserRole.CAREGIVER;
+    if (normalizedRoles.includes('patient')) return UserRole.PATIENT;
+
+    return UserRole.PATIENT; // Default role
   }
 
   async getUserDtoByEmail(email: string): Promise<UserDto> {
@@ -266,6 +336,43 @@ export class UserService {
   // === Admin methods ===
   async getAllUsers(): Promise<UserDocument[]> {
     return this.userRepository.findAll();
+  }
+
+  async getAllUserDtos(): Promise<UserDto[]> {
+    const users = await this.userRepository.findAll();
+    return Promise.all(users.map((user) => this.mapToUserDto(user)));
+  }
+
+  async getUserDtoById(userId: string): Promise<UserDto> {
+    const user = await this.findById(userId);
+    return this.mapToUserDto(user);
+  }
+
+  async getPatientsByCaregiverId(caregiverId: string): Promise<UserDto[]> {
+    const caregiver = await this.findById(caregiverId);
+
+    if (caregiver.role !== UserRole.CAREGIVER) {
+      throw new BadRequestException('User is not a caregiver');
+    }
+
+    const patients = await this.userRepository.findAll();
+    return Promise.all(
+      patients
+        .filter((patient) => caregiver.patientIds?.includes(patient.userId))
+        .map((patient) => this.mapToUserDto(patient)),
+    );
+  }
+
+  async getPatientsForDoctor(doctorEmail: string): Promise<UserDto[]> {
+    const users = await this.userRepository.findAll();
+    return Promise.all(
+      users
+        .filter(
+          (user) =>
+            user.role === UserRole.PATIENT && user.doctorEmail === doctorEmail,
+        )
+        .map((user) => this.mapToUserDto(user)),
+    );
   }
 
   async updateUserByAdmin(

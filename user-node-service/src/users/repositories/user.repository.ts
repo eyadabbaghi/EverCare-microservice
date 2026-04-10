@@ -28,6 +28,10 @@ export class UserRepository implements IUserRepository {
     return this.userModel.findOne({ userId }).exec();
   }
 
+  async findByRole(role: UserRole): Promise<UserDocument[]> {
+    return this.userModel.find({ role }).exec();
+  }
+
   async existsByEmail(email: string): Promise<boolean> {
     const user = await this.userModel.findOne({ email }).exec();
     return !!user;

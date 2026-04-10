@@ -346,4 +346,10 @@ public class ActivityService {
         }
         return dto;
     }
+
+    public ActivityWithUserDataDTO getPublicActivityById(String activityId) {
+        Activity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new RuntimeException("Activity not found"));
+        return mapToWithUserData(activity, (UserActivity) null);
+    }
 }

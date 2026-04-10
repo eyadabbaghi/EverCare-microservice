@@ -1,4 +1,4 @@
-package everCare.appointments.services.impl;
+package everCare.appointments.services;
 
 import everCare.appointments.entities.Prescription;
 import everCare.appointments.entities.User;
@@ -10,6 +10,7 @@ import everCare.appointments.repositories.UserRepository;
 import everCare.appointments.repositories.MedicamentRepository;
 import everCare.appointments.repositories.AppointmentRepository;
 import everCare.appointments.services.PrescriptionService;
+import everCare.appointments.services.UserSyncService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private final UserRepository userRepository;
     private final MedicamentRepository medicamentRepository;
     private final AppointmentRepository appointmentRepository;
+    private final UserSyncService userSyncService;
 
     // ========== CREATE ==========
 
@@ -55,10 +57,10 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                                                            String posologie) {
 
         User patient = userRepository.findById(patientId)
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + patientId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(patientId));
 
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
 
         Medicament medicament = medicamentRepository.findById(medicamentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Medicament not found with id: " + medicamentId));
@@ -100,14 +102,14 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     @Override
     public List<Prescription> getPrescriptionsByPatient(String patientId) {
         User patient = userRepository.findById(patientId)
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + patientId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(patientId));
         return prescriptionRepository.findByPatient(patient);
     }
 
     @Override
     public List<Prescription> getPrescriptionsByDoctor(String doctorId) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(doctorId));
         return prescriptionRepository.findByDoctor(doctor);
     }
 
@@ -121,7 +123,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     @Override
     public List<Prescription> getActivePrescriptionsByPatient(String patientId) {
         User patient = userRepository.findById(patientId)
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + patientId));
+                .orElseGet(() -> userSyncService.findByIdOrSync(patientId));
         return prescriptionRepository.findActiveByPatient(patient);
     }
 

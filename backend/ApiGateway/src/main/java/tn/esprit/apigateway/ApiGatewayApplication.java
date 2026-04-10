@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 @EnableDiscoveryClient
 
-
 public class ApiGatewayApplication {
 
     public static void main(String[] args) {
@@ -30,6 +29,7 @@ public class ApiGatewayApplication {
                 .route("activities-service", r -> r
                         .path("/EverCare/activities/**",
                                 "/EverCare/admin/activities/**")
+                        .filters(f -> f.rewritePath("/EverCare/(?<segment>.*)", "/${segment}")) // 👈 add this
                         .uri("lb://ACTIVITIES-SERVICE"))
                 .route("communication-service", r -> r
                         .path("/api/calls/**",
@@ -39,8 +39,23 @@ public class ApiGatewayApplication {
                         .path("/api/medical-records/**")
                         .uri("lb://MEDICAL-RECORD-SERVICE"))
                 .route("notification-service", r -> r
-                        .path("/EverCare/api/notifications/**")   // Added route
+                        .path("/EverCare/api/notifications/**")
+                        .filters(f -> f.rewritePath("/EverCare/(?<segment>.*)", "/${segment}")) // 👈 add this
                         .uri("lb://NOTIFICATION-SERVICE"))
+                .route("dailyme-service", r -> r
+                        .path("/api/daily-entries/**", "/api/dailyme-alerts/**", "/api/daily-tasks/**", "/api/journal/**", "/api/insights")
+                        .filters(f -> f.rewritePath("/EverCare/(?<segment>.*)", "/${segment}"))
+                        .uri("lb://DAILYME-SERVICE"))
+
+                // 1. Route pour le WebSocket (doit être définie avant les routes HTTP générales)
+                .route("communication-websocket", r -> r
+                        .path("/ws-chat/**")
+                        .uri("lb://COMMUNICATION-SERVICE"))
+                 .route("communication-service", r -> r
+                                         .path("/communication-service/**")
+                                         .filters(f -> f.rewritePath("/communication-service/(?<segment>.*)", "/${segment}"))
+                                         .uri("lb://COMMUNICATION-SERVICE"))
+
                 .build();
     }
 

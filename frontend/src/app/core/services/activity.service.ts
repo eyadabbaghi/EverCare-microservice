@@ -200,4 +200,8 @@ export class ActivityService {
   // Replace with your actual public endpoint
   return this.http.get<Activity[]>(`${this.apiUrl}/activities/public`);
 }
+
+getPublicActivityById(id: string): Observable<ActivityWithDetails> {
+  return this.http.get<ActivityWithDetails>(`${this.apiUrl}/activities/${id}`);
+}
 }
