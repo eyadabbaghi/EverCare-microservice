@@ -29,6 +29,7 @@ public class ApiGatewayApplication {
                 .route("activities-service", r -> r
                         .path("/EverCare/activities/**",
                                 "/EverCare/admin/activities/**")
+                        .filters(f -> f.rewritePath("/EverCare/(?<segment>.*)", "/${segment}")) // 👈 add this
                         .uri("lb://ACTIVITIES-SERVICE"))
                 .route("communication-service", r -> r
                         .path("/api/calls/**",
@@ -38,7 +39,8 @@ public class ApiGatewayApplication {
                         .path("/api/medical-records/**")
                         .uri("lb://MEDICAL-RECORD-SERVICE"))
                 .route("notification-service", r -> r
-                        .path("/EverCare/api/notifications/**")   // Added route
+                        .path("/EverCare/api/notifications/**")
+                        .filters(f -> f.rewritePath("/EverCare/(?<segment>.*)", "/${segment}")) // 👈 add this
                         .uri("lb://NOTIFICATION-SERVICE"))
                 .route("dailyme-service", r -> r
                         .path("/api/daily-entries/**", "/api/dailyme-alerts/**", "/api/daily-tasks/**", "/api/journal/**", "/api/insights")
