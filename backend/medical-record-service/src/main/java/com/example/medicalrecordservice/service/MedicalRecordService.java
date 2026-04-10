@@ -1,6 +1,10 @@
 package com.example.medicalrecordservice.service;
 
+import com.example.medicalrecordservice.client.UserServiceGateway;
 import com.example.medicalrecordservice.entity.MedicalRecord;
+import com.example.medicalrecordservice.event.MedicalRecordEventPublisher;
+import com.example.medicalrecordservice.exception.BadRequestException;
+import com.example.medicalrecordservice.exception.ConflictException;
 import com.example.medicalrecordservice.repository.MedicalRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,15 +16,20 @@ import java.util.List;
 public class MedicalRecordService {
 
     private final MedicalRecordRepository medicalRecordRepository;
+    private final UserServiceGateway userServiceGateway;
+    private final MedicalRecordEventPublisher medicalRecordEventPublisher;
 
     public MedicalRecord create(MedicalRecord record) {
         if (record.getPatientId() == null || record.getPatientId().isBlank()) {
-            throw new IllegalArgumentException("patientId is required");
+            throw new BadRequestException("patientId is required");
         }
         if (medicalRecordRepository.existsByPatientId(record.getPatientId())) {
-            throw new IllegalStateException("MedicalRecord already exists for this patientId");
+            throw new ConflictException("MedicalRecord already exists for this patientId");
         }
-        return medicalRecordRepository.save(record);
+        var patient = userServiceGateway.getRequiredPatient(record.getPatientId());
+        MedicalRecord savedRecord = medicalRecordRepository.save(record);
+        medicalRecordEventPublisher.publishCreated(savedRecord, patient);
+        return savedRecord;
     }
 
     public List<MedicalRecord> findAll() {
@@ -41,13 +50,14 @@ public class MedicalRecordService {
         MedicalRecord existing = findById(id);
         existing.setBloodGroup(updated.getBloodGroup());
         existing.setAlzheimerStage(updated.getAlzheimerStage());
-        return medicalRecordRepository.save(existing);
+        MedicalRecord savedRecord = medicalRecordRepository.save(existing);
+        medicalRecordEventPublisher.publishUpdated(savedRecord);
+        return savedRecord;
     }
 
     public void delete(String id) {
-        if (!medicalRecordRepository.existsById(id)) {
-            throw new IllegalStateException("MedicalRecord not found");
-        }
+        MedicalRecord existing = findById(id);
         medicalRecordRepository.deleteById(id);
+        medicalRecordEventPublisher.publishDeleted(existing);
     }
 }

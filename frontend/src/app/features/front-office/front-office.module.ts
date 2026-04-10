@@ -57,6 +57,8 @@ import { DoctorSearchModalComponent } from './pages/profile/doctor-search-modal.
     ProfileComponent,
     NewUserFlowComponent,
     SetupProfileComponent,
+    DoctorSearchModalComponent,
+    SetupProfileComponent,
     // 👇 ADD THIS COMPONENT
     DoctorSearchModalComponent,
   ],

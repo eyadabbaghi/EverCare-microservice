@@ -35,16 +35,20 @@ declare global {
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
+  // États
   isLoading = false;
   activeTab: 'login' | 'register' = 'login';
 
+  // Forms
   loginForm!: FormGroup;
   registerForm!: FormGroup;
 
+  // Select options - Fixed duplicate values
   userRoles = [
     { value: 'PATIENT', label: 'Patient' },
     { value: 'CAREGIVER', label: 'Caregiver' },
     { value: 'DOCTOR', label: 'Doctor' },
+
   ];
 
   constructor(
@@ -70,11 +74,13 @@ export class LoginComponent implements OnInit {
   }
 
   private initForms(): void {
+    // Login form
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
 
+    // Register form - Fixed duplicate role field
     this.registerForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -145,7 +151,6 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  // Called when the user clicks the custom Google button (if you keep it)
   handleGoogleLogin(): void {
     this.toastr.info('Please use the official Google Sign‑In button', 'Info');
   }
@@ -200,6 +205,7 @@ export class LoginComponent implements OnInit {
     return 'bg-green-600';
   }
 
+  // Individual check methods for the template
   hasMinLength(): boolean {
     const password = this.registerForm?.get('password')?.value;
     return password && password.length >= 8;
@@ -220,6 +226,7 @@ export class LoginComponent implements OnInit {
     return password && /[!@#$%^&*()]/.test(password);
   }
 
+  // Getters pour les formulaires
   get lf() { return this.loginForm.controls; }
   get rf() { return this.registerForm.controls; }
 }
