@@ -19,27 +19,6 @@ public class ApiGatewayApplication {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("activities-service", r -> r
-                        .path(
-                                "/EverCare/activities/**",
-                                "/EverCare/admin/activities/**",
-                                "/EverCare/admin/activity-details/**",
-                                "/EverCare/admin/uploads/**",
-                                "/EverCare/uploads/**"
-                        )
-                        .filters(f -> f.rewritePath("/EverCare/(?<segment>.*)", "/${segment}"))
-                        .uri("lb://ACTIVITIES-SERVICE"))
-                .route("alerts-service", r -> r
-                        .path("/EverCare/incidents/**", "/EverCare/alerts/**")
-                        .uri("lb://alerts-service"))
-                // Route to NestJS user-node-service (direct URL - keep context path)
-                .route("user-node-service", r -> r
-                        .path("/EverCare/auth/**", "/EverCare/users/**", "/EverCare/admin/**", "/EverCare/test/**")
-                        .uri("http://localhost:8096/EverCare"))
-                // Keep Spring Boot user-service as fallback (commented out)
-                // .route("user-service", r -> r
-                //         .path("/EverCare/auth/**", "/EverCare/users/**", "/EverCare/test/**")
-                //         .uri("lb://User-service"))
                 .route("appointment-service", r -> r
                         .path("/EverCare/appointments/**",
                                 "/EverCare/availabilities/**",
@@ -47,11 +26,10 @@ public class ApiGatewayApplication {
                                 "/EverCare/medicaments/**",
                                 "/EverCare/prescriptions/**")
                         .uri("lb://APPOINTMENT-SERVICE"))
-                .route("notification-service", r -> r
-                        .path("/EverCare/api/notifications/**")
-                        .filters(f -> f.rewritePath("/EverCare/(?<segment>.*)", "/${segment}"))
-                        .uri("lb://notification-service"))
-
+                .route("activities-service", r -> r
+                        .path("/EverCare/activities/**",
+                                "/EverCare/admin/activities/**")
+                        .uri("lb://ACTIVITIES-SERVICE"))
                 .route("communication-service", r -> r
                         .path("/api/calls/**",
                                 "/api/conversations/**")
@@ -59,6 +37,9 @@ public class ApiGatewayApplication {
                 .route("medical-record-service", r -> r
                         .path("/api/medical-records/**")
                         .uri("lb://MEDICAL-RECORD-SERVICE"))
+                .route("notification-service", r -> r
+                        .path("/EverCare/api/notifications/**")   // Added route
+                        .uri("lb://NOTIFICATION-SERVICE"))
                 .route("dailyme-service", r -> r
                         .path("/api/daily-entries/**", "/api/dailyme-alerts/**", "/api/daily-tasks/**", "/api/journal/**", "/api/insights")
                         .filters(f -> f.rewritePath("/EverCare/(?<segment>.*)", "/${segment}"))
