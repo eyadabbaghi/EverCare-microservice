@@ -1,85 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- 🔥 MAKE IT STANDALONE (REMOVE BROKEN PARENT) -->
+
+    <groupId>com.yourteam</groupId>
+
+    <artifactId>microservices-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version>
+        <version>3.2.4</version>
         <relativePath/>
     </parent>
 
-    <groupId>tn.esprit</groupId>
-    <artifactId>dailyme-service</artifactId>
-    <version>1.0.0</version>
-    <name>dailyme-service</name>
-
     <properties>
         <java.version>17</java.version>
-        <spring-cloud.version>2023.0.3</spring-cloud.version>
+        <spring-cloud.version>2023.0.1</spring-cloud.version>
     </properties>
 
-    <dependencies>
+    <!-- MUST match your folder names exactly -->
+    <modules>
+        <module>configServer</module>
+        <module>appointment-service</module>
+        <module>Dailyme-service</module>
+        <module>Eureka-service</module>
+        <module>ApiGateway</module>
+        <module>Activities</module>
+        <module>Alerts</module>
+        <module>User</module>
+        <module>blog-service</module>
+        <module>communication-service</module>
+        <module>notification-service</module>
+        <module>medical-record-service</module>
+        <module>Tracking-service</module>
 
-        <!-- 🌐 WEB -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
+    </modules>
 
-        <!-- 🔌 WEBSOCKET -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-
-        <!-- 🗄️ JPA -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-
-        <!-- 🧠 H2 DATABASE (REPLACES MYSQL) -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <!-- ✅ VALIDATION -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-
-        <!-- 🌐 EUREKA CLIENT -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
-
-        <!-- ⚡ LOMBOK -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- 🧪 TEST -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-    </dependencies>
-
-    <!-- 🌐 SPRING CLOUD -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -92,7 +53,36 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- ⚙️ BUILD -->
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.34</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -101,5 +91,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

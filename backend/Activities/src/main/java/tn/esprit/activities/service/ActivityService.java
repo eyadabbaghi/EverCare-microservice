@@ -1,8 +1,10 @@
 package tn.esprit.activities.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tn.esprit.activities.client.NotificationClient;
 import tn.esprit.activities.dto.*;
 import tn.esprit.activities.entity.Activity;
 import tn.esprit.activities.entity.ActivityDetails;
@@ -17,11 +19,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j  // Adds a logger field
 public class ActivityService {
 
     private final ActivityRepository activityRepository;
     private final ActivityDetailsRepository detailsRepository;
     private final UserActivityRepository userActivityRepository;
+    private final NotificationClient notificationClient;   // Feign client for notification service
 
     // ---------- Admin: Activity CRUD ----------
 
@@ -54,6 +58,10 @@ public class ActivityService {
                 .monitoredBy(request.getMonitoredBy())
                 .build();
         activity = activityRepository.save(activity);
+
+        // Send notification
+        sendNotification(activity.getId(), "CREATED", "Activity '" + activity.getName() + "' was created.");
+
         return mapToDTO(activity);
     }
 
@@ -74,6 +82,10 @@ public class ActivityService {
         if (request.getMonitoredBy() != null) activity.setMonitoredBy(request.getMonitoredBy());
 
         activity = activityRepository.save(activity);
+
+        // Send notification
+        sendNotification(activity.getId(), "UPDATED", "Activity '" + activity.getName() + "' was updated.");
+
         return mapToDTO(activity);
     }
 
@@ -82,6 +94,9 @@ public class ActivityService {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Activity not found"));
         activityRepository.delete(activity);
+
+        // Send notification
+        sendNotification(activity.getId(), "DELETED", "Activity '" + activity.getName() + "' was deleted.");
     }
 
     // ---------- Admin: ActivityDetails CRUD ----------
@@ -223,6 +238,21 @@ public class ActivityService {
         return mapToDTO(activity);
     }
 
+    // ---------- Helper: Send notification (with error handling) ----------
+
+    private void sendNotification(String activityId, String action, String details) {
+        try {
+            NotificationRequest request = new NotificationRequest();
+            request.setActivityId(activityId);
+            request.setAction(action);
+            request.setDetails(details);
+            notificationClient.sendNotification(request);
+            log.info("Notification sent: {} - {}", action, activityId);
+        } catch (Exception e) {
+            log.error("Failed to send notification for activity {}: {}", activityId, e.getMessage());
+        }
+    }
+
     // ---------- Mapping ----------
 
     private ActivityDTO mapToDTO(Activity activity) {
@@ -315,5 +345,11 @@ public class ActivityService {
             dto.setUserRating(null);
         }
         return dto;
+    }
+
+    public ActivityWithUserDataDTO getPublicActivityById(String activityId) {
+        Activity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new RuntimeException("Activity not found"));
+        return mapToWithUserData(activity, (UserActivity) null);
     }
 }

@@ -13,7 +13,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/activities")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class UserActivityController {
 
     private final ActivityService activityService;
@@ -45,5 +44,21 @@ public class UserActivityController {
     public ResponseEntity<ActivityDTO> rateActivity(
             @PathVariable String userId, @PathVariable String activityId, @RequestParam int rating) {
         return ResponseEntity.ok(activityService.rateActivity(userId, activityId, rating));
+    }
+
+    /**
+     * Public endpoint to get all activities (no user context).
+     * Accessible without authentication.
+     *
+     * @return list of all activities
+     */
+    @GetMapping("/public")
+    public ResponseEntity<List<ActivityDTO>> getPublicActivities() {
+        return ResponseEntity.ok(activityService.getAllActivities());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ActivityWithUserDataDTO> getPublicActivityById(@PathVariable String id) {
+        return ResponseEntity.ok(activityService.getPublicActivityById(id));
     }
 }

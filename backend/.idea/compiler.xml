@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="medical-record-service" />
+        <module name="configServer" />
+        <module name="communication-service" />
+        <module name="Eureka-service" />
+        <module name="Alerts" />
+        <module name="Tracking-service" />
+        <module name="ApiGateway" />
+        <module name="Dailyme-service" />
+      </profile>
+      <profile name="Annotation profile for microservices-parent" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="User" />
+      </profile>
+      <profile name="Annotation profile for blog-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
+        </processorPath>
+        <module name="blog-service" />
+      </profile>
+      <profile name="Annotation profile for Activities" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.34/lombok-1.18.34.jar" />
+        </processorPath>
+        <module name="Activities" />
+      </profile>
+      <profile name="Annotation profile for notification-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.34/lombok-1.18.34.jar" />
+        </processorPath>
+        <module name="notification-service" />
+      </profile>
+      <profile name="Annotation profile for appointment-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.34/lombok-1.18.34.jar" />
+        </processorPath>
+        <module name="appointment-service" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Activities" options="-parameters" />
+      <module name="Alerts" options="-parameters" />
+      <module name="ApiGateway" options="-parameters" />
+      <module name="Dailyme-service" options="-parameters" />
+      <module name="Eureka-service" options="-parameters" />
+      <module name="Tracking-service" options="-parameters" />
+      <module name="User" options="-parameters" />
+      <module name="appointment-service" options="-parameters" />
+      <module name="blog-service" options="-parameters" />
+      <module name="communication-service" options="-parameters" />
+      <module name="configServer" options="-parameters" />
+      <module name="medical-record-service" options="-parameters" />
+      <module name="notification-service" options="-parameters" />
+    </option>
+  </component>
+</project>

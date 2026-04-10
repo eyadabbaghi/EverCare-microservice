@@ -23,7 +23,22 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 
 // Import the interceptor
-import { AuthInterceptor } from './features/front-office/pages/login/auth.interceptor'; // adjust path if needed
+import { AuthInterceptor } from './features/front-office/pages/login/auth.interceptor';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { AddIncidentDialogComponent } from './add-incident-dialog/add-incident-dialog.component';
+import { AddAlertDialogComponent } from './add-alert-dialog/add-alert-dialog.component';
+
+// Angular Material imports
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
+import { IncidentDetailsDialogComponent } from './features/front-office/pages/alerts/incident-details-dialog.component';
+import {RouterModule} from '@angular/router';
+import {CommonModule} from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -35,18 +50,31 @@ import { AuthInterceptor } from './features/front-office/pages/login/auth.interc
     FrontOfficeLayoutComponent,
     HeaderComponent,
     HeroComponent,
+    AddIncidentDialogComponent,
+    AddAlertDialogComponent,
+    IncidentDetailsDialogComponent, // <-- add here
+
+    AppComponent,
+    BackOfficeLayoutComponent,
+    SidebarComponent,
+    NavbarComponent,
+    FooterComponent,
+    FrontOfficeLayoutComponent,
+    HeaderComponent,
+    HeroComponent,
+
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    MatRadioModule,
     HttpClientModule,
     CoreModule,
     SharedModule,
     LayoutsModule,
     BackOfficeModule,
-    FrontOfficeModule,
     AppointmentsModule,
-    LucideAngularModule.pick({ Heart, Mail, Lock, User, Chrome }),
+    LucideAngularModule.pick({Heart, Mail, Lock, User}),
     BrowserAnimationsModule,
     ToastrModule.forRoot({
       timeOut: 3000,
@@ -55,11 +83,24 @@ import { AuthInterceptor } from './features/front-office/pages/login/auth.interc
       progressBar: true,
       closeButton: true
     }),
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    // Angular Material modules
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    ReactiveFormsModule,
+    RouterModule,
+    CommonModule,
+    FrontOfficeModule,
+
   ],
   providers: [
     provideClientHydration(),
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true } // Add this line
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    provideAnimationsAsync('noop')
   ],
   bootstrap: [AppComponent]
 })

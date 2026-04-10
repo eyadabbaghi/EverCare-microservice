@@ -130,43 +130,6 @@
       <!-- Sidebar -->
       <div class="space-y-6">
         <div class="activity-sidebar-card border-2 border-[#DDD6FE] rounded-2xl bg-white p-6 space-y-4">
-          <h3 class="text-xl text-[#2D1B4E]">Rate this activity</h3>
-
-          <div class="flex justify-center gap-2 mb-2">
-            <button
-              *ngFor="let star of [1,2,3,4,5]"
-              type="button"
-              class="text-2xl focus:outline-none"
-              (click)="rate(star)"
-            >
-              <span
-                [ngClass]="star <= userRating ? 'text-yellow-400' : 'text-gray-300'"
-              >
-                ★
-              </span>
-            </button>
-          </div>
-
-          <div class="text-center text-sm text-[#6B5B8C]" *ngIf="userRating">
-            You rated this {{ userRating }} star{{ userRating !== 1 ? 's' : '' }}.
-          </div>
-
-          <div class="border-t border-[#E5E7EB] pt-4 mt-2 text-center space-y-1">
-            <div class="flex justify-center items-baseline gap-1">
-              <span class="text-3xl font-bold text-[#2D1B4E]">
-                {{ a.rating | number : '1.1-1' }}
-              </span>
-              <span class="text-sm text-[#6B5B8C]">/ 5</span>
-            </div>
-            <p class="text-xs text-[#6B5B8C]">
-              Based on {{ a.totalRatings }} rating{{
-                a.totalRatings !== 1 ? 's' : ''
-              }}
-            </p>
-          </div>
-        </div>
-
-        <div class="activity-sidebar-card border-2 border-[#DDD6FE] rounded-2xl bg-white p-6 space-y-4">
           <h3 class="text-xl text-[#2D1B4E]">Quick information</h3>
 
           <div class="space-y-3 text-sm">
@@ -205,4 +168,3 @@
     </section>
   </div>
 </div>
-

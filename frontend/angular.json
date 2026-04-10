@@ -27,7 +27,11 @@
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
-              "zone.js"
+              "zone.js",
+              "src/polyfills.ts"
+            ],
+            "allowedCommonJsDependencies": [
+              "sockjs-client"
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
@@ -37,6 +41,7 @@
               }
             ],
             "styles": [
+              "src/styles/_purple-theme.css",
               "src/styles.css"
             ],
             "scripts": [],
@@ -100,6 +105,7 @@
               }
             ],
             "styles": [
+              "src/styles/_purple-theme.css",
               "src/styles.css"
             ],
             "scripts": []

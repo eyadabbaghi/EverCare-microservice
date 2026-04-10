@@ -127,7 +127,9 @@ export interface ActivityWithDetails extends Activity {
   providedIn: 'root'
 })
 export class ActivityService {
-  private apiUrl = 'http://localhost:8092/EverCare'; // direct to microservice
+ //private apiUrl = 'http://localhost:8092/EverCare'; // direct to microservice
+   // Use API Gateway URL instead of direct microservice
+  private apiUrl = 'http://localhost:8089/EverCare';
 
   constructor(private http: HttpClient) {}
 
@@ -193,4 +195,13 @@ export class ActivityService {
   rateActivity(userId: string, activityId: string, rating: number): Observable<Activity> {
     return this.http.post<Activity>(`${this.apiUrl}/activities/user/${userId}/activity/${activityId}/rate?rating=${rating}`, {});
   }
+
+  getPublicActivities(): Observable<Activity[]> {
+  // Replace with your actual public endpoint
+  return this.http.get<Activity[]>(`${this.apiUrl}/activities/public`);
+}
+
+getPublicActivityById(id: string): Observable<ActivityWithDetails> {
+  return this.http.get<ActivityWithDetails>(`${this.apiUrl}/activities/${id}`);
+}
 }

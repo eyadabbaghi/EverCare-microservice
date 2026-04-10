@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class UserController {
 
     private final UserService userService;
@@ -140,6 +139,14 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable String userId) {
+        UserDto userDto = userService.getUserDtoById(userId);
+        return ResponseEntity.ok(userDto);
+    }
+
     @GetMapping("/search")
     public ResponseEntity<List<UserDto>> searchUsers(@RequestParam String q, @RequestParam UserRole role) {
         List<User> users = userService.searchUsersByRole(q, role);
@@ -154,4 +161,22 @@ public class UserController {
         User user = userService.findByEmail(email);
         return ResponseEntity.ok(mapToDto(user));
     }
+
+    // ========== GET CAREGIVERS FOR PATIENT ==========
+    /* @GetMapping("/{id}/patients")
+    public ResponseEntity<List<UserDto>> getPatientsByCaregiverId(@PathVariable String id) {
+        System.out.println("ID: " + id);
+        User caregiver = userService.findById(id);
+
+        if (caregiver.getRole() != UserRole.CAREGIVER) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<UserDto> patients = caregiver.getPatients().stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(patients);
+    } */
+
 }
