@@ -36,6 +36,14 @@ public class MedicalRecordEventPublisher {
         publish("MEDICAL_RECORD_DELETED", record, null);
     }
 
+    public void publishArchived(MedicalRecord record) {
+        publish("MEDICAL_RECORD_ARCHIVED", record, null);
+    }
+
+    public void publishRestored(MedicalRecord record) {
+        publish("MEDICAL_RECORD_RESTORED", record, null);
+    }
+
     private void publish(String eventType, MedicalRecord record, String patientEmail) {
         MedicalRecordEvent event = MedicalRecordEvent.builder()
                 .eventType(eventType)
@@ -44,6 +52,8 @@ public class MedicalRecordEventPublisher {
                 .patientEmail(patientEmail)
                 .bloodGroup(record.getBloodGroup())
                 .alzheimerStage(record.getAlzheimerStage())
+                .archived(record.isArchived())
+                .archiveReason(record.getArchiveReason())
                 .occurredAt(LocalDateTime.now())
                 .build();
 

@@ -3,6 +3,8 @@ import { isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { of } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 import { AuthService, LoginRequest, RegisterRequest } from './auth.service';
 
 // Custom validator for password strength (matches backend rules)
@@ -102,10 +104,21 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
     const credentials: LoginRequest = this.loginForm.value;
 
-    this.authService.login(credentials).subscribe({
-      next: () => {
+    this.authService.login(credentials).pipe(
+      switchMap(() =>
+        this.authService.fetchCurrentUser().pipe(
+          catchError(() => of(null)),
+        ),
+      ),
+    ).subscribe({
+      next: (user) => {
         this.toastr.success('Login successful!', 'Welcome');
-        this.router.navigate(['/']);
+        if (user?.role === 'PATIENT') {
+          void this.router.navigate(['/patient-intake']);
+          return;
+        }
+
+        void this.router.navigate(['/']);
       },
       error: (err) => {
         console.error('Login error', err);
@@ -131,7 +144,8 @@ export class LoginComponent implements OnInit {
     this.authService.register(userData).subscribe({
       next: () => {
         // Registration and automatic login succeeded – now navigate
-        this.router.navigate(['/setup-profile'], {
+        const targetRoute = userData.role === 'PATIENT' ? '/patient-intake' : '/setup-profile';
+        this.router.navigate([targetRoute], {
           state: {
             name: userData.name,
             email: userData.email,

@@ -141,11 +141,7 @@ export class AuthService {
 
   // ---------- Fetch current user (uses stored token) ----------
   fetchCurrentUser(): Observable<User> {
-    const headers = new HttpHeaders().set(
-      'Authorization',
-      `Bearer ${this.getToken()}`,
-    );
-    return this.http.get<User>(`${this.apiUrl}/me`, { headers }).pipe(
+    return this.http.get<User>(`${this.apiUrl}/me`, this.getAuthorizedOptions()).pipe(
       tap((user) => {
         this.currentUserSubject.next(user);
         if (this.isBrowser) {
@@ -191,7 +187,15 @@ export class AuthService {
 
   private loadStoredUser(): void {
     if (this.isBrowser) {
+      const token = localStorage.getItem('auth_token');
       const storedUser = localStorage.getItem('current_user');
+
+      if (!token) {
+        localStorage.removeItem('current_user');
+        this.currentUserSubject.next(null);
+        return;
+      }
+
       if (storedUser) {
         this.currentUserSubject.next(JSON.parse(storedUser));
       }
@@ -200,15 +204,15 @@ export class AuthService {
 
   // ---------- Profile endpoints ----------
   updateProfile(data: UpdateUserRequest): Observable<any> {
-    return this.http.put<any>(`${this.usersUrl}/profile`, data);
+    return this.http.put<any>(`${this.usersUrl}/profile`, data, this.getAuthorizedOptions());
   }
 
   changePassword(data: ChangePasswordRequest): Observable<any> {
-    return this.http.put(`${this.usersUrl}/change-password`, data);
+    return this.http.put(`${this.usersUrl}/change-password`, data, this.getAuthorizedOptions());
   }
 
   deleteAccount(): Observable<any> {
-    return this.http.delete(`${this.usersUrl}/profile`);
+    return this.http.delete(`${this.usersUrl}/profile`, this.getAuthorizedOptions());
   }
 
   uploadProfilePicture(file: File): Observable<{ profilePicture: string }> {
@@ -217,11 +221,12 @@ export class AuthService {
     return this.http.post<{ profilePicture: string }>(
       `${this.usersUrl}/profile/picture`,
       formData,
+      this.getAuthorizedOptions(),
     );
   }
 
   removeProfilePicture(): Observable<any> {
-    return this.http.delete(`${this.usersUrl}/profile/picture`);
+    return this.http.delete(`${this.usersUrl}/profile/picture`, this.getAuthorizedOptions());
   }
 
   searchUsersByRole(term: string, role: string): Observable<User[]> {
@@ -247,5 +252,16 @@ export class AuthService {
 
   getCurrentUserValue(): User | null {
     return this.currentUserSubject.value;
+  }
+
+  private getAuthorizedOptions(): { headers?: HttpHeaders } {
+    const token = this.getToken();
+    if (!token) {
+      return {};
+    }
+
+    return {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`),
+    };
   }
 }

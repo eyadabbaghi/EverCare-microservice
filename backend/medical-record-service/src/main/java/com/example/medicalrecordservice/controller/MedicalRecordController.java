@@ -1,5 +1,6 @@
 package com.example.medicalrecordservice.controller;
 
+import com.example.medicalrecordservice.dto.MedicalRecordArchiveRequest;
 import com.example.medicalrecordservice.dto.MedicalRecordCreateRequest;
 import com.example.medicalrecordservice.dto.MedicalRecordUpdateRequest;
 import com.example.medicalrecordservice.entity.MedicalRecord;
@@ -26,6 +27,11 @@ public class MedicalRecordController {
         return ResponseEntity.status(HttpStatus.CREATED).body(medicalRecordService.create(toCreateEntity(request)));
     }
 
+    @PostMapping("/auto-create")
+    public ResponseEntity<MedicalRecord> autoCreate(@Valid @RequestBody MedicalRecordCreateRequest request) {
+        return ResponseEntity.ok(medicalRecordService.autoCreate(toCreateEntity(request)));
+    }
+
     @GetMapping
     public ResponseEntity<List<MedicalRecord>> findAll() {
         return ResponseEntity.ok(medicalRecordService.findAll());
@@ -45,6 +51,17 @@ public class MedicalRecordController {
     public ResponseEntity<MedicalRecord> update(@PathVariable String id,
                                                 @Valid @RequestBody MedicalRecordUpdateRequest request) {
         return ResponseEntity.ok(medicalRecordService.update(id, toUpdateEntity(request)));
+    }
+
+    @PatchMapping("/{id}/archive")
+    public ResponseEntity<MedicalRecord> archive(@PathVariable String id,
+                                                 @RequestBody(required = false) MedicalRecordArchiveRequest request) {
+        return ResponseEntity.ok(medicalRecordService.archive(id, request));
+    }
+
+    @PatchMapping("/{id}/restore")
+    public ResponseEntity<MedicalRecord> restore(@PathVariable String id) {
+        return ResponseEntity.ok(medicalRecordService.restore(id));
     }
 
     @DeleteMapping("/{id}")

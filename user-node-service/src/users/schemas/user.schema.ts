@@ -72,6 +72,26 @@ export class User {
   @Prop({ type: [String], default: [] })
   patientIds: string[]; // For CAREGIVER: IDs of their patients
 
+  @Prop({
+    type: {
+      recordId: String,
+      patientEmail: String,
+      bloodGroup: String,
+      alzheimerStage: String,
+      occurredAt: Date,
+      lastEventType: String,
+    },
+    _id: false,
+  })
+  medicalRecord?: {
+    recordId?: string;
+    patientEmail?: string;
+    bloodGroup?: string;
+    alzheimerStage?: string;
+    occurredAt?: Date;
+    lastEventType?: string;
+  };
+
   // Timestamps will be handled by the schema options
   createdAt: Date;
   updatedAt: Date;

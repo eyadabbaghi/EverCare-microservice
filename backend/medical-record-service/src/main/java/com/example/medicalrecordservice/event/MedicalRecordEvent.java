@@ -19,5 +19,7 @@ public class MedicalRecordEvent {
     private String patientEmail;
     private String bloodGroup;
     private String alzheimerStage;
+    private boolean archived;
+    private String archiveReason;
     private LocalDateTime occurredAt;
 }

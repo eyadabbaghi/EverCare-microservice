@@ -73,5 +73,10 @@ Desktop.ini
 *.log
 logs/
 
+# Environment / uploads
+user-node-service/.env
+user-node-service/uploads/
+backend/User/uploads/
+
 # AI Code Tracking
 .ai-code-tracking.json

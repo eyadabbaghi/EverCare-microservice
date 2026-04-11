@@ -3,6 +3,7 @@ package com.example.medicalrecordservice.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,12 @@ public class MedicalRecord {
 
     private String bloodGroup;      // e.g. A+, O-
     private String alzheimerStage;  // e.g. MILD, MODERATE, SEVERE
+    private boolean archived;
+    private LocalDateTime archivedAt;
+    private String archivedBy;
+
+    @Column(length = 1000)
+    private String archiveReason;
 
     @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -35,4 +42,8 @@ public class MedicalRecord {
     @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<MedicalDocument> documents = new ArrayList<>();
+
+    @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<AssessmentReport> reports = new ArrayList<>();
 }

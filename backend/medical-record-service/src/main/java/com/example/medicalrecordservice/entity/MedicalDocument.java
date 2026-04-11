@@ -1,5 +1,6 @@
 package com.example.medicalrecordservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,6 +20,7 @@ public class MedicalDocument {
     private String fileType; // pdf, png, jpg
     private String filePath; // Sprint 1: local path (later cloud)
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "medical_record_id", nullable = false)
     private MedicalRecord medicalRecord;

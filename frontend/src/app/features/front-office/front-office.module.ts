@@ -28,8 +28,8 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { NewUserFlowComponent } from './pages/login/new-user-flow.component';
 import { SetupProfileComponent } from './pages/setup-profile/setup-profile.component';
+import { PatientIntakeComponent } from './pages/patient-intake/patient-intake.component';
 
-// 👇 ADD THIS IMPORT
 import { DoctorSearchModalComponent } from './pages/profile/doctor-search-modal.component';
 
 @NgModule({
@@ -57,9 +57,7 @@ import { DoctorSearchModalComponent } from './pages/profile/doctor-search-modal.
     ProfileComponent,
     NewUserFlowComponent,
     SetupProfileComponent,
-    DoctorSearchModalComponent,
-    SetupProfileComponent,
-    // 👇 ADD THIS COMPONENT
+    PatientIntakeComponent,
     DoctorSearchModalComponent,
   ],
   imports: [
