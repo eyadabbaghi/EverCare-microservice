@@ -1,0 +1,130 @@
+<section class="reports-shell min-h-screen px-4 py-6 md:px-8">
+  <div class="mx-auto max-w-7xl space-y-6">
+    <div class="rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+      <div class="reports-hero px-6 py-8 text-white md:px-8">
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div class="max-w-3xl">
+            <span class="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100">
+              Assessment Reports
+            </span>
+            <h1 class="mt-4 text-3xl font-bold tracking-tight md:text-4xl">Doctor Reports List</h1>
+            <p class="mt-3 text-sm leading-6 text-slate-200">
+              Review linked assessment reports by patient, filter severe situations, and jump directly to the full dossier.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button
+              *ngIf="isPatientFiltered"
+              type="button"
+              class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+              (click)="clearPatientFilter()">
+              Clear Patient Filter
+            </button>
+            <button
+              type="button"
+              class="rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+              (click)="toggleAlertsOnly()">
+              {{ alertsOnly ? 'Show All Reports' : 'Show Alerts Only' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+      {{ errorMessage }}
+    </div>
+
+    <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm" *ngIf="!isPatientFiltered">
+      <div class="grid gap-4 md:grid-cols-[2fr_1fr]">
+        <label class="block">
+          <span class="mb-2 block text-sm font-medium text-slate-700">Search</span>
+          <input
+            type="text"
+            class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+            [ngModel]="query"
+            (ngModelChange)="onQueryChange($event)"
+            placeholder="Search by patient, type, stage, or recommendation" />
+        </label>
+
+        <label class="block">
+          <span class="mb-2 block text-sm font-medium text-slate-700">Stage Filter</span>
+          <select
+            class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+            [ngModel]="stageFilter"
+            (ngModelChange)="onStageChange($event)">
+            <option value="">All stages</option>
+            <option value="MILD">MILD</option>
+            <option value="MODERATE">MODERATE</option>
+            <option value="SEVERE">SEVERE</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div *ngIf="isPatientFiltered" class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+      Active patient filter: <strong>{{ patientFilterId }}</strong>
+    </div>
+
+    <div *ngIf="isLoading" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-sm text-slate-600 shadow-sm">
+      Loading reports...
+    </div>
+
+    <div *ngIf="!isLoading && !visibleReports.length" class="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center text-sm text-slate-500 shadow-sm">
+      No assessment report matches the current filters.
+    </div>
+
+    <div *ngIf="!isLoading && visibleReports.length" class="rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+          <thead class="bg-slate-50 text-left text-slate-600">
+            <tr>
+              <th class="px-4 py-3 font-semibold">Patient</th>
+              <th class="px-4 py-3 font-semibold">Date</th>
+              <th class="px-4 py-3 font-semibold">Type</th>
+              <th class="px-4 py-3 font-semibold">Score</th>
+              <th class="px-4 py-3 font-semibold">Stage</th>
+              <th class="px-4 py-3 font-semibold">Alert</th>
+              <th class="px-4 py-3 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr *ngFor="let report of visibleReports">
+              <td class="px-4 py-4">
+                <p class="font-semibold text-slate-900">{{ report.patientName }}</p>
+                <p class="mt-1 text-xs text-slate-500">{{ report.patientEmail || report.patientId }}</p>
+              </td>
+              <td class="px-4 py-4 text-slate-700">{{ report.assessmentDate }}</td>
+              <td class="px-4 py-4 text-slate-700">{{ report.reportType }}</td>
+              <td class="px-4 py-4">
+                <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                  {{ report.score }}/100
+                </span>
+              </td>
+              <td class="px-4 py-4 text-slate-700">{{ report.stage }}</td>
+              <td class="px-4 py-4">
+                <span
+                  class="rounded-full px-3 py-1 text-xs font-semibold"
+                  [class.bg-rose-100]="report.needsAttention"
+                  [class.text-rose-700]="report.needsAttention"
+                  [class.bg-emerald-100]="!report.needsAttention"
+                  [class.text-emerald-700]="!report.needsAttention">
+                  {{ report.needsAttention ? 'Attention' : 'Stable' }}
+                </span>
+              </td>
+              <td class="px-4 py-4">
+                <button
+                  type="button"
+                  class="rounded-xl border border-cyan-200 px-3 py-2 text-xs font-semibold text-cyan-700 transition hover:bg-cyan-50"
+                  (click)="openRecord(report)">
+                  Open Record
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

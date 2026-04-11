@@ -1,24 +1,21 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MedicalFolderRoutingModule } from './medical-folder-routing.module';
-import { MedicalFolderPageComponent } from './pages/medical-folder-page/medical-folder-page.component';
-import {FormsModule} from "@angular/forms";
-import { DocumentsTabComponent } from './components/documents-tab/documents-tab.component';
-import { MedicationsTabComponent } from './components/medications-tab/medications-tab.component';
-import { VitalsTabComponent } from './components/vitals-tab/vitals-tab.component';
-
+import { FormsModule } from '@angular/forms';
+import { MedicalRecordListComponent } from './pages/medical-record-list/medical-record-list.component';
+import { MedicalRecordFormComponent } from './pages/medical-record-form/medical-record-form.component';
+import { MedicalRecordDetailsComponent } from './pages/medical-record-details/medical-record-details.component';
 
 @NgModule({
   declarations: [
-    MedicalFolderPageComponent,
-    DocumentsTabComponent,
-    MedicationsTabComponent,
-    VitalsTabComponent,
+    MedicalRecordListComponent,
+    MedicalRecordFormComponent,
+    MedicalRecordDetailsComponent,
   ],
-    imports: [
-        MedicalFolderRoutingModule,
-        FormsModule,
-      CommonModule,
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    MedicalFolderRoutingModule,
+  ]
 })
 export class MedicalFolderModule { }

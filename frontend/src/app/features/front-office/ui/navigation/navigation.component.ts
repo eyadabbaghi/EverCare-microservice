@@ -5,6 +5,9 @@ import { Subscription, interval } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { AuthService, User } from '../../pages/login/auth.service';
 import { NotificationService, Notification as ActivityNotification } from '../../../../core/services/notification.service';
+import { DailyTaskService } from '../../../daily-me/services/daily-task.service';
+import { DailyTask } from '../../../daily-me/models/daily-task.model';
+
 
 interface NavItem {
   id: string;
@@ -22,8 +25,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
     { id: 'home', label: 'Home', route: '/' },
     { id: 'activities', label: 'Activities', route: '/activities' },
     { id: 'appointments', label: 'Appointments', route: '/appointments' },
-    { id: 'medical-folder', label: 'Medical Folder', route: '/medical-folder' },
+    { id: 'medical-folder', label: 'Medical Records', route: '/medical-folder' },
     { id: 'alerts', label: 'Alerts', route: '/alerts' },
+    { id: 'daily', label: 'Daily Me', route: '/daily-me' },
+    { id: 'communication', label: 'Messages', route: '/communication' },
   ];
 
   user: User | null = null;
@@ -193,7 +198,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   getActivityIcon(action: string): string {
     switch (action) {
-      
+
       case 'CREATED': return '🆕';
       case 'UPDATED': return '✏️';
       case 'DELETED': return '🗑️';
@@ -203,7 +208,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   getActivityTitle(action: string): string {
     switch (action) {
-      
+
       case 'CREATED': return 'New activity available';
       case 'UPDATED': return 'Activity updated';
       case 'DELETED': return 'Activity removed';

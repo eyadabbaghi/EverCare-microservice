@@ -1,7 +1,6 @@
 package tn.esprit.activities.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.activities.client.NotificationClient;
@@ -236,21 +235,6 @@ public class ActivityService {
         userActivityRepository.save(userActivity);
         activityRepository.save(activity);
         return mapToDTO(activity);
-    }
-
-    // ---------- Helper: Send notification (with error handling) ----------
-
-    private void sendNotification(String activityId, String action, String details) {
-        try {
-            NotificationRequest request = new NotificationRequest();
-            request.setActivityId(activityId);
-            request.setAction(action);
-            request.setDetails(details);
-            notificationClient.sendNotification(request);
-            log.info("Notification sent: {} - {}", action, activityId);
-        } catch (Exception e) {
-            log.error("Failed to send notification for activity {}: {}", activityId, e.getMessage());
-        }
     }
 
     // ---------- Mapping ----------

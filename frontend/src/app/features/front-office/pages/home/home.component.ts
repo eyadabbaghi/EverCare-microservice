@@ -55,8 +55,8 @@ export class HomeComponent implements OnInit {
     },
     {
       id: 'medical-folder',
-      title: 'Medical Folder',
-      description: 'Access your complete medical history and documents',
+      title: 'Medical Records',
+      description: 'Open the patient dossier, its history, documents, and clinical follow-up',
       icon: '📁',
       color: 'bg-[#DDD6FE]',
       gradient: 'from-[#DDD6FE] to-[#C4B5FD]',

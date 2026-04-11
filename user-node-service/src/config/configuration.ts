@@ -26,4 +26,17 @@ export default () => ({
     hostname: process.env.EUREKA_HOSTNAME || 'localhost',
     ipAddr: process.env.EUREKA_IP_ADDR || '127.0.0.1',
   },
+  rabbitmq: {
+    enabled: process.env.RABBITMQ_ENABLED !== 'false',
+    url:
+      process.env.RABBITMQ_URL ||
+      `amqp://${process.env.RABBITMQ_USERNAME || 'guest'}:${process.env.RABBITMQ_PASSWORD || 'guest'}@${process.env.RABBITMQ_HOST || 'localhost'}:${process.env.RABBITMQ_PORT || '5672'}`,
+    medicalRecord: {
+      exchange:
+        process.env.MEDICAL_RECORD_EXCHANGE || 'medical.record.exchange',
+      queue: process.env.MEDICAL_RECORD_QUEUE || 'medical.record.queue',
+      routingKey:
+        process.env.MEDICAL_RECORD_ROUTING_KEY || 'medical.record.events',
+    },
+  },
 });

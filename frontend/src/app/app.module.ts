@@ -1,6 +1,12 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; // added HTTP_INTERCEPTORS
+import {
+  HTTP_INTERCEPTORS,
+  HttpClientModule,
+  provideHttpClient,
+  withFetch,
+  withInterceptorsFromDi
+} from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -69,6 +75,7 @@ import {CommonModule} from '@angular/common';
     AppRoutingModule,
     MatRadioModule,
     HttpClientModule,
+    MatRadioModule,
     CoreModule,
     SharedModule,
     LayoutsModule,

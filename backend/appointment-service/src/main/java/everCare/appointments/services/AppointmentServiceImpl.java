@@ -476,7 +476,7 @@ appointment.setEndDateTime(appointment.getStartDateTime()
 
 // Skip availability validation for now (requires proper availability setup)
         // if (hasDoctorAvailability(appointment.getDoctorId()) && !isWithinDoctorAvailability(appointment)) {
-        //     throw new ResponseStatusException(BAD_REQUEST, 
+        //     throw new ResponseStatusException(BAD_REQUEST,
         //         "Appointment is outside the doctor's availability. Selected day: " + appointment.getStartDateTime().getDayOfWeek());
         // }
 

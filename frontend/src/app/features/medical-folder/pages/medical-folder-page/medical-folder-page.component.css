@@ -1,0 +1,268 @@
+:host {
+  display: block;
+}
+
+.medical-shell {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.14), transparent 28%),
+    radial-gradient(circle at 85% 15%, rgba(14, 165, 233, 0.16), transparent 24%),
+    linear-gradient(180deg, #f8fbff 0%, #eef6fb 100%);
+}
+
+.medical-shell__content {
+  position: relative;
+  z-index: 1;
+}
+
+.medical-shell__orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(10px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.medical-shell__orb--left {
+  top: 4rem;
+  left: -6rem;
+  width: 18rem;
+  height: 18rem;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.22), rgba(34, 211, 238, 0));
+}
+
+.medical-shell__orb--right {
+  top: 10rem;
+  right: -5rem;
+  width: 16rem;
+  height: 16rem;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.24), rgba(59, 130, 246, 0));
+}
+
+.hero-panel {
+  position: relative;
+  border-color: rgba(148, 163, 184, 0.22);
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.12);
+}
+
+.hero-panel__inner {
+  position: relative;
+  background:
+    linear-gradient(135deg, rgba(8, 47, 73, 0.98) 0%, rgba(21, 94, 117, 0.96) 45%, rgba(15, 23, 42, 0.98) 100%);
+}
+
+.hero-panel__inner::before,
+.hero-panel__inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero-panel__inner::before {
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.12), transparent 36%),
+    radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.16), transparent 18%);
+}
+
+.hero-panel__inner::after {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.25));
+}
+
+.glass-badge,
+.metric-card,
+.snapshot-card,
+.summary-card,
+.elevated-panel,
+.context-card,
+.field-surface,
+.tab-frame,
+.timeline-item,
+.document-card,
+.empty-state,
+.form-note,
+.info-block,
+.insight-callout {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+.metric-card {
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(165, 243, 252, 0.96));
+}
+
+.metric-card:hover,
+.summary-card:hover,
+.timeline-item:hover,
+.document-card:hover,
+.elevated-panel:hover,
+.snapshot-card:hover {
+  transform: translateY(-2px);
+}
+
+.context-card {
+  border-radius: 1.25rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.4));
+  padding: 0.5rem 0.75rem 0.5rem 0;
+}
+
+.snapshot-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+}
+
+.flash-message {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+}
+
+.flash-message::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+}
+
+.flash-message--success::before {
+  background: linear-gradient(180deg, #10b981, #059669);
+}
+
+.flash-message--error::before {
+  background: linear-gradient(180deg, #f43f5e, #e11d48);
+}
+
+.summary-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98));
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+}
+
+.summary-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0891b2, #22d3ee);
+}
+
+.summary-card:nth-child(2)::before {
+  background: linear-gradient(90deg, #0f766e, #14b8a6);
+}
+
+.summary-card:nth-child(3)::before {
+  background: linear-gradient(90deg, #d97706, #f59e0b);
+}
+
+.summary-card:nth-child(4)::before {
+  background: linear-gradient(90deg, #2563eb, #38bdf8);
+}
+
+.tab-frame {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.tab-chip:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.elevated-panel {
+  border-color: rgba(148, 163, 184, 0.24);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+}
+
+.info-block {
+  border-color: rgba(148, 163, 184, 0.18);
+  background:
+    linear-gradient(180deg, rgba(248, 250, 252, 0.92), rgba(255, 255, 255, 0.96));
+}
+
+.insight-callout {
+  background:
+    linear-gradient(135deg, rgba(236, 254, 255, 0.98), rgba(224, 242, 254, 0.95));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.field-surface {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+}
+
+.field-surface:focus {
+  box-shadow:
+    0 0 0 4px rgba(34, 211, 238, 0.14),
+    0 10px 24px rgba(14, 116, 144, 0.08);
+}
+
+.form-note {
+  background:
+    linear-gradient(180deg, rgba(248, 250, 252, 0.92), rgba(241, 245, 249, 0.95));
+}
+
+.timeline-item,
+.document-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.92), rgba(255, 255, 255, 0.96));
+}
+
+.timeline-item::before,
+.document-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+}
+
+.timeline-item::before {
+  background: linear-gradient(180deg, #06b6d4, #0f766e);
+}
+
+.document-card::before {
+  background: linear-gradient(180deg, #0f172a, #0ea5e9);
+}
+
+.empty-state {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(248, 250, 252, 0.95),
+      rgba(248, 250, 252, 0.95) 12px,
+      rgba(255, 255, 255, 0.95) 12px,
+      rgba(255, 255, 255, 0.95) 24px
+    );
+}
+
+@media (max-width: 767px) {
+  .medical-shell__orb--left,
+  .medical-shell__orb--right {
+    display: none;
+  }
+
+  .context-card {
+    padding-right: 0;
+  }
+}

@@ -8,8 +8,12 @@ import { AlertsComponent } from './pages/alerts/alerts.component';
 import { FrontOfficeLayoutComponent } from '../../layouts/front-office-layout/front-office-layout.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SetupProfileComponent } from './pages/setup-profile/setup-profile.component';
+
+import { PatientIntakeComponent } from './pages/patient-intake/patient-intake.component';
+import { AuthGuard } from '../../core/guards/auth.guard';
 const routes: Routes = [
-  { path: 'setup-profile', component: SetupProfileComponent },
+  { path: 'setup-profile', component: SetupProfileComponent, canActivate: [AuthGuard] },
+  { path: 'patient-intake', component: PatientIntakeComponent, canActivate: [AuthGuard] },
 
   {
     path: '',
@@ -42,6 +46,10 @@ const routes: Routes = [
       // path: 'communication',
     // loadChildren: () => import('../communication/communication.module').then(m => m.CommunicationModule)
       //}
+
+
+
+
     ],
   },
 ];

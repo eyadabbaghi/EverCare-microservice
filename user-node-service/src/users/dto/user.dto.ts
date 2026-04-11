@@ -1,4 +1,5 @@
 import { UserRole } from '../schemas/user-role.enum';
+import { MedicalRecordSummaryDto } from './medical-record-summary.dto';
 
 export class UserDto {
   userId: string;
@@ -25,4 +26,7 @@ export class UserDto {
   // Relationship fields
   caregiverEmails?: string[]; // for patient
   patientEmails?: string[]; // for caregiver
+
+  // Synced from medical-record-service via RabbitMQ
+  medicalRecord?: MedicalRecordSummaryDto;
 }
