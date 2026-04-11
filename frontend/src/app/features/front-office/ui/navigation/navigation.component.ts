@@ -24,6 +24,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     { id: 'appointments', label: 'Appointments', route: '/appointments' },
     { id: 'medical-folder', label: 'Medical Folder', route: '/medical-folder' },
     { id: 'alerts', label: 'Alerts', route: '/alerts' },
+    { id: 'blog', label: 'Blog', route: '/blog' },
   ];
 
   user: User | null = null;
@@ -45,7 +46,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.userSub = this.authService.currentUser$.subscribe(user => {
@@ -145,9 +146,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   navigate(route: string): void {
+    // 🔧 MODIFICATION : retrait de '/blog' des routes protégées
     const protectedRoutes = [
-       '/appointments', '/medical-folder', '/alerts',
-      '/profile', '/messages', '/daily', '/blog'
+      '/appointments', '/medical-folder', '/alerts',
+      '/profile', '/messages', '/daily'
     ];
     if (protectedRoutes.includes(route) && !this.user) {
       this.router.navigateByUrl('/login');
@@ -193,7 +195,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   getActivityIcon(action: string): string {
     switch (action) {
-      
       case 'CREATED': return '🆕';
       case 'UPDATED': return '✏️';
       case 'DELETED': return '🗑️';
@@ -203,7 +204,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   getActivityTitle(action: string): string {
     switch (action) {
-      
       case 'CREATED': return 'New activity available';
       case 'UPDATED': return 'Activity updated';
       case 'DELETED': return 'Activity removed';
@@ -234,4 +234,4 @@ export class NavigationComponent implements OnInit, OnDestroy {
       this.profileOpen = false;
     }
   }
-}
+} 

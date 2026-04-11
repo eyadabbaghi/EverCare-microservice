@@ -10,9 +10,9 @@ public class ContentFilterService {
 
     // Liste centralisée
     private final List<String> badWords = Arrays.asList(
-            "merde", "connard", "salope", "encule", "batard", "pute", "bordel",
-            "abruti", "debile", "nègre", "bougnoule", "pede", "raciste", "nazi",
-             "crypto"
+            "merde", "con", "connard", "salope", "encule", "batard", "pute", "bordel",
+            "abruti", "debile", "nègre", "bougnoule", "pd", "pede", "raciste", "nazi",
+            "vends", "achat", "argent", "gratuit", "hack", "casino", "poker", "crypto"
     );
 
     public List<String> getForbiddenWords() {
@@ -23,9 +23,10 @@ public class ContentFilterService {
         if (content == null || content.isBlank()) return false;
         String lowerContent = content.toLowerCase();
 
-        // On vérifie si n'importe quel mot interdit est CONTENU dans le message
-        return badWords.stream().anyMatch(word ->
-                lowerContent.contains(word.toLowerCase())
-        );
+        return badWords.stream().anyMatch(word -> {
+            // Regex \b pour détecter le mot exact (évite de bloquer "content" pour "con")
+            String regex = "\\b" + Pattern.quote(word.toLowerCase()) + "\\b";
+            return Pattern.compile(regex).matcher(lowerContent).find();
+        });
     }
 }

@@ -1,32 +1,55 @@
 package com.yourteam.blogservice.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
+
     @Column(columnDefinition = "TEXT")
     private String content;
+
     private String coverImageUrl;
     private String language;
     private Integer readingTime;
+
+    private String moods;
+
+    @Builder.Default
     private Integer viewCount = 0;
+
+    @Builder.Default
     private Integer likeCount = 0;
-    private Boolean isPublished = false;
+
+    @Builder.Default
+    private Boolean isPublished = true;
+
     private LocalDateTime publishedAt;
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdated;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER) // Charge la catégorie immédiatement pour Angular
     @JoinColumn(name = "category_id")
-    @JsonBackReference // Évite les boucles infinies lors de la conversion JSON
+    @JsonIgnoreProperties("articles") // Permet de voir la catégorie sans boucler sur ses articles
     private Category category;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        if (this.viewCount == null) this.viewCount = 0;
+        if (this.likeCount == null) this.likeCount = 0;
+        if (this.isPublished == null) this.isPublished = true;
+    }
 }

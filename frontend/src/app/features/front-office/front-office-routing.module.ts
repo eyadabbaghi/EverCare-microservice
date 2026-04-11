@@ -8,6 +8,7 @@ import { AlertsComponent } from './pages/alerts/alerts.component';
 import { FrontOfficeLayoutComponent } from '../../layouts/front-office-layout/front-office-layout.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SetupProfileComponent } from './pages/setup-profile/setup-profile.component';
+
 const routes: Routes = [
   { path: 'setup-profile', component: SetupProfileComponent },
 
@@ -32,16 +33,13 @@ const routes: Routes = [
         loadChildren: () => import('../medical-folder/medical-folder.module').then(m => m.MedicalFolderModule)
       },
 
-      //{
-        //path:"daily-me",
-        //loadChildren: () => import('../daily-me/daily-me.module').then(m => m.DailyMeModule)
+      // ✅ Route pour le blog (lazy loading)
+      {
+        path: 'blog',
+        loadChildren: () => import('../blog/blog.module').then(m => m.BlogModule)
+      }
 
-      //},
-      //{
-
-      // path: 'communication',
-    // loadChildren: () => import('../communication/communication.module').then(m => m.CommunicationModule)
-      //}
+      // (autres routes commentées)
     ],
   },
 ];
@@ -50,4 +48,5 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class FrontOfficeRoutingModule {}
+export class FrontOfficeRoutingModule {
+} 

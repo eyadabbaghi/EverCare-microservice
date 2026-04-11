@@ -1,8 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\src"
+    "\\src",
+    "\\src\\app",
+    "\\src\\app\\features",
+    "\\src\\app\\features\\back-office",
+    "\\src\\app\\features\\back-office\\pages",
+    "\\src\\app\\features\\back-office\\pages\\blog-admin",
+    "\\src\\app\\features\\front-office",
+    "\\src\\app\\features\\front-office\\ui",
+    "\\src\\app\\features\\front-office\\ui\\navigation"
   ],
-  "SelectedNode": "\\src\\app",
+  "SelectedNode": "\\src\\app\\features\\back-office\\pages\\blog-admin\\blog-admin.component.ts",
   "PreviewInSolutionExplorer": false
 }

@@ -1,10 +1,12 @@
 package com.yourteam.communicationservice.Controller;
 
+import com.yourteam.communicationservice.client.UserServiceClient;
+import com.yourteam.communicationservice.dto.UserDto;
 import com.yourteam.communicationservice.entity.Conversation;
 import com.yourteam.communicationservice.service.conversationservice;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,18 +17,29 @@ import java.util.List;
 public class ConversationController {
 
     private final conversationservice conversationService;
+    private final UserServiceClient userServiceClient;
 
+    // Créer une conversation avec user1Id et user2Id = emails
     @PostMapping
-    public ResponseEntity<Conversation> createConversation(@RequestBody Conversation conversation, JwtAuthenticationToken token) {
-        // Optionnel : Forcer l'un des participants à être l'utilisateur connecté
-        // conversation.setUser1Id(token.getName());
+    public ResponseEntity<?> createConversation(@RequestBody Conversation conversation) {
+        // Vérifier que user2Id (email) existe dans User Service
+        try {
+            UserDto targetUser = userServiceClient.getUserByEmail(conversation.getUser2Id());
+            if (targetUser == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("L'utilisateur destinataire n'existe pas.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("Service utilisateur indisponible.");
+        }
+        // user1Id est l'email de l'expéditeur (envoyé par le front)
         return ResponseEntity.ok(conversationService.createConversation(conversation));
     }
 
-    // Récupérer les conversations de l'utilisateur CONNECTÉ (plus sécurisé)
-    @GetMapping("/my")
-    public ResponseEntity<List<Conversation>> getMyConversations(JwtAuthenticationToken token) {
-        return ResponseEntity.ok(conversationService.getConversationsByUserId(token.getName()));
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Conversation>> getConversationsByUser(@PathVariable String userId) {
+        return ResponseEntity.ok(conversationService.getConversationsByUserId(userId));
     }
 
     @GetMapping("/{id}")
