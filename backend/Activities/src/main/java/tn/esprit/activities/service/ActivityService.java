@@ -1,6 +1,7 @@
 package tn.esprit.activities.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.activities.client.NotificationClient;
@@ -34,11 +35,16 @@ public class ActivityService {
                 .collect(Collectors.toList());
     }
 
-    public ActivityDTO getActivityById(String id) {
-        Activity activity = activityRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Activity not found"));
-        return mapToDTO(activity);
-    }
+  public ActivityDTO getActivityById(String id) {
+    Activity activity = activityRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Activity not found"));
+    return mapToDTO(activity);
+  }
+
+  public Activity getActivityEntityById(String id) {
+    return activityRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Activity not found"));
+  }
 
     @Transactional
     public ActivityDTO createActivity(CreateActivityRequest request) {
@@ -100,11 +106,15 @@ public class ActivityService {
 
     // ---------- Admin: ActivityDetails CRUD ----------
 
-    public List<ActivityDetailsDTO> getDetailsByActivityId(String activityId) {
-        return detailsRepository.findByActivityId(activityId).stream()
-                .map(this::mapToDetailsDTO)
-                .collect(Collectors.toList());
-    }
+  public List<ActivityDetailsDTO> getDetailsByActivityId(String activityId) {
+    return detailsRepository.findByActivityId(activityId).stream()
+        .map(this::mapToDetailsDTO)
+        .collect(Collectors.toList());
+  }
+
+  public List<ActivityDetails> getDetailsEntitiesByActivityId(String activityId) {
+    return detailsRepository.findByActivityId(activityId);
+  }
 
     public ActivityDetailsDTO getDetailsById(String id) {
         ActivityDetails details = detailsRepository.findById(id)
@@ -331,9 +341,21 @@ public class ActivityService {
         return dto;
     }
 
-    public ActivityWithUserDataDTO getPublicActivityById(String activityId) {
-        Activity activity = activityRepository.findById(activityId)
-                .orElseThrow(() -> new RuntimeException("Activity not found"));
-        return mapToWithUserData(activity, (UserActivity) null);
+  public ActivityWithUserDataDTO getPublicActivityById(String activityId) {
+    Activity activity = activityRepository.findById(activityId)
+        .orElseThrow(() -> new RuntimeException("Activity not found"));
+    return mapToWithUserData(activity, (UserActivity) null);
+  }
+
+  private void sendNotification(String activityId, String action, String message) {
+    try {
+      NotificationRequest request = new NotificationRequest();
+      request.setActivityId(activityId);
+      request.setAction(action);
+      request.setDetails(message);
+      notificationClient.sendNotification(request);
+    } catch (Exception e) {
+      log.warn("Failed to send notification: {}", e.getMessage());
     }
+  }
 }

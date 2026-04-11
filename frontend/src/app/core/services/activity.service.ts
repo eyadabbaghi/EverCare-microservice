@@ -115,6 +115,7 @@ export interface UpdateActivityDetailsRequest {
   precautions?: string[];
 }
 export interface ActivityWithDetails extends Activity {
+  detailsId?: string;
   instructions: string[];
   difficulty: 'Easy' | 'Moderate' | 'Challenging';
   recommendedStage: ('Early' | 'Moderate' | 'Advanced')[];
@@ -127,9 +128,9 @@ export interface ActivityWithDetails extends Activity {
   providedIn: 'root'
 })
 export class ActivityService {
- //private apiUrl = 'http://localhost:8092/EverCare'; // direct to microservice
-   // Use API Gateway URL instead of direct microservice
-  private apiUrl = 'http://localhost:8089/EverCare';
+  //private apiUrl = 'http://localhost:8092/EverCare'; // direct to microservice
+  // Use API Gateway URL instead of direct microservice
+  apiUrl = 'http://localhost:8089/EverCare';
 
   constructor(private http: HttpClient) {}
 
@@ -201,7 +202,13 @@ export class ActivityService {
   return this.http.get<Activity[]>(`${this.apiUrl}/activities/public`);
 }
 
-getPublicActivityById(id: string): Observable<ActivityWithDetails> {
-  return this.http.get<ActivityWithDetails>(`${this.apiUrl}/activities/${id}`);
-}
+  getPublicActivityById(id: string): Observable<ActivityWithDetails> {
+    return this.http.get<ActivityWithDetails>(`${this.apiUrl}/activities/${id}`);
+  }
+
+  uploadImage(file: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<string>(`${this.apiUrl}/admin/uploads`, formData);
+  }
 }

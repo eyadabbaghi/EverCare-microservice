@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class SummarizationService {
 
-    @Value("${huggingface.api.key}")
+    @Value("${huggingface.api.key:}")
     private String apiKey;
 
     // Use a faster model (DistilBART) for quicker inference
@@ -40,6 +40,11 @@ public class SummarizationService {
 
         // For very short text, fallback immediately (no API call)
         if (text.length() < 200) {
+            return fallbackSummarize(text);
+        }
+
+        // If no API key configured, use fallback
+        if (apiKey == null || apiKey.isBlank()) {
             return fallbackSummarize(text);
         }
 

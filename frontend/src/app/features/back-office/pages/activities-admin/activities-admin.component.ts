@@ -490,10 +490,10 @@ export class ActivitiesAdminComponent implements OnInit {
     // If a new file is selected, upload it first
     if (this.selectedFile) {
       this.activityService.uploadImage(this.selectedFile).subscribe({
-        next: (imageUrl) => {
+        next: (imageUrl: string) => {
           proceedWithSave(imageUrl);
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Image upload failed', err);
           this.toastr.error('Image upload failed, activity not saved');
           this.selectedFile = null;
