@@ -1,0 +1,346 @@
+<section class="record-details-page">
+  <div class="page-shell">
+    <div *ngIf="errorMessage" class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="alert alert-success">
+      {{ successMessage }}
+    </div>
+
+    <div *ngIf="isLoading" class="alert alert-info">
+      Loading medical record details...
+    </div>
+
+    <ng-container *ngIf="!isLoading && record as currentRecord">
+      <section class="card header-card">
+        <div class="header-main">
+          <div>
+            <p class="page-kicker">Medical Record Details</p>
+            <h1>{{ patient?.name || patient?.email || currentRecord.patientId }}</h1>
+            <p class="page-description">
+              Summary of the patient dossier, linked history, documents, assessment reports, and archive lifecycle.
+            </p>
+          </div>
+
+          <span class="status-badge" [class.archived]="currentRecord.archived">
+            {{ currentRecord.archived ? 'Archived' : 'Active' }}
+          </span>
+        </div>
+
+        <div class="header-actions">
+          <button type="button" class="btn btn-secondary" (click)="backToList()">Back</button>
+
+          <a
+            *ngIf="isDoctorOrAdmin"
+            [routerLink]="['/medical-folder', currentRecord.id, 'edit']"
+            class="btn btn-secondary">
+            Edit
+          </a>
+
+          <button
+            *ngIf="canArchiveRecord"
+            type="button"
+            class="btn btn-outline danger"
+            [disabled]="isArchiving"
+            (click)="archiveRecord()">
+            {{ isArchiving ? 'Archiving...' : 'Archive' }}
+          </button>
+
+          <button
+            *ngIf="canRestoreRecord"
+            type="button"
+            class="btn btn-outline success"
+            [disabled]="isArchiving"
+            (click)="restoreRecord()">
+            {{ isArchiving ? 'Restoring...' : 'Restore' }}
+          </button>
+
+          <button
+            *ngIf="canDeleteRecord"
+            type="button"
+            class="btn btn-outline danger"
+            [disabled]="isDeleting"
+            (click)="deleteRecord()">
+            {{ isDeleting ? 'Deleting...' : 'Delete' }}
+          </button>
+        </div>
+      </section>
+
+      <div *ngIf="currentRecord.archived" class="alert alert-warning">
+        This dossier is archived.
+        <span *ngIf="currentRecord.archivedAt"> Archived on {{ currentRecord.archivedAt | date: 'medium' }}.</span>
+        <span *ngIf="currentRecord.archiveReason"> Reason: {{ currentRecord.archiveReason }}</span>
+      </div>
+
+      <section class="summary-grid">
+        <article class="card info-card">
+          <span>Name</span>
+          <strong>{{ patient?.name || 'Not provided' }}</strong>
+        </article>
+
+        <article class="card info-card">
+          <span>Email</span>
+          <strong>{{ patient?.email || 'Not provided' }}</strong>
+        </article>
+
+        <article class="card info-card">
+          <span>Patient ID</span>
+          <strong>{{ currentRecord.patientId }}</strong>
+        </article>
+
+        <article class="card info-card">
+          <span>Doctor Email</span>
+          <strong>{{ patient?.doctorEmail || 'Not linked' }}</strong>
+        </article>
+
+        <article class="card info-card">
+          <span>Blood Group</span>
+          <strong>{{ currentRecord.bloodGroup || '-' }}</strong>
+        </article>
+
+        <article class="card info-card">
+          <span>Alzheimer Stage</span>
+          <strong>{{ currentRecord.alzheimerStage || '-' }}</strong>
+        </article>
+
+        <article class="card info-card">
+          <span>Status</span>
+          <strong>{{ currentRecord.archived ? 'Archived' : 'Active' }}</strong>
+        </article>
+
+        <article class="card info-card">
+          <span>Completeness</span>
+          <strong>{{ completionScore }}% - {{ completionLabel }}</strong>
+        </article>
+      </section>
+
+      <section class="card snapshot-card">
+        <div class="section-head">
+          <div>
+            <h2>Latest Assessment Snapshot</h2>
+            <p>Quick doctor-facing overview of the latest linked report.</p>
+          </div>
+        </div>
+
+        <div *ngIf="latestReport; else noLatestReport" class="snapshot-grid">
+          <div class="snapshot-item">
+            <span>Report Type</span>
+            <strong>{{ latestReport.reportType }}</strong>
+          </div>
+          <div class="snapshot-item">
+            <span>Score</span>
+            <strong>{{ latestReport.score }}/100</strong>
+          </div>
+          <div class="snapshot-item">
+            <span>Stage</span>
+            <strong>{{ latestReport.stage }}</strong>
+          </div>
+          <div class="snapshot-item">
+            <span>Date</span>
+            <strong>{{ latestReport.assessmentDate }}</strong>
+          </div>
+          <div class="snapshot-item full">
+            <span>Recommendation</span>
+            <strong>{{ latestReport.recommendation }}</strong>
+          </div>
+          <div class="snapshot-item full">
+            <span>Summary</span>
+            <strong>{{ latestReport.summary }}</strong>
+          </div>
+        </div>
+
+        <ng-template #noLatestReport>
+          <p class="empty-text">No assessment report has been linked to this dossier yet.</p>
+        </ng-template>
+      </section>
+
+      <div class="content-grid">
+        <section class="card section-card">
+          <div class="section-head">
+            <div>
+              <h2>Medical History</h2>
+              <p>Consultations, diagnoses, treatments, and follow-up notes.</p>
+            </div>
+            <button
+              *ngIf="editingHistoryId"
+              type="button"
+              class="btn btn-secondary small"
+              (click)="cancelHistoryEdit()">
+              Cancel
+            </button>
+          </div>
+
+          <div *ngIf="!canEditRecord" class="alert alert-info compact">
+            {{ currentRecord.archived ? 'Archived dossier: history is visible in read-only mode.' : 'Read-only mode for your role.' }}
+          </div>
+
+          <form *ngIf="canEditRecord" class="stack-form" (ngSubmit)="submitHistory()">
+            <select [(ngModel)]="historyForm.type" name="historyType">
+              <option *ngFor="let option of historyTypeOptions" [value]="option">{{ option }}</option>
+            </select>
+
+            <input type="date" [(ngModel)]="historyForm.date" name="historyDate" />
+
+            <textarea
+              rows="4"
+              [(ngModel)]="historyForm.description"
+              name="historyDescription"
+              placeholder="Clinical note..."></textarea>
+
+            <button type="submit" class="btn btn-primary" [disabled]="isSavingHistory">
+              {{ isSavingHistory ? 'Saving...' : (editingHistoryId ? 'Update History' : 'Add History') }}
+            </button>
+          </form>
+
+          <div class="stack-list">
+            <article *ngFor="let history of histories" class="entry-card">
+              <div class="entry-content">
+                <span class="entry-type">{{ history.type }}</span>
+                <strong>{{ history.date }}</strong>
+                <p>{{ history.description }}</p>
+              </div>
+
+              <div *ngIf="canEditRecord" class="entry-actions">
+                <button type="button" class="btn btn-secondary small" (click)="startHistoryEdit(history)">Edit</button>
+                <button type="button" class="btn btn-outline danger small" (click)="deleteHistory(history.id)">Delete</button>
+              </div>
+            </article>
+
+            <p *ngIf="!histories.length" class="empty-text">No history entry has been recorded yet.</p>
+          </div>
+        </section>
+
+        <section class="card section-card">
+          <div class="section-head">
+            <div>
+              <h2>Documents</h2>
+              <p>Metadata references for prescriptions, scans, and supporting files.</p>
+            </div>
+            <button
+              *ngIf="editingDocumentId"
+              type="button"
+              class="btn btn-secondary small"
+              (click)="cancelDocumentEdit()">
+              Cancel
+            </button>
+          </div>
+
+          <div *ngIf="!canEditRecord" class="alert alert-info compact">
+            {{ currentRecord.archived ? 'Archived dossier: documents are visible in read-only mode.' : 'Read-only mode for your role.' }}
+          </div>
+
+          <form *ngIf="canEditRecord" class="stack-form" (ngSubmit)="submitDocument()">
+            <input type="text" [(ngModel)]="documentForm.fileName" name="documentName" placeholder="File name" />
+
+            <select [(ngModel)]="documentForm.fileType" name="documentType">
+              <option *ngFor="let option of documentTypeOptions" [value]="option">{{ option }}</option>
+            </select>
+
+            <input type="text" [(ngModel)]="documentForm.filePath" name="documentPath" placeholder="Path or URL" />
+
+            <button type="submit" class="btn btn-primary" [disabled]="isSavingDocument">
+              {{ isSavingDocument ? 'Saving...' : (editingDocumentId ? 'Update Document' : 'Add Document') }}
+            </button>
+          </form>
+
+          <div class="stack-list">
+            <article *ngFor="let document of documents" class="entry-card">
+              <div class="entry-content">
+                <span class="entry-type">{{ document.fileType }}</span>
+                <strong>{{ document.fileName }}</strong>
+                <p>{{ document.filePath }}</p>
+              </div>
+
+              <div class="entry-actions">
+                <button type="button" class="btn btn-secondary small" (click)="openDocument(document)">Open</button>
+                <button *ngIf="canEditRecord" type="button" class="btn btn-secondary small" (click)="startDocumentEdit(document)">Edit</button>
+                <button *ngIf="canEditRecord" type="button" class="btn btn-outline danger small" (click)="deleteDocument(document.id)">Delete</button>
+              </div>
+            </article>
+
+            <p *ngIf="!documents.length" class="empty-text">No document has been linked yet.</p>
+          </div>
+        </section>
+
+        <section class="card section-card">
+          <div class="section-head">
+            <div>
+              <h2>Assessment Reports</h2>
+              <p>Score, observed stage, recommendation, and summary for clinical follow-up.</p>
+            </div>
+            <button
+              *ngIf="editingReportId"
+              type="button"
+              class="btn btn-secondary small"
+              (click)="cancelReportEdit()">
+              Cancel
+            </button>
+          </div>
+
+          <div *ngIf="!canEditRecord" class="alert alert-info compact">
+            {{ currentRecord.archived ? 'Archived dossier: reports are visible in read-only mode.' : 'Read-only mode for your role.' }}
+          </div>
+
+          <form *ngIf="canEditRecord" class="stack-form" (ngSubmit)="submitReport()">
+            <select [(ngModel)]="reportForm.reportType" name="reportType">
+              <option *ngFor="let option of reportTypeOptions" [value]="option">{{ option }}</option>
+            </select>
+
+            <div class="inline-grid">
+              <input
+                type="number"
+                min="0"
+                max="100"
+                [(ngModel)]="reportForm.score"
+                name="reportScore"
+                placeholder="Score" />
+
+              <select [(ngModel)]="reportForm.stage" name="reportStage">
+                <option *ngFor="let option of alzheimerStageOptions" [value]="option">{{ option }}</option>
+              </select>
+            </div>
+
+            <input type="date" [(ngModel)]="reportForm.assessmentDate" name="reportDate" />
+            <input type="text" [(ngModel)]="reportForm.author" name="reportAuthor" placeholder="Author" />
+
+            <textarea
+              rows="3"
+              [(ngModel)]="reportForm.recommendation"
+              name="reportRecommendation"
+              placeholder="Recommendation"></textarea>
+
+            <textarea
+              rows="4"
+              [(ngModel)]="reportForm.summary"
+              name="reportSummary"
+              placeholder="Summary"></textarea>
+
+            <button type="submit" class="btn btn-primary" [disabled]="isSavingReport">
+              {{ isSavingReport ? 'Saving...' : (editingReportId ? 'Update Report' : 'Add Report') }}
+            </button>
+          </form>
+
+          <div class="stack-list">
+            <article *ngFor="let report of reports" class="entry-card">
+              <div class="entry-content">
+                <span class="entry-type">{{ report.reportType }}</span>
+                <strong>{{ report.assessmentDate }} - {{ report.stage }}</strong>
+                <p>Score: {{ report.score }}/100</p>
+                <p>{{ report.summary }}</p>
+                <p><strong>Recommendation:</strong> {{ report.recommendation }}</p>
+              </div>
+
+              <div *ngIf="canEditRecord" class="entry-actions">
+                <button type="button" class="btn btn-secondary small" (click)="startReportEdit(report)">Edit</button>
+                <button type="button" class="btn btn-outline danger small" (click)="deleteReport(report.id)">Delete</button>
+              </div>
+            </article>
+
+            <p *ngIf="!reports.length" class="empty-text">No assessment report has been linked yet.</p>
+          </div>
+        </section>
+      </div>
+    </ng-container>
+  </div>
+</section>

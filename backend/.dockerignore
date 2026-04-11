@@ -1,0 +1,8 @@
+*
+!pom.xml
+!medical-record-service/
+!medical-record-service/**
+medical-record-service/target/
+medical-record-service/.idea/
+medical-record-service/.vscode/
+medical-record-service/.ai-code-tracking.json

@@ -1,0 +1,164 @@
+<section class="record-list-page">
+  <div class="page-shell">
+    <div class="page-header">
+      <div>
+        <p class="page-kicker">Medical Record</p>
+        <h1>{{ isPatientRole ? 'My Medical Record' : 'Medical Records' }}</h1>
+        <p class="page-description">
+          {{ isPatientRole
+            ? 'Open your dossier, review your current Alzheimer stage, and follow the medical updates shared by the care team.'
+            : 'Create, review, archive, and restore patient medical records from one simple workspace.' }}
+        </p>
+      </div>
+
+      <a *ngIf="canCreate" routerLink="/medical-folder/new" class="btn btn-primary">
+        Create Record
+      </a>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isPatientRole" class="card filters-card">
+      <div class="filters-grid">
+        <label class="field">
+          <span>Search</span>
+          <input
+            type="text"
+            [ngModel]="searchQuery"
+            (ngModelChange)="onSearchChange($event)"
+            placeholder="Patient name, email, identifier, or stage" />
+        </label>
+
+        <label class="field">
+          <span>Status</span>
+          <select [ngModel]="statusFilter" (ngModelChange)="onStatusFilterChange($event)">
+            <option value="active">Active</option>
+            <option value="archived">Archived</option>
+            <option value="all">All</option>
+          </select>
+        </label>
+
+        <div class="filters-actions">
+          <button type="button" class="btn btn-secondary" (click)="resetFilters()">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!isPatientRole" class="stats-grid">
+      <article class="card stat-card">
+        <span class="stat-label">Critical</span>
+        <strong class="stat-value">{{ criticalCount }}</strong>
+        <p>Records currently at severe stage.</p>
+      </article>
+
+      <article class="card stat-card">
+        <span class="stat-label">Active</span>
+        <strong class="stat-value">{{ activeCount }}</strong>
+        <p>Open dossiers still under follow-up.</p>
+      </article>
+
+      <article class="card stat-card">
+        <span class="stat-label">Archived</span>
+        <strong class="stat-value">{{ archivedCount }}</strong>
+        <p>Read-only dossiers kept for traceability.</p>
+      </article>
+
+      <article class="card stat-card">
+        <span class="stat-label">Total</span>
+        <strong class="stat-value">{{ totalCount }}</strong>
+        <p>Medical records visible in your scope.</p>
+      </article>
+    </div>
+
+    <div *ngIf="isLoading" class="alert alert-info">
+      Loading medical records...
+    </div>
+
+    <div *ngIf="!isLoading && !visibleRecords.length" class="card empty-card">
+      <h2>No record found</h2>
+      <p>
+        {{ isPatientRole
+          ? 'No medical record is linked to your account yet.'
+          : 'No medical record matches the current search or status filter.' }}
+      </p>
+
+      <a *ngIf="isPatientRole" routerLink="/patient-intake" class="btn btn-primary">
+        Start My Intake Questionnaire
+      </a>
+    </div>
+
+    <div *ngIf="!isLoading && visibleRecords.length" class="records-grid">
+      <article *ngFor="let record of visibleRecords" class="card record-card">
+        <div class="record-head">
+          <div>
+            <p class="record-label">Patient</p>
+            <h2>{{ getPatientDisplayName(record) }}</h2>
+            <p class="record-subtitle">{{ getPatientSubtitle(record) }}</p>
+          </div>
+
+          <span class="status-badge" [class.archived]="record.archived">
+            {{ record.archived ? 'Archived' : 'Active' }}
+          </span>
+        </div>
+
+        <div class="record-grid">
+          <div class="record-item">
+            <span>Patient ID</span>
+            <strong>{{ record.patientId }}</strong>
+          </div>
+
+          <div class="record-item">
+            <span>Blood Group</span>
+            <strong>{{ record.bloodGroup || '-' }}</strong>
+          </div>
+
+          <div class="record-item">
+            <span>Alzheimer Stage</span>
+            <strong>{{ record.alzheimerStage || '-' }}</strong>
+          </div>
+
+          <div class="record-item">
+            <span>Status</span>
+            <strong>{{ record.archived ? 'Archived' : 'Active' }}</strong>
+          </div>
+        </div>
+
+        <div *ngIf="record.archiveReason" class="archive-note">
+          <span>Archive reason</span>
+          <strong>{{ record.archiveReason }}</strong>
+        </div>
+
+        <div class="record-actions">
+          <a [routerLink]="['/medical-folder', record.id]" class="btn btn-outline">Open</a>
+
+          <a
+            *ngIf="canUpdate"
+            [routerLink]="['/medical-folder', record.id, 'edit']"
+            class="btn btn-outline">
+            Edit
+          </a>
+
+          <button
+            *ngIf="canArchive"
+            type="button"
+            class="btn btn-outline danger"
+            [disabled]="record.archived"
+            (click)="archiveRecord(record)">
+            Archive
+          </button>
+
+          <button
+            *ngIf="canRestore"
+            type="button"
+            class="btn btn-outline success"
+            [disabled]="!record.archived"
+            (click)="restoreRecord(record)">
+            Restore
+          </button>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

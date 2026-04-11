@@ -1,0 +1,114 @@
+<section class="record-form-page">
+  <div class="page-shell">
+    <div class="page-header">
+      <div>
+        <p class="page-kicker">Medical Record</p>
+        <h1>{{ isEditMode ? 'Update Medical Record' : 'Create Medical Record' }}</h1>
+        <p class="page-description">
+          {{ isEditMode
+            ? 'Update the dossier core data for an existing patient.'
+            : 'Create a new dossier by choosing the patient, blood group, and Alzheimer stage.' }}
+        </p>
+      </div>
+
+      <button type="button" class="btn btn-secondary" (click)="back()">
+        Back
+      </button>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="alert alert-success">
+      {{ successMessage }}
+    </div>
+
+    <div *ngIf="isLoading" class="alert alert-info">
+      Loading medical record form...
+    </div>
+
+    <div *ngIf="!isLoading && !canEditRecord" class="alert alert-warning">
+      Only doctors and admins can create or edit medical records.
+    </div>
+
+    <div *ngIf="!isLoading && canEditRecord" class="form-layout">
+      <section class="card form-card">
+        <h2>Record Form</h2>
+        <p>
+          The patient identity stays linked to the user microservice. This page manages only the medical record data itself.
+        </p>
+
+        <div *ngIf="isArchived" class="alert alert-warning compact">
+          This dossier is archived. Restore it from the details page before making changes.
+        </div>
+
+        <form class="record-form" (ngSubmit)="submit()">
+          <label class="field">
+            <span>Patient</span>
+            <select
+              [ngModel]="form.patientId"
+              (ngModelChange)="onPatientChange($event)"
+              name="patientId"
+              [disabled]="isEditMode || isSaving">
+              <option value="" disabled>Select a patient</option>
+              <option *ngFor="let patient of accessiblePatients" [value]="patient.userId">
+                {{ patient.name }} - {{ patient.email }}
+              </option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Blood Group</span>
+            <select [(ngModel)]="form.bloodGroup" name="bloodGroup" [disabled]="isSaving || isArchived">
+              <option *ngFor="let option of bloodGroupOptions" [value]="option">{{ option }}</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Alzheimer Stage</span>
+            <select [(ngModel)]="form.alzheimerStage" name="alzheimerStage" [disabled]="isSaving || isArchived">
+              <option *ngFor="let option of alzheimerStageOptions" [value]="option">{{ option }}</option>
+            </select>
+          </label>
+
+          <button
+            type="submit"
+            class="btn btn-primary submit-btn"
+            [disabled]="isSaving || isArchived">
+            {{ isSaving ? 'Saving...' : (isEditMode ? 'Update Medical Record' : 'Create Medical Record') }}
+          </button>
+        </form>
+      </section>
+
+      <aside class="card summary-card">
+        <h2>Patient Context</h2>
+
+        <div class="summary-row">
+          <span>Name</span>
+          <strong>{{ selectedPatient?.name || 'No patient selected' }}</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Email</span>
+          <strong>{{ selectedPatient?.email || '-' }}</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Patient ID</span>
+          <strong>{{ form.patientId || '-' }}</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Doctor</span>
+          <strong>{{ selectedPatient?.doctorEmail || 'Not linked' }}</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Record Status</span>
+          <strong>{{ record ? (record.archived ? 'Archived' : 'Active') : 'New record' }}</strong>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

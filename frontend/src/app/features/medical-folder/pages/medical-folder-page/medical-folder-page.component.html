@@ -1,0 +1,946 @@
+<div class="medical-shell min-h-screen p-4 md:p-8">
+  <div class="medical-shell__orb medical-shell__orb--left"></div>
+  <div class="medical-shell__orb medical-shell__orb--right"></div>
+
+  <div class="medical-shell__content mx-auto max-w-7xl space-y-6">
+    <section class="hero-panel overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+      <div class="hero-panel__inner px-6 py-8 text-white md:px-8">
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div class="max-w-3xl space-y-3">
+            <span class="glass-badge inline-flex w-fit items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100">
+              Dossier Medical
+            </span>
+            <div>
+              <h1 class="text-3xl font-bold tracking-tight md:text-4xl">{{ pageTitle }}</h1>
+              <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-200 md:text-base">
+                {{ pageSubtitle }}
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div class="metric-card rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p class="text-xs uppercase tracking-wide text-slate-300">Patients</p>
+              <p class="mt-2 text-2xl font-bold">{{ accessiblePatients.length }}</p>
+            </div>
+            <div class="metric-card rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p class="text-xs uppercase tracking-wide text-slate-300">Histories</p>
+              <p class="mt-2 text-2xl font-bold">{{ histories.length }}</p>
+            </div>
+            <div class="metric-card rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p class="text-xs uppercase tracking-wide text-slate-300">Reports</p>
+              <p class="mt-2 text-2xl font-bold">{{ reports.length }}</p>
+            </div>
+            <div class="metric-card rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+              <p class="text-xs uppercase tracking-wide text-slate-300">Status</p>
+              <p class="mt-2 text-base font-bold">{{ statusLabel }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-4 border-t border-slate-200 bg-slate-50/90 px-6 py-5 md:grid-cols-[1.2fr_2.2fr] md:px-8">
+        <div class="context-card">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Current Access</p>
+          <p class="mt-2 text-lg font-semibold text-slate-900">
+            {{ currentUser?.name || 'Connected user' }}
+            <span class="ml-2 rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-semibold text-cyan-700">
+              {{ currentUser?.role || 'USER' }}
+            </span>
+          </p>
+          <p class="mt-2 text-sm leading-6 text-slate-600">
+            <ng-container *ngIf="currentUser?.role === 'PATIENT'">
+              Your own patient record is selected automatically. You can review stage, reports, history, and documents in a simplified personal view.
+            </ng-container>
+            <ng-container *ngIf="currentUser?.role === 'CAREGIVER'">
+              Caregiver view: related patients are prioritized for consultation, while clinical editing remains restricted.
+            </ng-container>
+            <ng-container *ngIf="currentUser?.role === 'DOCTOR'">
+              Doctor view: assigned patients are prioritized, with stage updates, reports, documents, and archive workflow in one screen.
+            </ng-container>
+            <ng-container *ngIf="currentUser?.role === 'ADMIN'">
+              Admin view: you can supervise the full medical-record dataset, including archive and restoration actions.
+            </ng-container>
+          </p>
+        </div>
+
+        <div class="grid gap-3 md:grid-cols-[1.1fr_1.1fr]">
+          <div class="space-y-3" *ngIf="currentUser?.role !== 'PATIENT'">
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-slate-700">Search patient</span>
+              <input
+                type="text"
+                class="field-surface w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                [(ngModel)]="patientSearchQuery"
+                placeholder="Search by patient name, email, or id">
+            </label>
+
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-slate-700">Selected patient</span>
+              <select
+                class="field-surface w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                [(ngModel)]="selectedPatientId"
+                (ngModelChange)="onSelectedPatientChange()"
+                [disabled]="isLoadingPatients || !filteredPatients.length">
+                <option value="" disabled>Select a patient</option>
+                <option
+                  *ngFor="let patient of filteredPatients; trackBy: trackByPatient"
+                  [value]="patient.userId">
+                  {{ patient.name }} - {{ patient.email }}
+                </option>
+              </select>
+            </label>
+          </div>
+
+          <div class="snapshot-card rounded-2xl border border-slate-200 bg-white px-4 py-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <p class="text-sm font-medium text-slate-700">Patient snapshot</p>
+              <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="archiveBadgeClasses">
+                {{ medicalRecord?.archived ? 'Archived' : 'Active' }}
+              </span>
+            </div>
+            <p class="mt-2 text-base font-semibold text-slate-900">{{ selectedPatient?.name || 'No patient selected' }}</p>
+            <p class="mt-1 text-sm text-slate-500">{{ selectedPatient?.email || 'Waiting for selection' }}</p>
+            <p class="mt-1 text-xs text-slate-500">Patient ID: {{ selectedPatientId || 'Unavailable' }}</p>
+            <p *ngIf="selectedPatient" class="mt-2 text-xs text-slate-500">
+              {{ getRelationshipLabel(selectedPatient) || 'No linked doctor or caregiver metadata.' }}
+            </p>
+            <p class="mt-3 text-sm leading-6 text-slate-600">
+              {{ statusDescription }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div *ngIf="successMessage" class="flash-message flash-message--success rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+      {{ successMessage }}
+    </div>
+
+    <div *ngIf="errorMessage" class="flash-message flash-message--error rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="isLoadingPatients" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-sm text-slate-600 shadow-sm">
+      Loading patient scope from the user microservice...
+    </div>
+
+    <div *ngIf="!isLoadingPatients && !accessiblePatients.length" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-sm text-slate-600 shadow-sm">
+      No patient is currently available for this account. Check user relationships or create a patient profile first.
+    </div>
+
+    <ng-container *ngIf="!isLoadingPatients && accessiblePatients.length">
+      <div class="grid gap-4 md:grid-cols-4">
+        <div class="summary-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p class="text-sm text-slate-500">Record ID</p>
+          <p class="mt-2 text-lg font-semibold text-slate-900">
+            {{ medicalRecord?.id || 'Not created yet' }}
+          </p>
+        </div>
+
+        <div class="summary-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p class="text-sm text-slate-500">Blood Group</p>
+          <p class="mt-2 text-lg font-semibold text-slate-900">
+            {{ medicalRecord?.bloodGroup || 'Pending' }}
+          </p>
+        </div>
+
+        <div class="summary-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p class="text-sm text-slate-500">Alzheimer Stage</p>
+          <span
+            class="mt-2 inline-flex rounded-full px-3 py-1 text-sm font-semibold"
+            [ngClass]="stageBadgeClasses">
+            {{ medicalRecord?.alzheimerStage || 'Not defined' }}
+          </span>
+        </div>
+
+        <div class="summary-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p class="text-sm text-slate-500">Latest report</p>
+          <p class="mt-2 text-lg font-semibold text-slate-900">
+            {{ latestReport ? (latestReport.score + '/100') : 'Not available' }}
+          </p>
+          <p class="mt-2 text-sm leading-6 text-slate-700">{{ personalProgressSummary }}</p>
+        </div>
+      </div>
+
+      <div class="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm">
+        <div class="tab-frame grid gap-2 rounded-2xl bg-slate-100 p-2 md:grid-cols-4">
+          <button
+            type="button"
+            class="tab-chip rounded-2xl px-4 py-3 text-sm font-semibold transition"
+            [class.bg-white]="activeTab === 'overview'"
+            [class.text-slate-900]="activeTab === 'overview'"
+            [class.shadow-sm]="activeTab === 'overview'"
+            [class.text-slate-500]="activeTab !== 'overview'"
+            (click)="onTabChange('overview')">
+            Overview
+          </button>
+          <button
+            type="button"
+            class="tab-chip rounded-2xl px-4 py-3 text-sm font-semibold transition"
+            [class.bg-white]="activeTab === 'history'"
+            [class.text-slate-900]="activeTab === 'history'"
+            [class.shadow-sm]="activeTab === 'history'"
+            [class.text-slate-500]="activeTab !== 'history'"
+            (click)="onTabChange('history')">
+            Medical History
+          </button>
+          <button
+            type="button"
+            class="tab-chip rounded-2xl px-4 py-3 text-sm font-semibold transition"
+            [class.bg-white]="activeTab === 'reports'"
+            [class.text-slate-900]="activeTab === 'reports'"
+            [class.shadow-sm]="activeTab === 'reports'"
+            [class.text-slate-500]="activeTab !== 'reports'"
+            (click)="onTabChange('reports')">
+            Reports
+          </button>
+          <button
+            type="button"
+            class="tab-chip rounded-2xl px-4 py-3 text-sm font-semibold transition"
+            [class.bg-white]="activeTab === 'documents'"
+            [class.text-slate-900]="activeTab === 'documents'"
+            [class.shadow-sm]="activeTab === 'documents'"
+            [class.text-slate-500]="activeTab !== 'documents'"
+            (click)="onTabChange('documents')">
+            Documents
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="isLoadingRecord" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-sm text-slate-600 shadow-sm">
+        Loading the selected medical folder from the backend...
+      </div>
+
+      <ng-container *ngIf="!isLoadingRecord && activeTab === 'overview'">
+        <div class="grid gap-6 xl:grid-cols-[1.35fr_0.95fr]">
+          <section class="elevated-panel rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-col gap-3 border-b border-slate-100 pb-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Folder overview</p>
+                <h2 class="mt-2 text-2xl font-bold text-slate-900">
+                  {{ selectedPatient?.name || 'Selected patient' }}
+                </h2>
+                <p class="mt-2 text-sm text-slate-600">
+                  {{ selectedPatient?.email }}
+                </p>
+              </div>
+              <div class="info-block rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                <p class="font-semibold text-slate-900">Patient ID</p>
+                <p class="mt-1 break-all">{{ selectedPatientId }}</p>
+              </div>
+            </div>
+
+            <div class="mt-6 grid gap-4 md:grid-cols-2">
+              <div class="info-block rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <p class="text-sm text-slate-500">Record status</p>
+                <p class="mt-2 text-lg font-semibold text-slate-900">
+                  {{ statusLabel }}
+                </p>
+                <p class="mt-2 text-sm leading-6 text-slate-600">
+                  {{ statusDescription }}
+                </p>
+              </div>
+
+              <div class="info-block rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <p class="text-sm text-slate-500">Latest recommendation</p>
+                <p class="mt-2 text-lg font-semibold text-slate-900">
+                  {{ latestReport ? latestReport.reportType : 'No report linked' }}
+                </p>
+                <p class="mt-2 text-sm leading-6 text-slate-600">
+                  {{ latestRecommendation }}
+                </p>
+              </div>
+            </div>
+
+            <div class="insight-callout mt-6 rounded-2xl border border-cyan-100 bg-cyan-50 p-5">
+              <p class="text-sm font-semibold text-cyan-800">Clinical insight</p>
+              <p class="mt-2 text-sm leading-6 text-cyan-900">{{ insightMessage }}</p>
+            </div>
+          </section>
+
+          <section class="elevated-panel rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  {{ isDoctorOrAdmin ? (medicalRecord ? 'Update medical record' : 'Create medical record') : 'Read-only access' }}
+                </p>
+                <h2 class="mt-2 text-2xl font-bold text-slate-900">
+                  {{ isDoctorOrAdmin ? (medicalRecord ? 'Record controls' : 'Initialize the folder') : 'Patient follow-up summary' }}
+                </h2>
+              </div>
+
+              <button
+                *ngIf="canDeleteRecord"
+                type="button"
+                class="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                (click)="deleteRecord()">
+                Delete record
+              </button>
+            </div>
+
+            <div
+              *ngIf="medicalRecord?.archived"
+              class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              This medical record is archived.
+              <span *ngIf="medicalRecord?.archivedAt">
+                Archived on {{ medicalRecord?.archivedAt | date:'medium' }}
+              </span>
+              <span *ngIf="medicalRecord?.archiveReason">
+                • Reason: {{ medicalRecord?.archiveReason }}
+              </span>
+            </div>
+
+            <ng-container *ngIf="isDoctorOrAdmin; else recordReadOnlyPanel">
+              <form class="mt-6 space-y-4" (ngSubmit)="submitRecord()">
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-slate-700">Blood group</span>
+                  <select
+                    class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                    [(ngModel)]="recordForm.bloodGroup"
+                    name="bloodGroup"
+                    [disabled]="!canManageRecord || isSavingRecord">
+                    <option *ngFor="let option of bloodGroupOptions" [value]="option">
+                      {{ option }}
+                    </option>
+                  </select>
+                </label>
+
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-slate-700">Alzheimer stage</span>
+                  <select
+                    class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                    [(ngModel)]="recordForm.alzheimerStage"
+                    name="alzheimerStage"
+                    [disabled]="!canManageRecord || isSavingRecord">
+                    <option *ngFor="let option of alzheimerStageOptions" [value]="option">
+                      {{ option }}
+                    </option>
+                  </select>
+                </label>
+
+                <div class="form-note rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                  The patient identity comes from the user microservice, while stage, histories, reports, and documents stay anchored to this medical dossier.
+                </div>
+
+                <div class="grid gap-3">
+                  <button
+                    type="submit"
+                    class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                    [disabled]="!canManageRecord || isSavingRecord">
+                    {{ isSavingRecord ? 'Saving...' : (medicalRecord ? 'Update medical record' : 'Create medical record') }}
+                  </button>
+
+                  <button
+                    *ngIf="canArchiveRecord"
+                    type="button"
+                    class="w-full rounded-2xl border border-amber-200 px-4 py-3 text-sm font-semibold text-amber-700 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    [disabled]="isArchivingRecord"
+                    (click)="archiveRecord()">
+                    {{ isArchivingRecord ? 'Archiving...' : 'Archive medical record' }}
+                  </button>
+
+                  <button
+                    *ngIf="canRestoreRecord"
+                    type="button"
+                    class="w-full rounded-2xl border border-cyan-200 px-4 py-3 text-sm font-semibold text-cyan-700 transition hover:bg-cyan-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    [disabled]="isArchivingRecord"
+                    (click)="restoreRecord()">
+                    {{ isArchivingRecord ? 'Restoring...' : 'Restore archived record' }}
+                  </button>
+                </div>
+              </form>
+            </ng-container>
+
+            <ng-template #recordReadOnlyPanel>
+              <div class="mt-6 space-y-4">
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-600">
+                  This area is consultation-only for your role. You can review the dossier status, stage, and latest assessment output, while doctors and admins handle clinical updates.
+                </div>
+
+                <div class="grid gap-4 md:grid-cols-2">
+                  <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                    <p class="text-sm text-slate-500">Current Alzheimer stage</p>
+                    <p class="mt-2 text-lg font-semibold text-slate-900">
+                      {{ medicalRecord?.alzheimerStage || 'Not defined yet' }}
+                    </p>
+                  </div>
+
+                  <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                    <p class="text-sm text-slate-500">Latest assessment score</p>
+                    <p class="mt-2 text-lg font-semibold text-slate-900">
+                      {{ latestReport ? (latestReport.score + '/100') : 'No report yet' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </section>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!isLoadingRecord && activeTab === 'history'">
+        <div *ngIf="!medicalRecord" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-sm text-slate-600 shadow-sm">
+          Create the medical record first to unlock clinical history and longitudinal follow-up.
+        </div>
+
+        <div *ngIf="medicalRecord" class="grid gap-6 xl:grid-cols-[0.95fr_1.35fr]">
+          <section class="elevated-panel rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  {{ canManageClinicalEntries ? (editingHistoryId ? 'Edit history entry' : 'Add history entry') : 'Read-only timeline' }}
+                </p>
+                <h2 class="mt-2 text-2xl font-bold text-slate-900">Clinical timeline</h2>
+              </div>
+
+              <button
+                *ngIf="editingHistoryId && canManageClinicalEntries"
+                type="button"
+                class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                (click)="cancelHistoryEdit()">
+                Cancel edit
+              </button>
+            </div>
+            <p class="mt-2 text-sm leading-6 text-slate-600">
+              Keep consultations, diagnoses, treatment changes, and follow-up notes organized in one structured timeline.
+            </p>
+
+            <div
+              *ngIf="!canManageClinicalEntries"
+              class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
+              {{ isRecordArchived
+                ? 'This dossier is archived. History entries stay visible, but new updates are blocked until restoration.'
+                : 'This section is available in consultation mode for your role. Doctors and admins can add or edit clinical history.' }}
+            </div>
+
+            <ng-container *ngIf="canManageClinicalEntries; else historyReadOnlyPanel">
+              <form class="mt-6 space-y-4" (ngSubmit)="submitHistory()">
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-slate-700">Type</span>
+                  <select
+                    class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                    [(ngModel)]="historyForm.type"
+                    name="historyType"
+                    [disabled]="isSavingHistory">
+                    <option *ngFor="let option of historyTypeOptions" [value]="option">
+                      {{ option }}
+                    </option>
+                  </select>
+                </label>
+
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-slate-700">Date</span>
+                  <input
+                    type="date"
+                    class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                    [(ngModel)]="historyForm.date"
+                    name="historyDate"
+                    [disabled]="isSavingHistory">
+                </label>
+
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-slate-700">Description</span>
+                  <textarea
+                    rows="5"
+                    class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                    [(ngModel)]="historyForm.description"
+                    name="historyDescription"
+                    placeholder="Consultation summary, treatment plan, diagnosis, or follow-up note..."
+                    [disabled]="isSavingHistory"></textarea>
+                </label>
+
+                <button
+                  type="submit"
+                  class="w-full rounded-2xl bg-cyan-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:bg-cyan-300"
+                  [disabled]="isSavingHistory">
+                  {{ isSavingHistory ? 'Saving...' : (editingHistoryId ? 'Update history entry' : 'Add history entry') }}
+                </button>
+              </form>
+            </ng-container>
+
+            <ng-template #historyReadOnlyPanel>
+              <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+                <p class="font-semibold text-slate-900">Timeline summary</p>
+                <p class="mt-2">
+                  {{ histories.length
+                    ? 'You can review the structured care timeline on the right, including consultations, diagnoses, and follow-up milestones.'
+                    : 'No clinical history has been recorded yet for this patient.' }}
+                </p>
+              </div>
+            </ng-template>
+          </section>
+
+          <section class="elevated-panel rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-col gap-4 border-b border-slate-100 pb-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Existing entries</p>
+                <h2 class="mt-2 text-2xl font-bold text-slate-900">{{ histories.length }} history items</h2>
+              </div>
+
+              <div class="relative w-full md:max-w-xs">
+                <svg class="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.3-4.3"/>
+                </svg>
+                <input
+                  type="text"
+                  class="field-surface w-full rounded-2xl border border-slate-200 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                  [(ngModel)]="historySearchQuery"
+                  name="historySearch"
+                  placeholder="Search by type, date, or description">
+              </div>
+            </div>
+
+            <div *ngIf="!histories.length" class="empty-state mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+              No medical history exists yet for this patient.
+            </div>
+
+            <div *ngIf="histories.length && !filteredHistories.length" class="empty-state mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+              No history entry matches your search.
+            </div>
+
+            <div class="mt-6 space-y-4">
+              <article
+                *ngFor="let history of filteredHistories; trackBy: trackByHistory"
+                class="timeline-item rounded-2xl border border-slate-200 bg-slate-50 p-5"
+                [class.ring-2]="editingHistoryId === history.id"
+                [class.ring-cyan-200]="editingHistoryId === history.id">
+                <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div class="space-y-3">
+                    <div class="flex flex-wrap items-center gap-3">
+                      <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="getHistoryBadge(history.type)">
+                        {{ history.type }}
+                      </span>
+                      <span class="text-sm text-slate-500">{{ history.date }}</span>
+                    </div>
+                    <p class="text-sm leading-6 text-slate-700">{{ history.description }}</p>
+                  </div>
+
+                  <div *ngIf="canManageClinicalEntries" class="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      class="rounded-xl border border-cyan-200 px-3 py-2 text-sm font-semibold text-cyan-700 transition hover:bg-cyan-50"
+                      (click)="startHistoryEdit(history)">
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                      (click)="deleteHistory(history)">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!isLoadingRecord && activeTab === 'reports'">
+        <div *ngIf="!medicalRecord" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-sm text-slate-600 shadow-sm">
+          Create the medical record first to link assessment reports and follow cognitive progression.
+        </div>
+
+        <div *ngIf="medicalRecord" class="grid gap-6 xl:grid-cols-[0.95fr_1.35fr]">
+          <section class="elevated-panel rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  {{ canManageClinicalEntries ? (editingReportId ? 'Edit assessment report' : 'Add assessment report') : 'Read-only report summary' }}
+                </p>
+                <h2 class="mt-2 text-2xl font-bold text-slate-900">Assessment reports</h2>
+              </div>
+
+              <button
+                *ngIf="editingReportId && canManageClinicalEntries"
+                type="button"
+                class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                (click)="cancelReportEdit()">
+                Cancel edit
+              </button>
+            </div>
+            <p class="mt-2 text-sm leading-6 text-slate-600">
+              Link cognitive assessment outputs to the dossier with score, observed stage, summary, and clinical recommendation.
+            </p>
+
+            <div
+              *ngIf="!canManageClinicalEntries"
+              class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
+              {{ isRecordArchived
+                ? 'This dossier is archived. Reports remain visible, but new assessments cannot be added until restoration.'
+                : 'This section is available in consultation mode for your role. Doctors and admins can manage assessment reports.' }}
+            </div>
+
+            <ng-container *ngIf="canManageClinicalEntries; else reportReadOnlyPanel">
+              <form class="mt-6 space-y-4" (ngSubmit)="submitReport()">
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-slate-700">Report type</span>
+                  <select
+                    class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                    [(ngModel)]="reportForm.reportType"
+                    name="reportType"
+                    [disabled]="isSavingReport">
+                    <option *ngFor="let option of reportTypeOptions" [value]="option">
+                      {{ option }}
+                    </option>
+                  </select>
+                </label>
+
+                <div class="grid gap-4 md:grid-cols-2">
+                  <label class="block">
+                    <span class="mb-2 block text-sm font-medium text-slate-700">Score</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                      [(ngModel)]="reportForm.score"
+                      name="reportScore"
+                      [disabled]="isSavingReport">
+                  </label>
+
+                  <label class="block">
+                    <span class="mb-2 block text-sm font-medium text-slate-700">Observed stage</span>
+                    <select
+                      class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                      [(ngModel)]="reportForm.stage"
+                      name="reportStage"
+                      [disabled]="isSavingReport">
+                      <option *ngFor="let option of alzheimerStageOptions" [value]="option">
+                        {{ option }}
+                      </option>
+                    </select>
+                  </label>
+                </div>
+
+                <div class="grid gap-4 md:grid-cols-2">
+                  <label class="block">
+                    <span class="mb-2 block text-sm font-medium text-slate-700">Assessment date</span>
+                    <input
+                      type="date"
+                      class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                      [(ngModel)]="reportForm.assessmentDate"
+                      name="reportDate"
+                      [disabled]="isSavingReport">
+                  </label>
+
+                  <label class="block">
+                    <span class="mb-2 block text-sm font-medium text-slate-700">Author</span>
+                    <input
+                      type="text"
+                      class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                      [(ngModel)]="reportForm.author"
+                      name="reportAuthor"
+                      placeholder="Doctor or assessment author"
+                      [disabled]="isSavingReport">
+                  </label>
+                </div>
+
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-slate-700">Recommendation</span>
+                  <textarea
+                    rows="4"
+                    class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                    [(ngModel)]="reportForm.recommendation"
+                    name="reportRecommendation"
+                    placeholder="Recommended next steps, monitoring plan, or therapeutic action..."
+                    [disabled]="isSavingReport"></textarea>
+                </label>
+
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-slate-700">Summary</span>
+                  <textarea
+                    rows="5"
+                    class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                    [(ngModel)]="reportForm.summary"
+                    name="reportSummary"
+                    placeholder="Brief interpretation of the cognitive evaluation and observed evolution..."
+                    [disabled]="isSavingReport"></textarea>
+                </label>
+
+                <button
+                  type="submit"
+                  class="w-full rounded-2xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-violet-300"
+                  [disabled]="isSavingReport">
+                  {{ isSavingReport ? 'Saving...' : (editingReportId ? 'Update report' : 'Add assessment report') }}
+                </button>
+              </form>
+            </ng-container>
+
+            <ng-template #reportReadOnlyPanel>
+              <div class="mt-6 space-y-4">
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p class="text-sm text-slate-500">Latest report</p>
+                  <p class="mt-2 text-lg font-semibold text-slate-900">
+                    {{ latestReport ? latestReport.reportType : 'No report linked yet' }}
+                  </p>
+                  <p class="mt-2 text-sm leading-6 text-slate-600">
+                    {{ personalProgressSummary }}
+                  </p>
+                </div>
+
+                <div class="rounded-2xl border border-slate-200 bg-white p-4">
+                  <p class="text-sm text-slate-500">Clinical recommendation</p>
+                  <p class="mt-2 text-sm leading-6 text-slate-700">
+                    {{ latestRecommendation }}
+                  </p>
+                </div>
+              </div>
+            </ng-template>
+          </section>
+
+          <section class="elevated-panel rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-col gap-4 border-b border-slate-100 pb-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Clinical reports</p>
+                <h2 class="mt-2 text-2xl font-bold text-slate-900">{{ reports.length }} linked reports</h2>
+              </div>
+
+              <div class="relative w-full md:max-w-xs">
+                <svg class="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.3-4.3"/>
+                </svg>
+                <input
+                  type="text"
+                  class="field-surface w-full rounded-2xl border border-slate-200 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                  [(ngModel)]="reportSearchQuery"
+                  name="reportSearch"
+                  placeholder="Search by type, stage, date, author, or recommendation">
+              </div>
+            </div>
+
+            <div *ngIf="!reports.length" class="empty-state mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+              No assessment report has been linked to this dossier yet.
+            </div>
+
+            <div *ngIf="reports.length && !filteredReports.length" class="empty-state mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+              No report matches your search.
+            </div>
+
+            <div class="mt-6 space-y-4">
+              <article
+                *ngFor="let report of filteredReports; trackBy: trackByReport"
+                class="rounded-2xl border border-slate-200 bg-slate-50 p-5"
+                [class.ring-2]="editingReportId === report.id"
+                [class.ring-violet-200]="editingReportId === report.id">
+                <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div class="space-y-3">
+                    <div class="flex flex-wrap items-center gap-3">
+                      <h3 class="text-lg font-semibold text-slate-900">{{ report.reportType }}</h3>
+                      <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="getReportStageBadge(report.stage)">
+                        {{ report.stage }}
+                      </span>
+                      <span class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                        Score {{ report.score }}/100
+                      </span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-500">
+                      <span>Date: {{ report.assessmentDate }}</span>
+                      <span *ngIf="report.author">Author: {{ report.author }}</span>
+                    </div>
+
+                    <p class="text-sm leading-6 text-slate-700">{{ report.summary }}</p>
+
+                    <div class="rounded-2xl border border-violet-100 bg-white px-4 py-3 text-sm leading-6 text-slate-700">
+                      <span class="font-semibold text-slate-900">Recommendation:</span>
+                      {{ report.recommendation }}
+                    </div>
+                  </div>
+
+                  <div *ngIf="canManageClinicalEntries" class="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      class="rounded-xl border border-violet-200 px-3 py-2 text-sm font-semibold text-violet-700 transition hover:bg-violet-50"
+                      (click)="startReportEdit(report)">
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                      (click)="deleteReport(report)">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!isLoadingRecord && activeTab === 'documents'">
+        <div *ngIf="!medicalRecord" class="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-sm text-slate-600 shadow-sm">
+          Create the medical record first to unlock document management.
+        </div>
+
+        <div *ngIf="medicalRecord" class="grid gap-6 xl:grid-cols-[0.95fr_1.35fr]">
+          <section class="elevated-panel rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  {{ canManageClinicalEntries ? (editingDocumentId ? 'Edit document' : 'Add document') : 'Read-only document view' }}
+                </p>
+                <h2 class="mt-2 text-2xl font-bold text-slate-900">Document metadata</h2>
+              </div>
+
+              <button
+                *ngIf="editingDocumentId && canManageClinicalEntries"
+                type="button"
+                class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                (click)="cancelDocumentEdit()">
+                Cancel edit
+              </button>
+            </div>
+            <p class="mt-2 text-sm leading-6 text-slate-600">
+              Keep scan paths, reports, prescriptions, and linked evidence in one searchable document layer.
+            </p>
+
+            <div
+              *ngIf="!canManageClinicalEntries"
+              class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
+              {{ isRecordArchived
+                ? 'This dossier is archived. Document references stay visible, but new uploads or edits are blocked until restoration.'
+                : 'This section is available in consultation mode for your role. Doctors and admins can manage document metadata.' }}
+            </div>
+
+            <ng-container *ngIf="canManageClinicalEntries; else documentReadOnlyPanel">
+              <form class="mt-6 space-y-4" (ngSubmit)="submitDocument()">
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-slate-700">File name</span>
+                  <input
+                    type="text"
+                    class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                    [(ngModel)]="documentForm.fileName"
+                    name="documentName"
+                    placeholder="MRI-report.pdf"
+                    [disabled]="isSavingDocument">
+                </label>
+
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-slate-700">File type</span>
+                  <select
+                    class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                    [(ngModel)]="documentForm.fileType"
+                    name="documentType"
+                    [disabled]="isSavingDocument">
+                    <option *ngFor="let option of documentTypeOptions" [value]="option">
+                      {{ option }}
+                    </option>
+                  </select>
+                </label>
+
+                <label class="block">
+                  <span class="mb-2 block text-sm font-medium text-slate-700">File path or URL</span>
+                  <input
+                    type="text"
+                    class="field-surface w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                    [(ngModel)]="documentForm.filePath"
+                    name="documentPath"
+                    placeholder="uploads/scan1.pdf or https://..."
+                    [disabled]="isSavingDocument">
+                </label>
+
+                <div class="form-note rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                  The backend stores document metadata and links it to the dossier, which is enough for CRUD validation and cross-service synchronization.
+                </div>
+
+                <button
+                  type="submit"
+                  class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                  [disabled]="isSavingDocument">
+                  {{ isSavingDocument ? 'Saving...' : (editingDocumentId ? 'Update document' : 'Add document') }}
+                </button>
+              </form>
+            </ng-container>
+
+            <ng-template #documentReadOnlyPanel>
+              <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+                <p class="font-semibold text-slate-900">Document consultation</p>
+                <p class="mt-2">
+                  Browse linked document references on the right to review supporting evidence, reports, and file paths associated with this dossier.
+                </p>
+              </div>
+            </ng-template>
+          </section>
+
+          <section class="elevated-panel rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-col gap-4 border-b border-slate-100 pb-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Document library</p>
+                <h2 class="mt-2 text-2xl font-bold text-slate-900">{{ documents.length }} linked documents</h2>
+              </div>
+
+              <div class="relative w-full md:max-w-xs">
+                <svg class="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.3-4.3"/>
+                </svg>
+                <input
+                  type="text"
+                  class="field-surface w-full rounded-2xl border border-slate-200 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200"
+                  [(ngModel)]="documentSearchQuery"
+                  name="documentSearch"
+                  placeholder="Search by name, type, or path">
+              </div>
+            </div>
+
+            <div *ngIf="!documents.length" class="empty-state mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+              No document metadata exists yet for this patient.
+            </div>
+
+            <div *ngIf="documents.length && !filteredDocuments.length" class="empty-state mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+              No document matches your search.
+            </div>
+
+            <div class="mt-6 space-y-4">
+              <article
+                *ngFor="let document of filteredDocuments; trackBy: trackByDocument"
+                class="document-card rounded-2xl border border-slate-200 bg-slate-50 p-5"
+                [class.ring-2]="editingDocumentId === document.id"
+                [class.ring-cyan-200]="editingDocumentId === document.id">
+                <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div class="min-w-0 space-y-2">
+                    <div class="flex flex-wrap items-center gap-3">
+                      <h3 class="text-lg font-semibold text-slate-900">{{ document.fileName }}</h3>
+                      <span class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide" [ngClass]="getDocumentBadge(document.fileType)">
+                        {{ document.fileType }}
+                      </span>
+                    </div>
+                    <p class="break-all text-sm text-slate-500">{{ document.filePath }}</p>
+                  </div>
+
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      class="rounded-xl border border-cyan-200 px-3 py-2 text-sm font-semibold text-cyan-700 transition hover:bg-cyan-50"
+                      (click)="openDocument(document)">
+                      Open
+                    </button>
+                    <button
+                      *ngIf="canManageClinicalEntries"
+                      type="button"
+                      class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                      (click)="startDocumentEdit(document)">
+                      Edit
+                    </button>
+                    <button
+                      *ngIf="canManageClinicalEntries"
+                      type="button"
+                      class="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                      (click)="deleteDocument(document)">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>
