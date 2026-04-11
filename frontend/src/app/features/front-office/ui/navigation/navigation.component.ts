@@ -24,6 +24,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     { id: 'appointments', label: 'Appointments', route: '/appointments' },
     { id: 'medical-folder', label: 'Medical Folder', route: '/medical-folder' },
     { id: 'alerts', label: 'Alerts', route: '/alerts' },
+    { id: 'daily-me', label: 'Daily Me', route: '/daily-me' },
   ];
 
   user: User | null = null;
@@ -80,11 +81,15 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
             const merged = filtered.map(n => ({
               ...n,
-              read: existingIds.has(n.id) ? (existingMap.get(n.id)?.read ?? false) : false
+              read: existingIds.has(n.id)
+                ? (existingMap.get(n.id)?.read ?? false)
+                : false
             }));
 
             const hasNewItems = filtered.some(n => !existingIds.has(n.id));
-            const hasRemovedItems = this.activityNotifications.some(n => !filtered.find(f => f.id === n.id));
+            const hasRemovedItems = this.activityNotifications.some(
+              n => !filtered.find(f => f.id === n.id)
+            );
 
             if (hasNewItems || hasRemovedItems) {
               this.activityNotifications = merged;
@@ -126,9 +131,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
   shakeBell(): void {
     this.bellShaking = false;
     this.cdr.detectChanges();
+
     setTimeout(() => {
       this.bellShaking = true;
       this.cdr.detectChanges();
+
       setTimeout(() => {
         this.bellShaking = false;
         this.cdr.detectChanges();
@@ -146,14 +153,21 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   navigate(route: string): void {
     const protectedRoutes = [
-       '/appointments', '/medical-folder', '/alerts',
-      '/profile', '/messages', '/daily', '/blog'
+      '/appointments',
+      '/medical-folder',
+      '/alerts',
+      '/profile',
+      '/messages',
+      '/daily-me',
+      '/blog'
     ];
+
     if (protectedRoutes.includes(route) && !this.user) {
       this.router.navigateByUrl('/login');
     } else {
       this.router.navigateByUrl(route);
     }
+
     this.isMobileMenuOpen = false;
     this.profileOpen = false;
   }
@@ -171,7 +185,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   markAllAsRead(): void {
-    this.activityNotifications = this.activityNotifications.map(n => ({ ...n, read: true }));
+    this.activityNotifications = this.activityNotifications.map(n => ({
+      ...n,
+      read: true
+    }));
   }
 
   markActivityAsRead(id: string): void {
@@ -193,27 +210,37 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   getActivityIcon(action: string): string {
     switch (action) {
-      
-      case 'CREATED': return '🆕';
-      case 'UPDATED': return '✏️';
-      case 'DELETED': return '🗑️';
-      default: return '📢';
+      case 'CREATED':
+        return '🆕';
+      case 'UPDATED':
+        return '✏️';
+      case 'DELETED':
+        return '🗑️';
+      default:
+        return '📢';
     }
   }
 
   getActivityTitle(action: string): string {
     switch (action) {
-      
-      case 'CREATED': return 'New activity available';
-      case 'UPDATED': return 'Activity updated';
-      case 'DELETED': return 'Activity removed';
-      default: return 'Activity notification';
+      case 'CREATED':
+        return 'New activity available';
+      case 'UPDATED':
+        return 'Activity updated';
+      case 'DELETED':
+        return 'Activity removed';
+      default:
+        return 'Activity notification';
     }
   }
 
   getInitials(name: string | undefined): string {
     if (!name) return 'U';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase();
   }
 
   logout(): void {
@@ -227,9 +254,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('document:click', ['$event.target'])
-  onClickOutside(target: HTMLElement) {
+  onClickOutside(target: HTMLElement): void {
     const dropdown = document.getElementById('profile-dropdown');
     const button = document.getElementById('profile-button');
+
     if (dropdown && button && !dropdown.contains(target) && !button.contains(target)) {
       this.profileOpen = false;
     }

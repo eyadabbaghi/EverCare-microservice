@@ -22,7 +22,6 @@ public class DailyTaskService {
 
     private LocalTime parseTime(String s) {
         if (s == null || s.trim().isEmpty()) return null;
-        // Accept "HH:mm" and also "HH:mm:ss"
         if (s.matches("^\\d{2}:\\d{2}:\\d{2}$")) s = s.substring(0, 5);
         return LocalTime.parse(s, F24);
     }
@@ -70,12 +69,27 @@ public class DailyTaskService {
         dailyTaskRepository.deleteById(id);
     }
 
+    @Transactional
+    public void archiveExpiredTasks() {
+        // Temporary implementation
+        // Add your archive logic here later
+        List<DailyTask> tasks = dailyTaskRepository.findAll();
+
+        for (DailyTask task : tasks) {
+            if (!task.isCompleted()) {
+                task.setCompleted(true);
+            }
+        }
+
+        dailyTaskRepository.saveAll(tasks);
+    }
+
     private DailyTask mapToEntity(DailyTaskDTO dto) {
         DailyTask task = new DailyTask();
         task.setPatientId(dto.getPatientId());
         task.setTitle(dto.getTitle());
         task.setTaskType(dto.getTaskType());
-        task.setScheduledTime(parseTime(dto.getScheduledTime())); // ✅ parse here
+        task.setScheduledTime(parseTime(dto.getScheduledTime()));
         task.setCompleted(dto.isCompleted());
         task.setNotes(dto.getNotes());
         return task;
@@ -87,7 +101,7 @@ public class DailyTaskService {
         dto.setPatientId(entity.getPatientId());
         dto.setTitle(entity.getTitle());
         dto.setTaskType(entity.getTaskType());
-        dto.setScheduledTime(entity.getScheduledTime() == null ? null : entity.getScheduledTime().format(F24)); // ✅ HH:mm
+        dto.setScheduledTime(entity.getScheduledTime() == null ? null : entity.getScheduledTime().format(F24));
         dto.setCompleted(entity.isCompleted());
         dto.setNotes(entity.getNotes());
         return dto;

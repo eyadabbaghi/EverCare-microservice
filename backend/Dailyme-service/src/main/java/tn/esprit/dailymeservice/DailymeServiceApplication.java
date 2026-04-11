@@ -11,5 +11,4 @@ public class DailymeServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(DailymeServiceApplication.class, args);
     }
-
 }

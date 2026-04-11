@@ -34,6 +34,9 @@ public class KeycloakAdminClient {
     @Value("${keycloak.client-secret}")
     private String clientSecret;
 
+    @Value("${keycloak.resource:frontend-app}")
+    private String frontendClientId;
+
     private final RestTemplate restTemplate;
 
     // Constructor to add logging interceptor
@@ -77,6 +80,24 @@ public class KeycloakAdminClient {
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
         ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, request, Map.class);
         return (String) response.getBody().get("access_token");
+    }
+
+    public Map<String, Object> loginUser(String email, String password) {
+        String tokenUrl = authServerUrl + "/realms/" + realm + "/protocol/openid-connect/token";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type", "password");
+        body.add("client_id", frontendClientId);
+        body.add("username", email);
+        body.add("password", password);
+        body.add("scope", "openid profile email");
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+        ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, request, Map.class);
+        return response.getBody();
     }
 
     public String createUser(RegisterRequest request) {

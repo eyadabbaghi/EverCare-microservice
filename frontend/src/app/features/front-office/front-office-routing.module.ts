@@ -32,11 +32,11 @@ const routes: Routes = [
         loadChildren: () => import('../medical-folder/medical-folder.module').then(m => m.MedicalFolderModule)
       },
 
-      //{
-        //path:"daily-me",
-        //loadChildren: () => import('../daily-me/daily-me.module').then(m => m.DailyMeModule)
+      {
+        path:"daily-me",
+        loadChildren: () => import('../daily-me/daily-me.module').then(m => m.DailyMeModule)
 
-      //},
+      },
       //{
 
       // path: 'communication',

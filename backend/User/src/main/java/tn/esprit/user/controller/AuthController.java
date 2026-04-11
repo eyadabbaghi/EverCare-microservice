@@ -9,6 +9,7 @@ import tn.esprit.user.dto.RegisterRequest;
 import tn.esprit.user.dto.UserDto;
 import tn.esprit.user.entity.User;
 import tn.esprit.user.entity.UserRole;
+import tn.esprit.user.service.KeycloakAdminClient;
 import tn.esprit.user.service.UserService;
 
 import java.util.Map;
@@ -19,11 +20,19 @@ import java.util.Map;
 public class AuthController {
 
     private final UserService userService;
+    private final KeycloakAdminClient keycloakAdminClient;
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody RegisterRequest request) {
         userService.register(request);
         return ResponseEntity.ok(Map.of("message", "User registered successfully"));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String password = request.get("password");
+        return ResponseEntity.ok(keycloakAdminClient.loginUser(email, password));
     }
 
     @GetMapping("/me")
