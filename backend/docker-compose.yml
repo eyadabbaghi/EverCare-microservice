@@ -1,0 +1,104 @@
+version: '3.9'
+
+services:
+
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=EverCaredb
+    ports:
+      - "3307:3306"
+
+  eureka-service:
+    build: ./Eureka-service
+    image: evercare/eureka:1.0
+    container_name: eureka-service
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_APPLICATION_NAME=Eureka-service
+
+  config-server:
+    build: ./configServer
+    image: evercare/config-server:1.0
+    container_name: config-server
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    depends_on:
+      - eureka-service
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+
+  activities-service:
+    build: ./Activities
+    image: evercare/activities:1.0
+    container_name: activities-service
+    restart: unless-stopped
+    ports:
+      - "8092:8092"
+    depends_on:
+      - mysql-db
+      - eureka-service
+      - config-server
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/EverCaredb?createDatabaseIfNotExists=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+
+  notification-service:
+    build: ./notification-service
+    image: evercare/notification:1.0
+    container_name: notification-service
+    restart: unless-stopped
+    ports:
+      - "8097:8097"
+    depends_on:
+      - mysql-db
+      - eureka-service
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/EverCaredb?createDatabaseIfNotExists=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+
+  appointment-service:
+    build: ./appointment-service
+    image: evercare/appointment:1.0
+    container_name: appointment-service
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    depends_on:
+      - mysql-db
+      - eureka-service
+      - config-server
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/EverCaredb?createDatabaseIfNotExists=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+
+  api-gateway:
+    command: --eureka.client.serviceUrl.defaultZone=http://eureka-service:8761/eureka
+    build: ./ApiGateway
+    image: evercare/gateway:1.0
+    container_name: api-gateway
+    restart: unless-stopped
+    ports:
+      - "8089:8080"
+    depends_on:
+      - eureka-service
+      - config-server
+    environment:
+      - SPRING_APPLICATION_NAME=api-gateway
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true

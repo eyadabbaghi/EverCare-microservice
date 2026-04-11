@@ -1771,6 +1771,17 @@
       "aiTool": "GitHub Copilot",
       "detectionMethod": "REALTIME_SPEED_ANALYSIS",
       "lineCount": 18
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/frontend/src/main.server.ts",
+      "timestamp": 1775911391154,
+      "startOffset": 0,
+      "endOffset": 90,
+      "codeContent": "import { AppServerModule } from \u0027./app/app.server.module\u0027;\n\nexport default AppServerModule",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 3
     }
   ],
   "toolStats": {
@@ -1779,8 +1790,8 @@
       "totalLines": 3338
     },
     "GitHub Copilot": {
-      "usageCount": 36,
-      "totalLines": 2370
+      "usageCount": 37,
+      "totalLines": 2373
     }
   }
 }

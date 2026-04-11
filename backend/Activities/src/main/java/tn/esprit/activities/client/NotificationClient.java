@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import tn.esprit.activities.dto.NotificationRequest;  // We'll create this DTO
 
-@FeignClient(name = "notification-service", path = "/api/notifications")
+@FeignClient(name = "notification-service")  // ✅ no path here
 public interface NotificationClient {
 
-    @PostMapping("/send")
+    @PostMapping("/api/notifications/send")  // ✅ just this
     void sendNotification(@RequestBody NotificationRequest request);
 }
