@@ -1782,6 +1782,28 @@
       "aiTool": "GitHub Copilot",
       "detectionMethod": "REALTIME_SPEED_ANALYSIS",
       "lineCount": 3
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1775933889701,
+      "startOffset": 617,
+      "endOffset": 1165,
+      "codeContent": "\t@Bean\n\tpublic RouteLocator customRouteLocator(RouteLocatorBuilder builder) {\n\t\treturn builder.routes()\n\t\t\t\t// User service routes (authentication \u0026 user management)\n\t\t\t\t.route(\"user-service-auth\", r -\u003e r\n\t\t\t\t\t\t.path(\"/EverCare/auth/**\")\n\t\t\t\t\t\t.filters(f -\u003e f.rewritePath(\"/EverCare/(?\u003csegment\u003e.*)\", \"/${segment}\"))\n\t\t\t\t\t\t.uri(\"lb://USER-NODE-SERVICE\"))\n\t\t\t\t.route(\"user-service-users\", r -\u003e r\n\t\t\t\t\t\t.path(\"/EverCare/users/**\")\n\t\t\t\t\t\t.filters(f -\u003e f.rewritePath(\"/EverCare/(?\u003csegment\u003e.*)\", \"/${segment}\"))\n\t\t\t\t\t\t.uri(\"lb://USER-NODE-SERVICE\"))\n\t\t\t\t",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 13
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1775934509259,
+      "startOffset": 735,
+      "endOffset": 1947,
+      "codeContent": "- user-node-service has /EverCare global prefix\n\t\t\t\t.route(\"user-service-auth\", r -\u003e r\n\t\t\t\t\t\t.path(\"/EverCare/auth/**\")\n\t\t\t\t\t\t.uri(\"lb://USER-NODE-SERVICE\"))\n\t\t\t\t.route(\"user-service-users\", r -\u003e r\n\t\t\t\t\t\t.path(\"/EverCare/users/**\")\n\t\t\t\t\t\t.uri(\"lb://USER-NODE-SERVICE\"))\n\t\t\t\t// Appointment service has /EverCare context-path\n\t\t\t\t.route(\"appointment-service\", r -\u003e r\n\t\t\t\t\t\t.path(\"/EverCare/appointments/**\",\n\t\t\t\t\t\t\t\t\"/EverCare/availabilities/**\",\n\t\t\t\t\t\t\t\t\"/EverCare/consultation-types/**\",\n\t\t\t\t\t\t\t\t\"/EverCare/medicaments/**\",\n\t\t\t\t\t\t\t\t\"/EverCare/prescriptions/**\")\n\t\t\t\t\t\t.uri(\"lb://APPOINTMENT-SERVICE\"))\n\t\t\t\t// Activities service - needs path rewrite (no EverCare prefix)\n\t\t\t\t.route(\"activities-service\", r -\u003e r\n\t\t\t\t\t\t.path(\"/EverCare/activities/**\", \"/EverCare/admin/activities/**\")\n\t\t\t\t\t\t.filters(f -\u003e f.rewritePath(\"/EverCare/(?\u003csegment\u003e.*)\", \"/${segment}\"))\n\t\t\t\t\t\t.uri(\"lb://ACTIVITIES-SERVICE\"))\n\t\t\t\t// Notification service - has /api/notifications base path\n\t\t\t\t.route(\"notification-service\", r -\u003e r\n\t\t\t\t\t\t.path(\"/EverCare/api/notifications/**\")\n\t\t\t\t\t\t.filters(f -\u003e f.rewritePath(\"/EverCare/api/(?\u003csegment\u003e.*)\", \"/api/${segment}\"))\n\t\t\t\t\t\t.uri(\"lb://NOTIFICATION-SERVICE\"))\n\t\t\t\t// Communication service routes",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 26
     }
   ],
   "toolStats": {
@@ -1790,8 +1812,8 @@
       "totalLines": 3338
     },
     "GitHub Copilot": {
-      "usageCount": 37,
-      "totalLines": 2373
+      "usageCount": 39,
+      "totalLines": 2412
     }
   }
 }
