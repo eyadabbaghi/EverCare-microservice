@@ -23,7 +23,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
     { id: 'activities', label: 'Activities', route: '/activities' },
     { id: 'appointments', label: 'Appointments', route: '/appointments' },
     { id: 'medical-folder', label: 'Medical Folder', route: '/medical-folder' },
-    { id: 'alerts', label: 'Alerts', route: '/alerts' },
     { id: 'blog', label: 'Blog', route: '/blog' },
   ];
 
@@ -146,10 +145,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   navigate(route: string): void {
-    // 🔧 MODIFICATION : retrait de '/blog' des routes protégées
+    // Protected routes that require authentication
     const protectedRoutes = [
-      '/appointments', '/medical-folder', '/alerts',
-      '/profile', '/messages', '/daily'
+      '/appointments', '/medical-folder',
+      '/profile', '/daily-me'
     ];
     if (protectedRoutes.includes(route) && !this.user) {
       this.router.navigateByUrl('/login');
@@ -184,7 +183,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   handleActivityNotificationClick(notification: ActivityNotification & { read: boolean }): void {
     this.markActivityAsRead(notification.id);
-    this.navigate(`/activities/${notification.activityId}`);
+    // Navigate based on notification type
+    if (notification.details?.toLowerCase().includes('article') || notification.details?.toLowerCase().includes('blog')) {
+      this.navigate('/blog');
+    } else {
+      this.navigate(`/activities/${notification.activityId}`);
+    }
   }
 
   clearAllNotifications(): void {
@@ -193,7 +197,17 @@ export class NavigationComponent implements OnInit, OnDestroy {
     this.activityNotifications = [];
   }
 
-  getActivityIcon(action: string): string {
+  getActivityIcon(action: string, details?: string): string {
+    // Detect notification type from details
+    if (details?.toLowerCase().includes('article') || details?.toLowerCase().includes('blog')) {
+      switch (action) {
+        case 'CREATED': return '📝';
+        case 'UPDATED': return '✏️';
+        case 'DELETED': return '🗑️';
+        default: return '📰';
+      }
+    }
+    // Activity notifications
     switch (action) {
       case 'CREATED': return '🆕';
       case 'UPDATED': return '✏️';
@@ -202,7 +216,17 @@ export class NavigationComponent implements OnInit, OnDestroy {
     }
   }
 
-  getActivityTitle(action: string): string {
+  getActivityTitle(action: string, details?: string): string {
+    // Detect notification type from details
+    if (details?.toLowerCase().includes('article') || details?.toLowerCase().includes('blog')) {
+      switch (action) {
+        case 'CREATED': return 'New article published';
+        case 'UPDATED': return 'Article updated';
+        case 'DELETED': return 'Article removed';
+        default: return 'Blog notification';
+      }
+    }
+    // Activity notifications
     switch (action) {
       case 'CREATED': return 'New activity available';
       case 'UPDATED': return 'Activity updated';

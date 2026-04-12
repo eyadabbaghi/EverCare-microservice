@@ -2,7 +2,6 @@ package com.example.medicalrecordservice.service;
 
 import com.example.medicalrecordservice.entity.MedicalHistory;
 import com.example.medicalrecordservice.entity.MedicalRecord;
-import com.example.medicalrecordservice.event.MedicalRecordEventPublisher;
 import com.example.medicalrecordservice.exception.BadRequestException;
 import com.example.medicalrecordservice.exception.NotFoundException;
 import com.example.medicalrecordservice.repository.MedicalHistoryRepository;
@@ -20,7 +19,6 @@ public class MedicalHistoryService {
 
     private final MedicalHistoryRepository historyRepository;
     private final MedicalRecordRepository recordRepository;
-    private final MedicalRecordEventPublisher medicalRecordEventPublisher;
 
     public MedicalHistory addToRecord(String recordId, MedicalHistory history) {
         MedicalRecord record = getRequiredRecord(recordId);

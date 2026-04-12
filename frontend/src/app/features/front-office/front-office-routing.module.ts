@@ -8,9 +8,11 @@ import { AlertsComponent } from './pages/alerts/alerts.component';
 import { FrontOfficeLayoutComponent } from '../../layouts/front-office-layout/front-office-layout.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SetupProfileComponent } from './pages/setup-profile/setup-profile.component';
+import { PatientIntakeComponent } from './pages/patient-intake/patient-intake.component';
 
 const routes: Routes = [
   { path: 'setup-profile', component: SetupProfileComponent },
+  { path: 'patient-intake', component: PatientIntakeComponent },
 
   {
     path: '',
@@ -37,6 +39,12 @@ const routes: Routes = [
       {
         path: 'blog',
         loadChildren: () => import('../blog/blog.module').then(m => m.BlogModule)
+      },
+
+      // ✅ Route pour Daily Me (lazy loading)
+      {
+        path: 'daily-me',
+        loadChildren: () => import('../daily-me/daily-me.module').then(m => m.DailyMeModule)
       }
 
       // (autres routes commentées)

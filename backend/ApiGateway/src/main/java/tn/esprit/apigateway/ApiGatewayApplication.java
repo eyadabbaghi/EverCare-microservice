@@ -69,12 +69,12 @@ public class ApiGatewayApplication {
                                          .path("/communication-service/**")
                                          .filters(f -> f.rewritePath("/communication-service/(?<segment>.*)", "/${segment}"))
                                          .uri("lb://COMMUNICATION-SERVICE"))
-                .route("blog-service", r -> r
-                        .path("/EverCare/api/blog/**")
-                        .filters(f -> f.rewritePath("/EverCare/(?<segment>.*)", "/${segment}"))
-                        .uri("lb://blog-service"))
+.route("blog-service", r -> r
+            .path("/EverCare/api/blog/**")
+            .filters(f -> f.rewritePath("/EverCare/(?<segment>.*)", "/${segment}"))
+            .uri("lb://BLOG-SERVICE"))
 
-                .build();
+        .build();
     }
 
 

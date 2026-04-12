@@ -2,7 +2,6 @@ package com.example.medicalrecordservice.service;
 
 import com.example.medicalrecordservice.entity.AssessmentReport;
 import com.example.medicalrecordservice.entity.MedicalRecord;
-import com.example.medicalrecordservice.event.MedicalRecordEventPublisher;
 import com.example.medicalrecordservice.exception.BadRequestException;
 import com.example.medicalrecordservice.exception.NotFoundException;
 import com.example.medicalrecordservice.repository.AssessmentReportRepository;
@@ -20,7 +19,6 @@ public class AssessmentReportService {
 
     private final AssessmentReportRepository reportRepository;
     private final MedicalRecordRepository recordRepository;
-    private final MedicalRecordEventPublisher medicalRecordEventPublisher;
 
     public AssessmentReport addToRecord(String recordId, AssessmentReport report) {
         MedicalRecord record = getRequiredRecord(recordId);

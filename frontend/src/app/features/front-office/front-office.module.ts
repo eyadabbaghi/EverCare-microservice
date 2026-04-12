@@ -29,6 +29,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { NewUserFlowComponent } from './pages/login/new-user-flow.component';
 import { SetupProfileComponent } from './pages/setup-profile/setup-profile.component';
 import { DoctorSearchModalComponent } from './pages/profile/doctor-search-modal.component';
+import { PatientIntakeComponent } from './pages/patient-intake/patient-intake.component';
 
 // ✅ Import du BlogModule
 import { BlogModule } from '../blog/blog.module';
@@ -59,8 +60,7 @@ import { BlogModule } from '../blog/blog.module';
     NewUserFlowComponent,
     SetupProfileComponent,
     DoctorSearchModalComponent,
-    SetupProfileComponent, // (doublon à nettoyer plus tard, mais non bloquant)
-    DoctorSearchModalComponent,
+    PatientIntakeComponent,
   ],
   imports: [
     CommonModule,
@@ -77,4 +77,4 @@ import { BlogModule } from '../blog/blog.module';
   ],
 })
 export class FrontOfficeModule {
-} 
+}
