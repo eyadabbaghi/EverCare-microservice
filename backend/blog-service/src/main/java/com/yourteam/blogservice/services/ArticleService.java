@@ -32,22 +32,37 @@ public class ArticleService {
         List<String> moods = new ArrayList<>();
         String text = (title + " " + content).toLowerCase();
 
+        // Lost (désorientation, perte de sens)
         if (text.contains("memory") || text.contains("alzheimer") || text.contains("thinking") ||
-                text.contains("confusion") || text.contains("cognitive") || text.contains("skills")) {
+                text.contains("confusion") || text.contains("cognitive") || text.contains("skills") ||
+                text.contains("lost") || text.contains("stuck") || text.contains("direction") ||
+                text.contains("purpose") || text.contains("overwhelmed")) {
             moods.add("lost");
         }
+
+        // Stressed (stress, anxiété, tension)
         if (text.contains("agitation") || text.contains("behavior") || text.contains("decline") ||
-                text.contains("disrupts") || text.contains("challenges") || text.contains("trouble")) {
+                text.contains("disrupts") || text.contains("challenges") || text.contains("trouble") ||
+                text.contains("stress") || text.contains("cortisol") || text.contains("anxiety") ||
+                text.contains("nervous") || text.contains("tension")) {
             moods.add("stressed");
         }
+
+        // Calm (apaisement, relaxation, sommeil)
         if (text.contains("sleep") || text.contains("diet") || text.contains("peaceful") ||
-                text.contains("wellness") || text.contains("health") || text.contains("food") || text.contains("vegetables")) {
+                text.contains("wellness") || text.contains("health") || text.contains("food") ||
+                text.contains("vegetables") || text.contains("calm") || text.contains("restful") ||
+                text.contains("relax") || text.contains("meditation") || text.contains("breathing")) {
             moods.add("calm");
         }
+
+        // Lonely (isolement, besoin de soutien)
         if (text.contains("caregiver") || text.contains("support") || text.contains("person") ||
-                text.contains("social") || text.contains("community")) {
+                text.contains("social") || text.contains("community") || text.contains("connection") ||
+                text.contains("family") || text.contains("friends") || text.contains("lonely")) {
             moods.add("lonely");
         }
+
         return moods.isEmpty() ? "calm" : String.join(",", moods);
     }
 
