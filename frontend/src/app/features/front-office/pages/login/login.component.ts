@@ -143,11 +143,11 @@ export class LoginComponent implements OnInit {
 
     this.authService.register(userData).subscribe({
       next: () => {
-        // Redirect to login - user can now login via Keycloak browser flow
-        this.toastr.success('Registration successful! Please login.', 'Success');
-        this.activeTab = 'login';
-        this.loginForm.patchValue({ email: userData.email });
-        this.isLoading = false;
+        this.toastr.success('Registration successful! Redirecting...', 'Success');
+        setTimeout(() => {
+          const targetRoute = userData.role === 'PATIENT' ? '/patient-intake' : '/setup-profile';
+          this.router.navigate([targetRoute]);
+        }, 500);
       },
       error: (err) => {
         console.error('Registration error', err);
