@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { AuthService } from '../../front-office/pages/login/auth.service';
 import {
   AssessmentReport,
@@ -16,6 +16,7 @@ import {
   MedicalRecordHistory,
   MedicalRecordResponse,
   MedicalRecordUpdateRequest,
+  MedicalRecordRealtimeEvent,
 } from '../interfaces/medical-folder';
 
 @Injectable({
@@ -147,6 +148,13 @@ export class MedicalFolderService {
 
   deleteReport(recordId: string, reportId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${recordId}/reports/${reportId}`, this.requestOptions());
+  }
+
+  // Real-time events (mock implementation - replace with WebSocket when backend ready)
+  watchPatientEvents(patientId: string): Observable<MedicalRecordRealtimeEvent> {
+    const eventSubject = new Subject<MedicalRecordRealtimeEvent>();
+    // For now, return an empty observable - WebSocket implementation needed
+    return eventSubject.asObservable();
   }
 
   private requestOptions() {

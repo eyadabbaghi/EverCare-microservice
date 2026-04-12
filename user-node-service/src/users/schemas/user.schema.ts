@@ -26,10 +26,11 @@ export class User {
 
   @Prop({
     type: String,
-    enum: Object.values(UserRole), // This ensures proper type comparison
+    enum: Object.values(UserRole),
     required: true,
   })
   role: UserRole;
+
   @Prop()
   phone?: string;
 
@@ -65,6 +66,7 @@ export class User {
   @Prop()
   doctorEmail?: string;
 
+  // Medical record summary (embedded from RabbitMQ events)
   @Prop(
     raw({
       recordId: { type: String },
@@ -91,26 +93,6 @@ export class User {
   @Prop({ type: [String], default: [] })
   patientIds: string[]; // For CAREGIVER: IDs of their patients
 
-  @Prop({
-    type: {
-      recordId: String,
-      patientEmail: String,
-      bloodGroup: String,
-      alzheimerStage: String,
-      occurredAt: Date,
-      lastEventType: String,
-    },
-    _id: false,
-  })
-  medicalRecord?: {
-    recordId?: string;
-    patientEmail?: string;
-    bloodGroup?: string;
-    alzheimerStage?: string;
-    occurredAt?: Date;
-    lastEventType?: string;
-  };
-
   // Timestamps will be handled by the schema options
   createdAt: Date;
   updatedAt: Date;
@@ -119,7 +101,5 @@ export class User {
 export const UserSchema = SchemaFactory.createForClass(User);
 
 // Add indexes for better query performance
-// REMOVED: UserSchema.index({ email: 1 }); - Already created by unique:true
-// REMOVED: UserSchema.index({ userId: 1 }); - Already created by unique:true
 UserSchema.index({ role: 1 });
 UserSchema.index({ name: 'text', email: 'text' }); // For text search

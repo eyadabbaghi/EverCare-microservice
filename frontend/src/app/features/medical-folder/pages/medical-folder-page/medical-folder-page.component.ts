@@ -19,6 +19,7 @@ import {
   MedicalRecordArchiveRequest,
   MedicalRecordResponse,
   MedicalRecordUpdateRequest,
+  MedicalRecordRealtimeEvent,
 } from '../../interfaces/medical-folder';
 import { MedicalFolderService } from '../../services/medical-folder.service';
 
@@ -1139,7 +1140,7 @@ export class MedicalFolderPageComponent implements OnInit, OnDestroy {
   private startRealtimeSync(patientId: string): void {
     this.stopRealtimeSync();
     this.realtimeSubscription = this.medicalFolderService.watchPatientEvents(patientId).subscribe({
-      next: (event) => {
+      next: (event: MedicalRecordRealtimeEvent) => {
         if (event.patientId !== this.selectedPatientId) {
           return;
         }
