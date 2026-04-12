@@ -11,7 +11,7 @@ import { Client } from '@stomp/stompjs';
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private gatewayUrl = 'http://localhost:8089/communication-service/api';
-  private userApiUrl = 'http://localhost:8089/EverCare/users';
+  private userApiUrl = 'http://localhost:8096/EverCare/users';
 
   // Point d'entrée WebSocket (Port 8085 pour test direct)
   private webSocketUrl = 'http://localhost:8085/ws-chat';

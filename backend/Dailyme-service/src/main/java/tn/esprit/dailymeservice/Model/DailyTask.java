@@ -1,5 +1,6 @@
 package tn.esprit.dailymeservice.Model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -29,8 +30,9 @@ public class DailyTask {
     private String taskType;
 
     @NotNull
-    @Column(name = "scheduled_time", nullable = false)
+    @Column(name="scheduled_time", nullable = false)
     private LocalTime scheduledTime;
+
 
     private boolean completed;
 
@@ -39,12 +41,6 @@ public class DailyTask {
     @Size(max = 500)
     private String notes;
 
-    // ✅ NEW: archive fields
-    @Column(nullable = false)
-    private boolean archived;
-
-    private LocalDateTime archivedAt;
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -52,14 +48,11 @@ public class DailyTask {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        archived = false;
-        archivedAt = null;
     }
 
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
-
         if (completed && completedAt == null) completedAt = LocalDateTime.now();
         if (!completed) completedAt = null;
     }

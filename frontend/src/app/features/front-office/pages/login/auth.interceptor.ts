@@ -8,8 +8,12 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Skip token for registration endpoint (still called to your backend)
-    if (req.url.includes('/auth/register')) {
+    // Skip token for auth endpoints that create or fetch tokens
+    if (
+      req.url.includes('/auth/register') ||
+      req.url.includes('/auth/login') ||
+      req.url.includes('/openid-connect/token')
+    ) {
       return next.handle(req);
     }
 

@@ -1,4 +1,4 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { UserRole } from './user-role.enum';
 import * as uuid from 'uuid';
@@ -64,6 +64,25 @@ export class User {
 
   @Prop()
   doctorEmail?: string;
+
+  @Prop(
+    raw({
+      recordId: { type: String },
+      patientEmail: { type: String, default: null },
+      bloodGroup: { type: String, default: null },
+      alzheimerStage: { type: String, default: null },
+      occurredAt: { type: Date },
+      lastEventType: { type: String },
+    }),
+  )
+  medicalRecord?: {
+    recordId?: string;
+    patientEmail?: string | null;
+    bloodGroup?: string | null;
+    alzheimerStage?: string | null;
+    occurredAt?: Date;
+    lastEventType?: string;
+  };
 
   // Relationships - instead of ManyToMany, we store arrays of IDs
   @Prop({ type: [String], default: [] })

@@ -64,6 +64,8 @@ export class DailyMeListComponent implements OnInit, OnDestroy {
   private myUserId: string = '';
   selectedPatientId: string = '';
   patients: SimplePatient[] = [];
+  doctorPatientsLoading = false;
+  doctorPatientsMessage = '';
 
   activeTab: 'mood' | 'tasks' | 'journal' = 'mood';
 
@@ -384,6 +386,16 @@ export class DailyMeListComponent implements OnInit, OnDestroy {
     return `dailyme_welcome_${userId}_${this.todayYYYYMMDD()}`;
   }
 
+  private getStorageItem(key: string): string | null {
+    return typeof localStorage === 'undefined' ? null : localStorage.getItem(key);
+  }
+
+  private setStorageItem(key: string, value: string): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(key, value);
+    }
+  }
+
   private hasMoodToday(list: DailyEntry[]): boolean {
     const today = this.todayYYYYMMDD();
     return (list || []).some(e => (e.entryDate || '') === today);
@@ -397,7 +409,7 @@ export class DailyMeListComponent implements OnInit, OnDestroy {
 
     this.todayKey = this.buildWelcomeKey(this.myUserId);
 
-    if (localStorage.getItem(this.todayKey)) {
+    if (this.getStorageItem(this.todayKey)) {
       this.checkedTodayOnce = true;
       return;
     }
@@ -410,7 +422,7 @@ export class DailyMeListComponent implements OnInit, OnDestroy {
   }
 
   dismissWelcomePopup(): void {
-    if (this.todayKey) localStorage.setItem(this.todayKey, '1');
+    if (this.todayKey) this.setStorageItem(this.todayKey, '1');
     this.showWelcomePopup = false;
   }
 
@@ -526,39 +538,32 @@ export class DailyMeListComponent implements OnInit, OnDestroy {
 
   // ✅ Patients for doctor
   loadPatients(): void {
+    this.doctorPatientsLoading = true;
+    this.doctorPatientsMessage = '';
+
     const url = 'http://localhost:8096/EverCare/users/patients';
 
     const token =
-      localStorage.getItem('token') ||
-      localStorage.getItem('access_token') ||
-      localStorage.getItem('jwt') ||
+      this.getStorageItem('token') ||
+      this.getStorageItem('access_token') ||
+      this.getStorageItem('jwt') ||
       '';
 
     const headers: any = token ? { Authorization: `Bearer ${token}` } : {};
 
     this.http.get<any>(url, { headers }).subscribe({
       next: (res: any) => {
-        const list: any[] =
-          Array.isArray(res) ? res :
-          Array.isArray(res?.data) ? res.data :
-          Array.isArray(res?.patients) ? res.patients :
-          [];
+        const patients = this.normalizePatients(res);
+        if (patients.length > 0) {
+          this.applyDoctorPatients(patients, false);
+          return;
+        }
 
-        this.patients = list.map((p: any) => {
-          const id = String(p.userId || p.id || p.patientId || p._id || '');
-          const name =
-            (p.name && String(p.name).trim()) ||
-            `${p.firstName || ''} ${p.lastName || ''}`.trim() ||
-            (p.username ? String(p.username) : '') ||
-            (p.email ? String(p.email).split('@')[0] : 'Patient');
-
-          const email = String(p.email || '');
-          return { userId: id, name, email };
-        }).filter((p: any) => p.userId !== '');
+        this.loadAllPatientsFallback();
       },
       error: (err: any) => {
         console.error('FAILED loading patients:', err.status, err.error);
-        this.patients = [];
+        this.loadAllPatientsFallback();
       }
     });
   }
@@ -578,6 +583,74 @@ export class DailyMeListComponent implements OnInit, OnDestroy {
 
     this.entries$ = this.dailyService.getEntriesByPatient(id);
     this.bindEntriesStream(this.entries$);
+  }
+
+  private loadAllPatientsFallback(): void {
+    const fallbackUrl = 'http://localhost:8096/EverCare/users/external/role/PATIENT';
+
+    this.http.get<any>(fallbackUrl).subscribe({
+      next: (res: any) => {
+        const patients = this.normalizePatients(res);
+        this.applyDoctorPatients(patients, true);
+      },
+      error: (err: any) => {
+        console.error('FAILED loading fallback patients:', err.status, err.error);
+        this.doctorPatientsLoading = false;
+        this.doctorPatientsMessage = 'No patients could be loaded for this doctor.';
+        this.patients = [];
+      }
+    });
+  }
+
+  private applyDoctorPatients(patients: SimplePatient[], fromFallback: boolean): void {
+    this.doctorPatientsLoading = false;
+    this.patients = patients;
+
+    if (patients.length === 0) {
+      this.selectedPatientId = '';
+      this.doctorPatientsMessage = 'No patients are available yet.';
+      this.entries$ = of([]);
+      this.entriesList = [];
+      this.filteredEntries = [];
+      this.resetFilters();
+      this.resetWeeklyAnalysis();
+      if (this.entriesSub) {
+        this.entriesSub.unsubscribe();
+        this.entriesSub = null;
+      }
+      return;
+    }
+
+    this.doctorPatientsMessage = fromFallback
+      ? 'No patient is linked to this doctor yet, so all patients are shown.'
+      : '';
+
+    const currentExists = patients.some((p) => p.userId === this.selectedPatientId);
+    if (!currentExists) {
+      this.selectedPatientId = patients[0].userId;
+    }
+
+    this.onSelectPatient();
+  }
+
+  private normalizePatients(res: any): SimplePatient[] {
+    const list: any[] =
+      Array.isArray(res) ? res :
+      Array.isArray(res?.data) ? res.data :
+      Array.isArray(res?.patients) ? res.patients :
+      [];
+
+    return list.map((p: any) => {
+      const id = String(p.userId || p.id || p.patientId || p._id || '');
+      const name =
+        (p.name && String(p.name).trim()) ||
+        `${p.firstName || ''} ${p.lastName || ''}`.trim() ||
+        (p.username ? String(p.username) : '') ||
+        (p.email ? String(p.email).split('@')[0] : 'Patient');
+
+      const email = String(p.email || '');
+      return { userId: id, name, email };
+    }).filter((p: SimplePatient) => p.userId !== '');
   }
 
   getEmotionIcon(emotion: string): string {

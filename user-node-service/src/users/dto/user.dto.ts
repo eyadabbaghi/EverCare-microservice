@@ -27,6 +27,5 @@ export class UserDto {
   caregiverEmails?: string[]; // for patient
   patientEmails?: string[]; // for caregiver
 
-  // Synced from medical-record-service via RabbitMQ
   medicalRecord?: MedicalRecordSummaryDto;
 }

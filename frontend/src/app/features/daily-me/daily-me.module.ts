@@ -1,13 +1,17 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { BaseChartDirective } from 'ng2-charts';
 
-import { DailyMeRoutingModule } from './daily-me-routing.module'; // ✅ Add this
+import { DailyMeRoutingModule } from './daily-me-routing.module';
+import {
+  BaseChartDirective,
+  provideCharts,
+  withDefaultRegisterables,
+} from 'ng2-charts';
 
-import { JournalComponent } from '../journal/journal.component';
 import { DailyMeListComponent } from './daily-me-list/daily-me-list.component';
 import { DailyTaskListComponent } from './daily-task-list/daily-task-list.component';
+import { JournalComponent } from '../journal/journal.component';
 
 @NgModule({
   declarations: [
@@ -18,13 +22,9 @@ import { DailyTaskListComponent } from './daily-task-list/daily-task-list.compon
   imports: [
     CommonModule,
     FormsModule,
-    BaseChartDirective,
-    DailyMeRoutingModule // ✅ Add routing here
+    DailyMeRoutingModule,
+    BaseChartDirective
   ],
-  exports: [
-    DailyMeListComponent,
-    DailyTaskListComponent,
-    JournalComponent
-  ]
+  providers: [provideCharts(withDefaultRegisterables())]
 })
 export class DailyMeModule { }

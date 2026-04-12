@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/dailyme-alerts")
+@RequestMapping({"/api/dailyme-alerts", "/dailyme/api/dailyme-alerts"})
 @RequiredArgsConstructor
 public class DailyMeAlertController {
 

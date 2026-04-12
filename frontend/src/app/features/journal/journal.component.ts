@@ -45,7 +45,7 @@ export class JournalComponent implements OnInit, OnDestroy, OnChanges {
   recordingSeconds = 0;
   private timer: any = null;
 
- private readonly API_BASE = 'http://localhost:8098/dailyme/api/journal';
+ private readonly API_BASE = 'http://localhost:8098/api/journal';
 
   constructor(private http: HttpClient) {}
 
@@ -66,6 +66,10 @@ export class JournalComponent implements OnInit, OnDestroy, OnChanges {
     this.stopTimer();
     this.cleanupStream();
     this.resetAudioPreview();
+  }
+
+  private getStorageItem(key: string): string | null {
+    return typeof localStorage === 'undefined' ? null : localStorage.getItem(key);
   }
 
   private tryLoad(resetUi: boolean = false): void {
@@ -94,7 +98,7 @@ export class JournalComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     // 2) fallback localStorage (if you still use it)
-    const rawUser = localStorage.getItem('user');
+    const rawUser = this.getStorageItem('user');
     if (rawUser) {
       try {
         const u = JSON.parse(rawUser);
@@ -104,8 +108,8 @@ export class JournalComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     // 3) other possible keys
-    const p1 = localStorage.getItem('patientId');
-    const p2 = localStorage.getItem('userId');
+    const p1 = this.getStorageItem('patientId');
+    const p2 = this.getStorageItem('userId');
     return (p1 || p2 || '').trim();
   }
 

@@ -14,6 +14,7 @@ import { ChangePasswordRequestDto } from '../dto/change-password-request';
 import { UpdateUserByAdminDto } from '../dto/update-user-by-admin.dto';
 import { UserDto } from '../dto/user.dto';
 import { UserAdminDto } from '../dto/user-admin.dto';
+import { MedicalRecordSummaryDto } from '../dto/medical-record-summary.dto';
 import { MedicalRecordEvent } from '../interfaces/medical-record-event.interface';
 
 @Injectable()
@@ -376,6 +377,33 @@ export class UserService {
     );
   }
 
+  async syncMedicalRecordProjection(
+    payload: MedicalRecordEvent,
+  ): Promise<UserDocument> {
+    const user = await this.findById(payload.patientId);
+
+    if (payload.eventType === 'MEDICAL_RECORD_DELETED') {
+      user.medicalRecord = undefined;
+    } else {
+      user.medicalRecord = {
+        recordId: payload.recordId,
+        patientEmail: payload.patientEmail ?? user.email,
+        bloodGroup: payload.bloodGroup ?? null,
+        alzheimerStage: payload.alzheimerStage ?? null,
+        occurredAt: payload.occurredAt
+          ? new Date(payload.occurredAt)
+          : new Date(),
+        lastEventType: payload.eventType,
+      };
+    }
+
+    const savedUser = await this.userRepository.save(user);
+    this.logger.log(
+      `Synced medical record event ${payload.eventType} for patient ${payload.patientId}`,
+    );
+    return savedUser;
+  }
+
   async updateUserByAdmin(
     userId: string,
     request: UpdateUserByAdminDto,
@@ -406,42 +434,6 @@ export class UserService {
     return this.userRepository.searchByRoleAndQuery(query, role);
   }
 
-  async syncMedicalRecordProjection(event: MedicalRecordEvent): Promise<void> {
-    const user = await this.userRepository.findById(event.patientId);
-
-    if (!user) {
-      this.logger.warn(
-        `Received ${event.eventType} for unknown patientId ${event.patientId}`,
-      );
-      return;
-    }
-
-    if (user.role !== UserRole.PATIENT) {
-      this.logger.warn(
-        `Received ${event.eventType} for non-patient user ${event.patientId}`,
-      );
-      return;
-    }
-
-    if (event.eventType === 'MEDICAL_RECORD_DELETED') {
-      user.medicalRecord = undefined;
-    } else {
-      user.medicalRecord = {
-        recordId: event.recordId,
-        patientEmail: event.patientEmail ?? undefined,
-        bloodGroup: event.bloodGroup ?? undefined,
-        alzheimerStage: event.alzheimerStage ?? undefined,
-        occurredAt: event.occurredAt ? new Date(event.occurredAt) : new Date(),
-        lastEventType: event.eventType,
-      };
-    }
-
-    await this.userRepository.save(user);
-    this.logger.log(
-      `Synced medical record event ${event.eventType} for patient ${event.patientId}`,
-    );
-  }
-
   // === Mapping methods ===
   async mapToUserDto(user: UserDocument): Promise<UserDto> {
     const dto = new UserDto();
@@ -462,6 +454,7 @@ export class UserService {
     dto.workplaceType = user.workplaceType;
     dto.workplaceName = user.workplaceName;
     dto.doctorEmail = user.doctorEmail;
+    dto.medicalRecord = user.medicalRecord as MedicalRecordSummaryDto;
 
     if (user.role === UserRole.PATIENT && user.caregiverIds?.length) {
       const caregivers = await this.userRepository.findAll();
@@ -473,17 +466,6 @@ export class UserService {
       dto.patientEmails = patients
         .filter((p) => user.patientIds.includes(p.userId))
         .map((p) => p.email);
-    }
-
-    if (user.medicalRecord) {
-      dto.medicalRecord = {
-        recordId: user.medicalRecord.recordId,
-        patientEmail: user.medicalRecord.patientEmail,
-        bloodGroup: user.medicalRecord.bloodGroup,
-        alzheimerStage: user.medicalRecord.alzheimerStage,
-        occurredAt: user.medicalRecord.occurredAt,
-        lastEventType: user.medicalRecord.lastEventType,
-      };
     }
 
     return dto;
