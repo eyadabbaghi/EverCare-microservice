@@ -6,7 +6,6 @@
 
 
     <groupId>com.yourteam</groupId>
-
     <artifactId>microservices-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -14,32 +13,26 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.4</version>
+        <version>3.2.2</version>
         <relativePath/>
     </parent>
 
     <properties>
         <java.version>17</java.version>
-        <spring-cloud.version>2023.0.1</spring-cloud.version>
+        <spring-cloud.version>2023.0.0</spring-cloud.version>
     </properties>
 
     <!-- MUST match your folder names exactly -->
     <modules>
-        <module>configServer</module>
         <module>appointment-service</module>
-        <module>Dailyme-service</module>
-        <module>Eureka-service</module>
-        <module>ApiGateway</module>
         <module>Activities</module>
         <module>Alerts</module>
         <module>User</module>
-        <module>blog-service</module>
-        <module>communication-service</module>
-        <module>notification-service</module>
-        <module>medical-record-service</module>
-        <module>Tracking-service</module>
-        <module>evercare-ai-service</module>
-
+        <module>ApiGateway</module>
+        <module>Eureka-service</module>
+        <!-- Comment these out until you actually create the folders -->
+        <!-- <module>gateway-service</module> -->
+        <!-- <module>auth-service</module> -->
     </modules>
 
     <dependencyManagement>
@@ -74,14 +67,13 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version> <!-- Latest stable -->
+            <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
+
     </dependencies>
 
     <build>

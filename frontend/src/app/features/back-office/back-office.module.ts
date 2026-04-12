@@ -15,9 +15,9 @@ import { NotificationPanelComponent } from './components/notification-panel/noti
 
 import { ActivitiesAdminComponent } from './pages/activities-admin/activities-admin.component';
 import { ActivityDetailsAdminComponent } from './pages/activity-details-admin/activity-details-admin.component';
-import {ImageCropperComponent} from 'ngx-image-cropper';
-
-
+import { BlogAdminComponent } from './pages/blog-admin/blog-admin.component';
+import { LucideAngularModule, FileText, Plus, Trash2, Edit, Eye, PieChart } from 'lucide-angular'; // ✅ Ajout de PieChart
+import { ImageCropperComponent } from 'ngx-image-cropper';
 
 @NgModule({
   declarations: [
@@ -32,14 +32,17 @@ import {ImageCropperComponent} from 'ngx-image-cropper';
     ChartWidgetComponent,
     NotificationPanelComponent,
     ActivitiesAdminComponent,
-    ActivityDetailsAdminComponent
+    ActivityDetailsAdminComponent,
+    BlogAdminComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     BackOfficeRoutingModule,
-    ImageCropperComponent // standalone component (Angular >=14+)
+    ImageCropperComponent,
+    LucideAngularModule.pick({ FileText, Plus, Trash2, Edit, Eye, PieChart }) // ✅ Ajout de PieChart
   ]
 })
-export class BackOfficeModule { }
+export class BackOfficeModule {
+} 

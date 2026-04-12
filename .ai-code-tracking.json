@@ -5203,6 +5203,17 @@
       "aiTool": "GitHub Copilot",
       "detectionMethod": "REALTIME_SPEED_ANALYSIS",
       "lineCount": 6
+    },
+    {
+      "filePath": "C:/Users/Administrateur/Desktop/My projects/PiDev/EverCare/backend/ApiGateway/src/main/java/tn/esprit/apigateway/ApiGatewayApplication.java",
+      "timestamp": 1775992768706,
+      "startOffset": 3743,
+      "endOffset": 4026,
+      "codeContent": "                .route(\"blog-service\", r -\u003e r\n                        .path(\"/EverCare/api/blog/**\")\n                        .filters(f -\u003e f.rewritePath(\"/EverCare/(?\u003csegment\u003e.*)\", \"/${segment}\"))\n                        .uri(\"lb://blog-service\"))\n\n                .build();\n    }\n\n\n",
+      "aiProbability": 95,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 10
     }
   ],
   "toolStats": {
@@ -5211,8 +5222,8 @@
       "totalLines": 3338
     },
     "GitHub Copilot": {
-      "usageCount": 348,
-      "totalLines": 6439
+      "usageCount": 349,
+      "totalLines": 6449
     }
   }
 }

@@ -28,9 +28,10 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { NewUserFlowComponent } from './pages/login/new-user-flow.component';
 import { SetupProfileComponent } from './pages/setup-profile/setup-profile.component';
-import { PatientIntakeComponent } from './pages/patient-intake/patient-intake.component';
-
 import { DoctorSearchModalComponent } from './pages/profile/doctor-search-modal.component';
+
+// ✅ Import du BlogModule
+import { BlogModule } from '../blog/blog.module';
 
 @NgModule({
   declarations: [
@@ -57,10 +58,8 @@ import { DoctorSearchModalComponent } from './pages/profile/doctor-search-modal.
     ProfileComponent,
     NewUserFlowComponent,
     SetupProfileComponent,
-    PatientIntakeComponent,
     DoctorSearchModalComponent,
-    SetupProfileComponent,
-    // 👇 ADD THIS COMPONENT
+    SetupProfileComponent, // (doublon à nettoyer plus tard, mais non bloquant)
     DoctorSearchModalComponent,
   ],
   imports: [
@@ -70,10 +69,12 @@ import { DoctorSearchModalComponent } from './pages/profile/doctor-search-modal.
     SharedModule,
     FrontOfficeRoutingModule,
     LucideAngularModule,
+    BlogModule, // ✅ Ajout du module Blog
   ],
   exports: [
     NavigationComponent,
     AiAssistantComponent,
   ],
 })
-export class FrontOfficeModule {}
+export class FrontOfficeModule {
+} 
