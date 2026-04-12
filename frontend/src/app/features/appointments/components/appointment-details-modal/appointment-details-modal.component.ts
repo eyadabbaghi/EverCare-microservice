@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Appointment } from '../../models/appointment';
 import { AuthService } from '../../../front-office/pages/login/auth.service';
 
@@ -22,7 +23,8 @@ export class AppointmentDetailsModalComponent {
   userRole: string = '';
 
   constructor(
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {
     this.authService.currentUser$.subscribe(user => {
       if (user) {
@@ -73,5 +75,19 @@ export class AppointmentDetailsModalComponent {
       'NONE': 'No caregiver'
     };
     return presence ? labels[presence] : 'No caregiver';
+  }
+
+  canJoinVideoCall(): boolean {
+    if (!this.appointment) return false;
+    // Allow joining at any time for testing
+    return this.appointment.status === 'CONFIRMED_BY_PATIENT' ||
+           this.appointment.status === 'CONFIRMED_BY_CAREGIVER' ||
+           this.appointment.status === 'IN_PROGRESS';
+  }
+
+  joinVideoCall(): void {
+    if (this.appointment) {
+      this.router.navigate(['/appointments/video', this.appointment.appointmentId]);
+    }
   }
 }

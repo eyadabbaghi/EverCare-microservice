@@ -20,45 +20,40 @@ public class MedicalHistoryService {
     private final MedicalHistoryRepository historyRepository;
     private final MedicalRecordRepository recordRepository;
 
-    public MedicalHistory addToRecord(String recordId, MedicalHistory history) {
-        MedicalRecord record = getRequiredRecord(recordId);
-        ensureRecordIsActive(record);
-        validateHistory(history);
-        history.setMedicalRecord(record);
-        history.setType(normalizeType(history.getType()));
-        MedicalHistory savedHistory = historyRepository.save(history);
-        medicalRecordEventPublisher.publishUpdated(record);
-        return savedHistory;
-    }
+	public MedicalHistory addToRecord(String recordId, MedicalHistory history) {
+		MedicalRecord record = getRequiredRecord(recordId);
+		ensureRecordIsActive(record);
+		validateHistory(history);
+		history.setMedicalRecord(record);
+		history.setType(normalizeType(history.getType()));
+		return historyRepository.save(history);
+	}
 
-    public List<MedicalHistory> listByRecord(String recordId) {
-        getRequiredRecord(recordId);
-        return historyRepository.findByMedicalRecordId(recordId);
-    }
+	public List<MedicalHistory> listByRecord(String recordId) {
+		getRequiredRecord(recordId);
+		return historyRepository.findByMedicalRecordId(recordId);
+	}
 
-    public MedicalHistory update(String recordId, String historyId, MedicalHistory updatedHistory) {
-        MedicalRecord record = getRequiredRecord(recordId);
-        ensureRecordIsActive(record);
-        MedicalHistory existing = getRequiredHistory(recordId, historyId);
-        validateHistory(updatedHistory);
+	public MedicalHistory update(String recordId, String historyId, MedicalHistory updatedHistory) {
+		MedicalRecord record = getRequiredRecord(recordId);
+		ensureRecordIsActive(record);
+		MedicalHistory existing = getRequiredHistory(recordId, historyId);
+		validateHistory(updatedHistory);
 
-        existing.setMedicalRecord(record);
-        existing.setType(normalizeType(updatedHistory.getType()));
-        existing.setDate(updatedHistory.getDate());
-        existing.setDescription(updatedHistory.getDescription().trim());
+		existing.setMedicalRecord(record);
+		existing.setType(normalizeType(updatedHistory.getType()));
+		existing.setDate(updatedHistory.getDate());
+		existing.setDescription(updatedHistory.getDescription().trim());
 
-        MedicalHistory savedHistory = historyRepository.save(existing);
-        medicalRecordEventPublisher.publishUpdated(record);
-        return savedHistory;
-    }
+		return historyRepository.save(existing);
+	}
 
-    public void delete(String recordId, String historyId) {
-        MedicalRecord record = getRequiredRecord(recordId);
-        ensureRecordIsActive(record);
-        getRequiredHistory(recordId, historyId);
-        historyRepository.deleteById(historyId);
-        medicalRecordEventPublisher.publishUpdated(record);
-    }
+	public void delete(String recordId, String historyId) {
+		MedicalRecord record = getRequiredRecord(recordId);
+		ensureRecordIsActive(record);
+		getRequiredHistory(recordId, historyId);
+		historyRepository.deleteById(historyId);
+	}
 
     private MedicalRecord getRequiredRecord(String recordId) {
         return recordRepository.findById(recordId)

@@ -3,7 +3,6 @@ package com.example.medicalrecordservice.service;
 import com.example.medicalrecordservice.client.UserServiceGateway;
 import com.example.medicalrecordservice.dto.MedicalRecordArchiveRequest;
 import com.example.medicalrecordservice.entity.MedicalRecord;
-import com.example.medicalrecordservice.event.MedicalRecordEventPublisher;
 import com.example.medicalrecordservice.exception.BadRequestException;
 import com.example.medicalrecordservice.exception.ConflictException;
 import com.example.medicalrecordservice.repository.MedicalRecordRepository;
@@ -17,22 +16,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MedicalRecordService {
 
-    private final MedicalRecordRepository medicalRecordRepository;
-    private final UserServiceGateway userServiceGateway;
-    private final MedicalRecordEventPublisher medicalRecordEventPublisher;
+	private final MedicalRecordRepository medicalRecordRepository;
+	private final UserServiceGateway userServiceGateway;
 
-    public MedicalRecord create(MedicalRecord record) {
-        if (record.getPatientId() == null || record.getPatientId().isBlank()) {
-            throw new BadRequestException("patientId is required");
-        }
-        if (medicalRecordRepository.existsByPatientId(record.getPatientId())) {
-            throw new ConflictException("MedicalRecord already exists for this patientId");
-        }
-        var patient = userServiceGateway.getRequiredPatient(record.getPatientId());
-        MedicalRecord savedRecord = medicalRecordRepository.save(record);
-        medicalRecordEventPublisher.publishCreated(savedRecord, patient);
-        return savedRecord;
-    }
+	public MedicalRecord create(MedicalRecord record) {
+		if (record.getPatientId() == null || record.getPatientId().isBlank()) {
+			throw new BadRequestException("patientId is required");
+		}
+		if (medicalRecordRepository.existsByPatientId(record.getPatientId())) {
+			throw new ConflictException("MedicalRecord already exists for this patientId");
+		}
+		userServiceGateway.getRequiredPatient(record.getPatientId());
+		return medicalRecordRepository.save(record);
+	}
 
     public MedicalRecord autoCreate(MedicalRecord record) {
         if (record.getPatientId() == null || record.getPatientId().isBlank()) {
@@ -57,53 +53,46 @@ public class MedicalRecordService {
                 .orElseThrow(() -> new IllegalStateException("MedicalRecord not found"));
     }
 
-    public MedicalRecord update(String id, MedicalRecord updated) {
-        MedicalRecord existing = findById(id);
-        ensureRecordIsActive(existing);
-        existing.setBloodGroup(updated.getBloodGroup());
-        existing.setAlzheimerStage(updated.getAlzheimerStage());
-        MedicalRecord savedRecord = medicalRecordRepository.save(existing);
-        medicalRecordEventPublisher.publishUpdated(savedRecord);
-        return savedRecord;
-    }
+	public MedicalRecord update(String id, MedicalRecord updated) {
+		MedicalRecord existing = findById(id);
+		ensureRecordIsActive(existing);
+		existing.setBloodGroup(updated.getBloodGroup());
+		existing.setAlzheimerStage(updated.getAlzheimerStage());
+		return medicalRecordRepository.save(existing);
+	}
 
-    public MedicalRecord archive(String id, MedicalRecordArchiveRequest request) {
-        MedicalRecord existing = findById(id);
-        if (existing.isArchived()) {
-            throw new ConflictException("Medical record is already archived");
-        }
+	public MedicalRecord archive(String id, MedicalRecordArchiveRequest request) {
+		MedicalRecord existing = findById(id);
+		if (existing.isArchived()) {
+			throw new ConflictException("Medical record is already archived");
+		}
 
-        existing.setArchived(true);
-        existing.setArchivedAt(LocalDateTime.now());
-        existing.setArchivedBy(request != null ? normalizeOptional(request.getArchivedBy()) : null);
-        existing.setArchiveReason(request != null ? normalizeOptional(request.getArchiveReason()) : null);
+		existing.setArchived(true);
+		existing.setArchivedAt(LocalDateTime.now());
+		existing.setArchivedBy(request != null ? normalizeOptional(request.getArchivedBy()) : null);
+		existing.setArchiveReason(request != null ? normalizeOptional(request.getArchiveReason()) : null);
 
-        MedicalRecord savedRecord = medicalRecordRepository.save(existing);
-        medicalRecordEventPublisher.publishArchived(savedRecord);
-        return savedRecord;
-    }
+		return medicalRecordRepository.save(existing);
+	}
 
-    public MedicalRecord restore(String id) {
-        MedicalRecord existing = findById(id);
-        if (!existing.isArchived()) {
-            throw new ConflictException("Medical record is already active");
-        }
+	public MedicalRecord restore(String id) {
+		MedicalRecord existing = findById(id);
+		if (!existing.isArchived()) {
+			throw new ConflictException("Medical record is already active");
+		}
 
-        existing.setArchived(false);
-        existing.setArchivedAt(null);
-        existing.setArchivedBy(null);
-        existing.setArchiveReason(null);
+		existing.setArchived(false);
+		existing.setArchivedAt(null);
+		existing.setArchivedBy(null);
+		existing.setArchiveReason(null);
 
-        MedicalRecord savedRecord = medicalRecordRepository.save(existing);
-        medicalRecordEventPublisher.publishRestored(savedRecord);
-        return savedRecord;
-    }
+		return medicalRecordRepository.save(existing);
+	}
 
-    public void delete(String id) {
-        MedicalRecord existing = findById(id);
-        medicalRecordRepository.deleteById(id);
-        medicalRecordEventPublisher.publishDeleted(existing);
-    }
+	public void delete(String id) {
+		MedicalRecord existing = findById(id);
+		medicalRecordRepository.deleteById(id);
+	}
 
     private void ensureRecordIsActive(MedicalRecord record) {
         if (record.isArchived()) {

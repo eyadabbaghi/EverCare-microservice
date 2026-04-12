@@ -108,13 +108,21 @@
           </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="border-t pt-4 flex flex-wrap gap-3 justify-end">
-          <button class="px-4 py-2 border border-[#E2E8F0] rounded-md hover:bg-[#F3E8FF]"
-                  (click)="onClose.emit()">
-            Close
-          </button>
-        </div>
+<!-- Action Buttons -->
+  <div class="border-t pt-4 flex flex-wrap gap-3 justify-end">
+    <button *ngIf="canJoinVideoCall()"
+      class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
+      (click)="joinVideoCall()">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M22 6l-6 4 6 4V6z"/><rect x="2" y="4" width="16" height="16" rx="2"/>
+      </svg>
+      Join Video Call
+    </button>
+    <button class="px-4 py-2 border border-[#E2E8F0] rounded-md hover:bg-[#F3E8FF]"
+      (click)="onClose.emit()">
+      Close
+    </button>
+  </div>
 
       </div>
     </div>

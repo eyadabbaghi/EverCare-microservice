@@ -20,58 +20,53 @@ public class AssessmentReportService {
     private final AssessmentReportRepository reportRepository;
     private final MedicalRecordRepository recordRepository;
 
-    public AssessmentReport addToRecord(String recordId, AssessmentReport report) {
-        MedicalRecord record = getRequiredRecord(recordId);
-        ensureRecordIsActive(record);
-        validateReport(report);
+	public AssessmentReport addToRecord(String recordId, AssessmentReport report) {
+		MedicalRecord record = getRequiredRecord(recordId);
+		ensureRecordIsActive(record);
+		validateReport(report);
 
-        report.setMedicalRecord(record);
-        report.setReportType(normalizeText(report.getReportType()));
-        report.setStage(normalizeStage(report.getStage()));
-        report.setRecommendation(report.getRecommendation().trim());
-        report.setSummary(report.getSummary().trim());
-        report.setAuthor(normalizeOptional(report.getAuthor(), "Care team"));
-        report.setCreatedAt(LocalDateTime.now());
-        report.setUpdatedAt(LocalDateTime.now());
+		report.setMedicalRecord(record);
+		report.setReportType(normalizeText(report.getReportType()));
+		report.setStage(normalizeStage(report.getStage()));
+		report.setRecommendation(report.getRecommendation().trim());
+		report.setSummary(report.getSummary().trim());
+		report.setAuthor(normalizeOptional(report.getAuthor(), "Care team"));
+		report.setCreatedAt(LocalDateTime.now());
+		report.setUpdatedAt(LocalDateTime.now());
 
-        AssessmentReport savedReport = reportRepository.save(report);
-        medicalRecordEventPublisher.publishUpdated(record);
-        return savedReport;
-    }
+		return reportRepository.save(report);
+	}
 
-    public List<AssessmentReport> listByRecord(String recordId) {
-        getRequiredRecord(recordId);
-        return reportRepository.findByMedicalRecordIdOrderByAssessmentDateDescCreatedAtDesc(recordId);
-    }
+	public List<AssessmentReport> listByRecord(String recordId) {
+		getRequiredRecord(recordId);
+		return reportRepository.findByMedicalRecordIdOrderByAssessmentDateDescCreatedAtDesc(recordId);
+	}
 
-    public AssessmentReport update(String recordId, String reportId, AssessmentReport updatedReport) {
-        MedicalRecord record = getRequiredRecord(recordId);
-        ensureRecordIsActive(record);
-        AssessmentReport existing = getRequiredReport(recordId, reportId);
-        validateReport(updatedReport);
+	public AssessmentReport update(String recordId, String reportId, AssessmentReport updatedReport) {
+		MedicalRecord record = getRequiredRecord(recordId);
+		ensureRecordIsActive(record);
+		AssessmentReport existing = getRequiredReport(recordId, reportId);
+		validateReport(updatedReport);
 
-        existing.setMedicalRecord(record);
-        existing.setReportType(normalizeText(updatedReport.getReportType()));
-        existing.setScore(updatedReport.getScore());
-        existing.setStage(normalizeStage(updatedReport.getStage()));
-        existing.setRecommendation(updatedReport.getRecommendation().trim());
-        existing.setSummary(updatedReport.getSummary().trim());
-        existing.setAuthor(normalizeOptional(updatedReport.getAuthor(), "Care team"));
-        existing.setAssessmentDate(updatedReport.getAssessmentDate());
-        existing.setUpdatedAt(LocalDateTime.now());
+		existing.setMedicalRecord(record);
+		existing.setReportType(normalizeText(updatedReport.getReportType()));
+		existing.setScore(updatedReport.getScore());
+		existing.setStage(normalizeStage(updatedReport.getStage()));
+		existing.setRecommendation(updatedReport.getRecommendation().trim());
+		existing.setSummary(updatedReport.getSummary().trim());
+		existing.setAuthor(normalizeOptional(updatedReport.getAuthor(), "Care team"));
+		existing.setAssessmentDate(updatedReport.getAssessmentDate());
+		existing.setUpdatedAt(LocalDateTime.now());
 
-        AssessmentReport savedReport = reportRepository.save(existing);
-        medicalRecordEventPublisher.publishUpdated(record);
-        return savedReport;
-    }
+		return reportRepository.save(existing);
+	}
 
-    public void delete(String recordId, String reportId) {
-        MedicalRecord record = getRequiredRecord(recordId);
-        ensureRecordIsActive(record);
-        AssessmentReport report = getRequiredReport(recordId, reportId);
-        reportRepository.deleteById(report.getId());
-        medicalRecordEventPublisher.publishUpdated(record);
-    }
+	public void delete(String recordId, String reportId) {
+		MedicalRecord record = getRequiredRecord(recordId);
+		ensureRecordIsActive(record);
+		AssessmentReport report = getRequiredReport(recordId, reportId);
+		reportRepository.deleteById(report.getId());
+	}
 
     private MedicalRecord getRequiredRecord(String recordId) {
         return recordRepository.findById(recordId)

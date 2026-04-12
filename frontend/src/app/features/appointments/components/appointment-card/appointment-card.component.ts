@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Appointment, AppointmentStatus, CaregiverPresence } from '../../models/appointment';
 
 @Component({
@@ -11,6 +12,9 @@ export class AppointmentCardComponent {
   @Input() showActionButton: boolean = true;
   @Output() onClick = new EventEmitter<Appointment>();
   @Output() onAction = new EventEmitter<Appointment>();
+  @Output() onJoinVideo = new EventEmitter<Appointment>();
+
+  constructor(private router: Router) {}
 
   // Helper method to safely get Date object
   private getAppointmentDate(): Date | null {
@@ -100,29 +104,13 @@ export class AppointmentCardComponent {
   }
 
   canJoinCall(): boolean {
-    // Check if appointment exists
     if (!this.appointment) return false;
 
-    // Check status - allow joining for IN_PROGRESS as well
-    if (this.appointment.status !== 'CONFIRMED_BY_PATIENT' &&
-      this.appointment.status !== 'CONFIRMED_BY_CAREGIVER' &&
-      this.appointment.status !== 'IN_PROGRESS') {
-      return false;
-    }
-
-    try {
-      // Safely convert to Date
-      const appointmentDate = this.getAppointmentDate();
-      if (!appointmentDate) return false;
-
-      const now = new Date();
-      const diffMinutes = (appointmentDate.getTime() - now.getTime()) / 60000;
-
-      // Allow joining 5 minutes before and up to 30 minutes after
-      return diffMinutes <= 15 && diffMinutes >= -30;
-    } catch {
-      return false;
-    }
+    // Check status - allow joining for confirmed or in-progress appointments
+    // For testing: allow joining at any time (remove time check)
+    return this.appointment.status === 'CONFIRMED_BY_PATIENT' ||
+           this.appointment.status === 'CONFIRMED_BY_CAREGIVER' ||
+           this.appointment.status === 'IN_PROGRESS';
   }
 
   getActionButtonClass(): string {
@@ -173,5 +161,10 @@ export class AppointmentCardComponent {
   // Optional: Check if appointment is in progress
   isInProgress(): boolean {
     return this.appointment.status === 'IN_PROGRESS';
+  }
+
+  // Navigate to Jitsi video call
+  joinVideoCall(): void {
+    this.router.navigate(['/appointments/video', this.appointment.appointmentId]);
   }
 }

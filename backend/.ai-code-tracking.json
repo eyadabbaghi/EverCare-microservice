@@ -4070,12 +4070,89 @@
       "aiTool": "GitHub Copilot",
       "detectionMethod": "REALTIME_SPEED_ANALYSIS",
       "lineCount": 10
+    },
+    {
+      "filePath": "/fragment.java",
+      "timestamp": 1776003341692,
+      "startOffset": 0,
+      "endOffset": 64,
+      "codeContent": "com.example.medicalrecordservice.MedicalRecordServiceApplication",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/fragment.java",
+      "timestamp": 1776003437181,
+      "startOffset": 0,
+      "endOffset": 64,
+      "codeContent": "com.example.medicalrecordservice.MedicalRecordServiceApplication",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/fragment.java",
+      "timestamp": 1776003458733,
+      "startOffset": 0,
+      "endOffset": 64,
+      "codeContent": "com.example.medicalrecordservice.MedicalRecordServiceApplication",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/fragment.java",
+      "timestamp": 1776003592669,
+      "startOffset": 0,
+      "endOffset": 64,
+      "codeContent": "com.example.medicalrecordservice.MedicalRecordServiceApplication",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/fragment.java",
+      "timestamp": 1776004168236,
+      "startOffset": 0,
+      "endOffset": 50,
+      "codeContent": "tn.esprit.dailymeservice.DailymeServiceApplication",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/fragment.java",
+      "timestamp": 1776004194232,
+      "startOffset": 0,
+      "endOffset": 50,
+      "codeContent": "tn.esprit.dailymeservice.DailymeServiceApplication",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
+    },
+    {
+      "filePath": "/fragment.java",
+      "timestamp": 1776004389043,
+      "startOffset": 0,
+      "endOffset": 50,
+      "codeContent": "tn.esprit.dailymeservice.DailymeServiceApplication",
+      "aiProbability": 90,
+      "aiTool": "GitHub Copilot",
+      "detectionMethod": "REALTIME_SPEED_ANALYSIS",
+      "lineCount": 1
     }
   ],
   "toolStats": {
     "GitHub Copilot": {
-      "usageCount": 370,
-      "totalLines": 8225
+      "usageCount": 377,
+      "totalLines": 8232
     }
   }
 }

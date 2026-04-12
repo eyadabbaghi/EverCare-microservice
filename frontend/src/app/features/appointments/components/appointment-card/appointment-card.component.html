@@ -42,24 +42,29 @@
     <span>{{ getCaregiverLabel(appointment) }}</span>
   </div>
 
-  <!-- Action Button -->
+<!-- Action Button -->
   <div *ngIf="showActionButton" class="mt-3">
     <button
       class="w-full text-white text-sm py-1 px-3 rounded-md flex items-center justify-center"
       [class]="getActionButtonClass()"
-      (click)="onAction.emit(appointment); $event.stopPropagation()">
-      <ng-container *ngIf="appointment.status === 'SCHEDULED'">
-        <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M20 6L9 17l-5-5"/>
-        </svg>
-        Confirm
-      </ng-container>
-      <ng-container *ngIf="canJoinCall()">
-        <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M22 6l-6 4 6 4V6z"/><rect x="2" y="4" width="16" height="16" rx="2"/>
-        </svg>
-        Join Call
-      </ng-container>
+      (click)="onAction.emit(appointment); $event.stopPropagation()"
+      *ngIf="appointment.status === 'SCHEDULED'"
+    >
+      <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+      Confirm
+    </button>
+    <button
+      class="w-full text-white text-sm py-1 px-3 rounded-md flex items-center justify-center"
+      [class]="getActionButtonClass()"
+      (click)="joinVideoCall(); $event.stopPropagation()"
+      *ngIf="canJoinCall()"
+    >
+      <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M22 6l-6 4 6 4V6z"/><rect x="2" y="4" width="16" height="16" rx="2"/>
+      </svg>
+      Join Call
     </button>
   </div>
 

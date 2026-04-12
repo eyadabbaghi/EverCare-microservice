@@ -32,6 +32,7 @@ import { RouterModule } from '@angular/router';
 import { ToastrModule } from 'ngx-toastr';
 
 import { UserAppointmentsComponent } from './pages/user-appointments/user-appointments.component';
+import { JitsiMeetComponent } from './components/jitsi-meet/jitsi-meet.component';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { UserAppointmentsComponent } from './pages/user-appointments/user-appoin
     PatientInfoCardComponent,
     AppointmentsListComponent,
     UserAppointmentsComponent,
+    JitsiMeetComponent,
   ],
   imports: [
     CommonModule,

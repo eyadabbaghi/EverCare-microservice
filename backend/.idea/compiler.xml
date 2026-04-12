@@ -7,21 +7,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Eureka-service" />
-        <module name="Alerts" />
         <module name="appointment-service" />
-        <module name="ApiGateway" />
+        <module name="medical-record-service" />
         <module name="configServer" />
         <module name="communication-service" />
-      </profile>
-      <profile name="Annotation profile for User" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
-        </processorPath>
-        <module name="User" />
+        <module name="Eureka-service" />
+        <module name="dailyme-service" />
+        <module name="ApiGateway" />
       </profile>
       <profile name="Annotation profile for blog-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -32,7 +24,7 @@
         </processorPath>
         <module name="blog-service" />
       </profile>
-      <profile name="Annotation profile for Notification" enabled="true">
+      <profile name="Annotation profile for microservices-parent" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -44,10 +36,11 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="Alerts" target="17" />
       <module name="Dailyme-service" target="17" />
       <module name="evercare-ai-service" target="17" />
-      <module name="medical-record-service" target="17" />
       <module name="Tracking-service" target="17" />
+      <module name="User" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -63,6 +56,7 @@
       <module name="blog-service" options="-parameters" />
       <module name="communication-service" options="-parameters" />
       <module name="configServer" options="-parameters" />
+      <module name="dailyme-service" options="-parameters" />
       <module name="medical-record-service" options="-parameters" />
       <module name="microservices-parent" options="" />
       <module name="notification-service" options="-parameters" />

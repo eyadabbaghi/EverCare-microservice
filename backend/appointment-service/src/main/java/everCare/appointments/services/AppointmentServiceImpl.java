@@ -85,16 +85,11 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         validateAndPrepareAppointment(appointment, null);
 
-        // Generate video link
-        if (appointment.getVideoLink() == null && appointment.getPatientId() != null && appointment.getDoctorId() != null) {
-            String patientId = appointment.getPatientId().length() >= 8
-                    ? appointment.getPatientId().substring(0, 8)
-                    : appointment.getPatientId();
-            String doctorId = appointment.getDoctorId().length() >= 8
-                    ? appointment.getDoctorId().substring(0, 8)
-                    : appointment.getDoctorId();
-            appointment.setVideoLink("https://consult.evercare.com/room/" + doctorId + "-" + patientId);
-        }
+		// Generate Jitsi Meet video link
+		if (appointment.getVideoLink() == null && appointment.getAppointmentId() != null) {
+			String roomName = "evercare-" + appointment.getAppointmentId();
+			appointment.setVideoLink("https://meet.jit.si/" + roomName);
+		}
 
         // Set default status
         if (appointment.getStatus() == null) {

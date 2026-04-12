@@ -1,8 +1,13 @@
 import {
-  Component, OnInit, OnDestroy, Input,
-  ElementRef, ViewChild, AfterViewInit
+  Component,
+  OnInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  AfterViewInit
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService, User } from '../../../front-office/pages/login/auth.service';
 
 declare const JitsiMeetExternalAPI: any;
 
@@ -12,22 +17,46 @@ declare const JitsiMeetExternalAPI: any;
   styleUrls: ['./jitsi-meet.component.css']
 })
 export class JitsiMeetComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Input() roomName!: string;
-  @Input() userName!: string;
-  @Input() userEmail?: string;
-  @Input() isDoctor: boolean = false;
-
   @ViewChild('jitsiContainer') jitsiContainer!: ElementRef;
+
+  roomName: string = '';
+  userName: string = '';
+  userEmail: string = '';
+  isDoctor: boolean = false;
+  appointmentId: string = '';
 
   private api: any;
   isLoading = true;
   error: string | null = null;
 
-  constructor(private router: Router) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.appointmentId = this.route.snapshot.paramMap.get('appointmentId') || '';
+    
+    // Generate room name matching backend: evercare-{appointmentId}
+    this.roomName = `evercare-${this.appointmentId}`;
+
+    // Get current user info
+    const currentUser = this.authService.getCurrentUserValue();
+    if (currentUser) {
+      this.userName = currentUser.name;
+      this.userEmail = currentUser.email;
+      this.isDoctor = currentUser.role === 'DOCTOR';
+    }
+  }
 
   ngAfterViewInit(): void {
+    if (!this.appointmentId) {
+      this.error = 'Invalid appointment ID';
+      this.isLoading = false;
+      return;
+    }
+
     // Safety fallback — hide loader after 8 seconds no matter what
     setTimeout(() => {
       this.isLoading = false;

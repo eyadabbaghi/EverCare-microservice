@@ -2,7 +2,6 @@ package com.example.medicalrecordservice.service;
 
 import com.example.medicalrecordservice.entity.MedicalDocument;
 import com.example.medicalrecordservice.entity.MedicalRecord;
-import com.example.medicalrecordservice.event.MedicalRecordEventPublisher;
 import com.example.medicalrecordservice.exception.BadRequestException;
 import com.example.medicalrecordservice.exception.NotFoundException;
 import com.example.medicalrecordservice.repository.MedicalDocumentRepository;
@@ -17,51 +16,45 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class MedicalDocumentService {
 
-    private final MedicalDocumentRepository documentRepository;
-    private final MedicalRecordRepository recordRepository;
-    private final MedicalRecordEventPublisher medicalRecordEventPublisher;
+	private final MedicalDocumentRepository documentRepository;
+	private final MedicalRecordRepository recordRepository;
 
-    public MedicalDocument addToRecord(String recordId, MedicalDocument doc) {
-        MedicalRecord record = getRequiredRecord(recordId);
-        ensureRecordIsActive(record);
-        validateDocument(doc);
-        doc.setMedicalRecord(record);
-        doc.setFileName(doc.getFileName().trim());
-        doc.setFileType(normalizeFileType(doc.getFileType()));
-        doc.setFilePath(doc.getFilePath().trim());
-        MedicalDocument savedDocument = documentRepository.save(doc);
-        medicalRecordEventPublisher.publishUpdated(record);
-        return savedDocument;
-    }
+	public MedicalDocument addToRecord(String recordId, MedicalDocument doc) {
+		MedicalRecord record = getRequiredRecord(recordId);
+		ensureRecordIsActive(record);
+		validateDocument(doc);
+		doc.setMedicalRecord(record);
+		doc.setFileName(doc.getFileName().trim());
+		doc.setFileType(normalizeFileType(doc.getFileType()));
+		doc.setFilePath(doc.getFilePath().trim());
+		return documentRepository.save(doc);
+	}
 
-    public List<MedicalDocument> listByRecord(String recordId) {
-        getRequiredRecord(recordId);
-        return documentRepository.findByMedicalRecordId(recordId);
-    }
+	public List<MedicalDocument> listByRecord(String recordId) {
+		getRequiredRecord(recordId);
+		return documentRepository.findByMedicalRecordId(recordId);
+	}
 
-    public MedicalDocument update(String recordId, String documentId, MedicalDocument updatedDocument) {
-        MedicalRecord record = getRequiredRecord(recordId);
-        ensureRecordIsActive(record);
-        MedicalDocument existing = getRequiredDocument(recordId, documentId);
-        validateDocument(updatedDocument);
+	public MedicalDocument update(String recordId, String documentId, MedicalDocument updatedDocument) {
+		MedicalRecord record = getRequiredRecord(recordId);
+		ensureRecordIsActive(record);
+		MedicalDocument existing = getRequiredDocument(recordId, documentId);
+		validateDocument(updatedDocument);
 
-        existing.setMedicalRecord(record);
-        existing.setFileName(updatedDocument.getFileName().trim());
-        existing.setFileType(normalizeFileType(updatedDocument.getFileType()));
-        existing.setFilePath(updatedDocument.getFilePath().trim());
+		existing.setMedicalRecord(record);
+		existing.setFileName(updatedDocument.getFileName().trim());
+		existing.setFileType(normalizeFileType(updatedDocument.getFileType()));
+		existing.setFilePath(updatedDocument.getFilePath().trim());
 
-        MedicalDocument savedDocument = documentRepository.save(existing);
-        medicalRecordEventPublisher.publishUpdated(record);
-        return savedDocument;
-    }
+		return documentRepository.save(existing);
+	}
 
-    public void delete(String recordId, String documentId) {
-        MedicalRecord record = getRequiredRecord(recordId);
-        ensureRecordIsActive(record);
-        getRequiredDocument(recordId, documentId);
-        documentRepository.deleteById(documentId);
-        medicalRecordEventPublisher.publishUpdated(record);
-    }
+	public void delete(String recordId, String documentId) {
+		MedicalRecord record = getRequiredRecord(recordId);
+		ensureRecordIsActive(record);
+		getRequiredDocument(recordId, documentId);
+		documentRepository.deleteById(documentId);
+	}
 
     private MedicalRecord getRequiredRecord(String recordId) {
         return recordRepository.findById(recordId)
