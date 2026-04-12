@@ -72,22 +72,17 @@ export interface ChangePasswordRequest {
   providedIn: 'root',
 })
 export class AuthService {
-  // private apiUrl = 'http://localhost:8096/EverCare/auth';
-  //private usersUrl = 'http://localhost:8096/EverCare/users';
+  // Backend URLs - go through API Gateway
+  private apiUrl = 'http://localhost:8089/EverCare/auth';
+  private usersUrl = 'http://localhost:8089/EverCare/users';
 
-  // Local user service URLs
-  private apiUrl = 'http://localhost:8096/EverCare/auth';
-  private usersUrl = 'http://localhost:8096/EverCare/users';
-
-  // Keycloak configuration – use a public client (no secret) created in Keycloak -islem
-  //private keycloakUrl = 'http://localhost:8180/realms/EverCareRealm/protocol/openid-connect/token';
-  //private clientId = 'frontend-app'; // Replace with your public client ID
-
-  // Keycloak configuration – use a public client (no secret) created in Keycloak - badr
+  // Keycloak configuration
   private keycloakUrl =
     'http://localhost:8090/realms/EverCareRealm/protocol/openid-connect/token';
+  private keycloakLogoutUrl =
+    'http://localhost:8090/realms/EverCareRealm/protocol/openid-connect/logout';
   private clientId = 'frontend-app';
-  private clientSecret = ''; // Public client - no secret needed // Replace with your public client ID
+  private clientSecret = 'apXvSUUINGfnW7gVXQC7g019eO4Zs4Ap'; 
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -103,27 +98,22 @@ export class AuthService {
     this.loadStoredUser();
   }
 
-  // ---------- Login with Keycloak ----------
+  // ---------- Login via backend (bypasses Keycloak client config) ----------
   login(credentials: LoginRequest): Observable<KeycloakTokenResponse> {
-    const body =
-      `grant_type=password&client_id=${this.clientId}` +
-      `&username=${encodeURIComponent(credentials.email)}` +
-      `&password=${encodeURIComponent(credentials.password)}` +
-      `&scope=openid profile email`;
-
+    // Use backend login endpoint which handles Keycloak auth internally
     return this.http
-      .post<KeycloakTokenResponse>(this.keycloakUrl, body, {
-        headers: new HttpHeaders({
-          'Content-Type': 'application/x-www-form-urlencoded',
-        }),
-      })
+      .post<KeycloakTokenResponse>(`${this.apiUrl}/login`, credentials)
       .pipe(
         tap((tokenResponse) => this.storeTokens(tokenResponse)),
         switchMap((tokenResponse) =>
           this.fetchCurrentUser().pipe(map(() => tokenResponse)),
         ),
         catchError((error) => {
-          console.error('Keycloak login error', error);
+          console.error('Login error', error);
+          this.toastr.error(
+            'Invalid email or password. Please try again.',
+            'Login failed',
+          );
           throw error;
         }),
       );
@@ -137,28 +127,34 @@ export class AuthService {
         tap(() =>
           this.toastr.success('Registration successful. Logging you in...'),
         ),
-        delay(3000), // Small delay to allow Keycloak to propagate the new user
+        delay(3000),
         switchMap(() =>
           this.login({ email: userData.email, password: userData.password }),
         ),
         map(() => ({ message: 'Registration and login successful' })),
+        catchError((error) => {
+          console.error('Registration error', error);
+          this.toastr.error(
+            'Registration failed. Please try again.',
+            'Error',
+          );
+          throw error;
+        }),
       );
   }
 
-  // ---------- Fetch current user (uses stored token) ----------
+  // ---------- Fetch current user ----------
   fetchCurrentUser(): Observable<User> {
     const headers = new HttpHeaders().set(
       'Authorization',
       `Bearer ${this.getToken()}`,
     );
     return this.http.get<User>(`${this.apiUrl}/me`, { headers }).pipe(
-      tap((user) => {
-        this.storeUser(user);
-      }),
+      tap((user) => this.storeUser(user)),
       catchError((error) => {
         console.error('Failed to fetch current user from /auth/me', error);
         this.toastr.error(
-          'Login reached Keycloak, but loading the application user failed. Check /EverCare/auth/me on port 8096.',
+          'Login reached Keycloak, but loading your profile failed.',
           'Profile loading failed',
         );
         throw error;
@@ -166,12 +162,40 @@ export class AuthService {
     );
   }
 
+  // ---------- Token refresh ----------
+  refreshToken(): Observable<KeycloakTokenResponse> {
+    const storedRefreshToken = this.getRefreshToken();
+    if (!storedRefreshToken) {
+      this.logout();
+      throw new Error('No refresh token available');
+    }
+
+    const body =
+      `grant_type=refresh_token` +
+      `&client_id=${this.clientId}` +
+      `&client_secret=${this.clientSecret}` +
+      `&refresh_token=${storedRefreshToken}`;
+
+    return this.http
+      .post<KeycloakTokenResponse>(this.keycloakUrl, body, {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/x-www-form-urlencoded',
+        }),
+      })
+      .pipe(
+        tap((tokenResponse) => this.storeTokens(tokenResponse)),
+        catchError((error) => {
+          console.error('Token refresh failed', error);
+          this.logout();
+          throw error;
+        }),
+      );
+  }
+
   // ---------- Token handling ----------
   private storeTokens(tokenResponse: KeycloakTokenResponse): void {
     if (this.isBrowser) {
       localStorage.setItem('auth_token', tokenResponse.access_token);
-      localStorage.setItem('access_token', tokenResponse.access_token);
-      localStorage.setItem('token', tokenResponse.access_token);
       if (tokenResponse.refresh_token) {
         localStorage.setItem('refresh_token', tokenResponse.refresh_token);
       }
@@ -185,16 +209,62 @@ export class AuthService {
     return null;
   }
 
+  getRefreshToken(): string | null {
+    if (this.isBrowser) {
+      return localStorage.getItem('refresh_token');
+    }
+    return null;
+  }
+
+  // ---------- Role helpers ----------
+  getUserRoles(): string[] {
+    const token = this.getToken();
+    if (!token) return [];
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload?.realm_access?.roles ?? [];
+    } catch {
+      return [];
+    }
+  }
+
+  hasRole(role: string): boolean {
+    return this.getUserRoles().includes(role);
+  }
+
+  isAdmin(): boolean { return this.hasRole('ADMIN'); }
+  isDoctor(): boolean { return this.hasRole('DOCTOR'); }
+  isCaregiver(): boolean { return this.hasRole('CAREGIVER'); }
+  isPatient(): boolean { return this.hasRole('PATIENT'); }
+
+  // ---------- Logout ----------
   logout(): void {
+    const refreshToken = this.getRefreshToken();
+
+    // Notify Keycloak to invalidate the session
+    if (refreshToken) {
+      const body =
+        `client_id=${this.clientId}` +
+        `&client_secret=${this.clientSecret}` +
+        `&refresh_token=${refreshToken}`;
+
+      this.http
+        .post(this.keycloakLogoutUrl, body, {
+          headers: new HttpHeaders({
+            'Content-Type': 'application/x-www-form-urlencoded',
+          }),
+        })
+        .pipe(catchError(() => of(null)))
+        .subscribe();
+    }
+
     if (this.isBrowser) {
       localStorage.removeItem('auth_token');
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('token');
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('current_user');
-      localStorage.removeItem('user');
       localStorage.removeItem('userId');
     }
+
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }
@@ -205,8 +275,7 @@ export class AuthService {
 
   private loadStoredUser(): void {
     if (this.isBrowser) {
-      const storedUser =
-        localStorage.getItem('current_user') || localStorage.getItem('user');
+      const storedUser = localStorage.getItem('current_user');
       if (storedUser) {
         this.currentUserSubject.next(JSON.parse(storedUser));
       }
@@ -216,9 +285,7 @@ export class AuthService {
   private storeUser(user: User): void {
     this.currentUserSubject.next(user);
     if (this.isBrowser) {
-      const serialized = JSON.stringify(user);
-      localStorage.setItem('current_user', serialized);
-      localStorage.setItem('user', serialized);
+      localStorage.setItem('current_user', JSON.stringify(user));
       if (user.userId) {
         localStorage.setItem('userId', user.userId);
       }
@@ -263,7 +330,7 @@ export class AuthService {
     });
   }
 
-  // ---------- Google login – temporarily disabled ----------
+  // ---------- Google login – disabled ----------
   googleLogin(idToken: string): Observable<any> {
     this.toastr.warning(
       'Google login is being migrated. Please use email/password.',

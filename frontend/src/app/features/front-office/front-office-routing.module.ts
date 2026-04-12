@@ -13,6 +13,7 @@ import { PatientIntakeComponent } from './pages/patient-intake/patient-intake.co
 const routes: Routes = [
   { path: 'setup-profile', component: SetupProfileComponent },
   { path: 'patient-intake', component: PatientIntakeComponent },
+  { path: 'auth/callback', component: LoginComponent }, // Keycloak OAuth callback
 
   {
     path: '',

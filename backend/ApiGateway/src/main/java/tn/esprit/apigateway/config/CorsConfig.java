@@ -17,20 +17,23 @@ public class CorsConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
 
-        // Autorise ton application Angular
+        // Allow Angular frontend
         corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
 
-        // Définit la durée de validité du cache CORS (1 heure)
+        // Cache CORS preflight response for 1 hour
         corsConfig.setMaxAge(3600L);
 
-        // Autorise les méthodes HTTP nécessaires pour le chat
+        // Allow HTTP methods needed
         corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 
-        // Autorise tous les headers (essentiel pour l'auth et le Content-Type)
+        // Allow all headers (essential for auth and Content-Type)
         corsConfig.setAllowedHeaders(Arrays.asList("*"));
 
-        // Important pour que le navigateur accepte la réponse
+        // Important for browser to accept the response
         corsConfig.setAllowCredentials(true);
+
+        // Expose headers so frontend can access them
+        corsConfig.setExposedHeaders(Arrays.asList("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfig);

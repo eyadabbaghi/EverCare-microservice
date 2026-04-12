@@ -22,15 +22,13 @@ async function bootstrap() {
     express.static(path.join(process.cwd(), 'uploads')),
   );
 
-  // Enable CORS - only for API Gateway, not for direct browser access
-  // Local frontend talks directly to this service for auth/user flows.
+  // Disable CORS - API Gateway handles CORS headers
+  // This prevents duplicate Access-Control-Allow-Origin headers
   app.enableCors({
-    origin: 'http://localhost:4200',
+    origin: false,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type,Authorization',
-    credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
+    allowedHeaders: '*',
+    credentials: false,
   });
 
   // Set global prefix
