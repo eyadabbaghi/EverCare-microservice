@@ -23,15 +23,15 @@ async function bootstrap() {
   );
 
   // Enable CORS - only for API Gateway, not for direct browser access
-  // The API Gateway handles CORS for frontend requests, so we disable it here
-  // to avoid duplicate CORS headers
-  // app.enableCors({
-  //   origin: '*',
-  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  //   allowedHeaders: 'Content-Type,Authorization',
-  //   preflightContinue: false,
-  //   optionsSuccessStatus: 204,
-  // });
+  // Local frontend talks directly to this service for auth/user flows.
+  app.enableCors({
+    origin: 'http://localhost:4200',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type,Authorization',
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  });
 
   // Set global prefix
   app.setGlobalPrefix('EverCare');

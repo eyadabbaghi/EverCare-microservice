@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/journal")
+@RequestMapping({"/api/journal", "/dailyme/api/journal"})
 
 public class JournalController {
 

@@ -1,5 +1,7 @@
 package com.example.medicalrecordservice.service;
 
+import com.example.medicalrecordservice.dto.MedicalHistoryCreateRequest;
+import com.example.medicalrecordservice.dto.MedicalHistoryUpdateRequest;
 import com.example.medicalrecordservice.entity.MedicalHistory;
 import com.example.medicalrecordservice.entity.MedicalRecord;
 import com.example.medicalrecordservice.event.MedicalRecordEventPublisher;
@@ -10,7 +12,6 @@ import com.example.medicalrecordservice.repository.MedicalRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 
@@ -22,12 +23,18 @@ public class MedicalHistoryService {
     private final MedicalRecordRepository recordRepository;
     private final MedicalRecordEventPublisher medicalRecordEventPublisher;
 
-    public MedicalHistory addToRecord(String recordId, MedicalHistory history) {
+    public MedicalHistory addToRecord(String recordId, MedicalHistoryCreateRequest request) {
         MedicalRecord record = getRequiredRecord(recordId);
         ensureRecordIsActive(record);
-        validateHistory(history);
+
+        MedicalHistory history = MedicalHistory.builder()
+                .type(normalizeText(request.getType()))
+                .date(request.getDate())
+                .description(normalizeText(request.getDescription()))
+                .medicalRecord(record)
+                .build();
+
         history.setMedicalRecord(record);
-        history.setType(normalizeType(history.getType()));
         MedicalHistory savedHistory = historyRepository.save(history);
         medicalRecordEventPublisher.publishUpdated(record);
         return savedHistory;
@@ -38,16 +45,14 @@ public class MedicalHistoryService {
         return historyRepository.findByMedicalRecordId(recordId);
     }
 
-    public MedicalHistory update(String recordId, String historyId, MedicalHistory updatedHistory) {
+    public MedicalHistory update(String recordId, String historyId, MedicalHistoryUpdateRequest request) {
         MedicalRecord record = getRequiredRecord(recordId);
         ensureRecordIsActive(record);
         MedicalHistory existing = getRequiredHistory(recordId, historyId);
-        validateHistory(updatedHistory);
 
-        existing.setMedicalRecord(record);
-        existing.setType(normalizeType(updatedHistory.getType()));
-        existing.setDate(updatedHistory.getDate());
-        existing.setDescription(updatedHistory.getDescription().trim());
+        existing.setType(normalizeText(request.getType()));
+        existing.setDate(request.getDate());
+        existing.setDescription(normalizeText(request.getDescription()));
 
         MedicalHistory savedHistory = historyRepository.save(existing);
         medicalRecordEventPublisher.publishUpdated(record);
@@ -57,8 +62,8 @@ public class MedicalHistoryService {
     public void delete(String recordId, String historyId) {
         MedicalRecord record = getRequiredRecord(recordId);
         ensureRecordIsActive(record);
-        getRequiredHistory(recordId, historyId);
-        historyRepository.deleteById(historyId);
+        MedicalHistory history = getRequiredHistory(recordId, historyId);
+        historyRepository.delete(history);
         medicalRecordEventPublisher.publishUpdated(record);
     }
 
@@ -74,35 +79,21 @@ public class MedicalHistoryService {
         if (history.getMedicalRecord() == null || !recordId.equals(history.getMedicalRecord().getId())) {
             throw new BadRequestException("MedicalHistory does not belong to the provided medical record");
         }
-
         return history;
-    }
-
-    private void validateHistory(MedicalHistory history) {
-        if (history.getType() == null || history.getType().isBlank()) {
-            throw new BadRequestException("type is required");
-        }
-
-        if (history.getDate() == null) {
-            throw new BadRequestException("date is required");
-        }
-
-        if (history.getDate().isAfter(LocalDate.now())) {
-            throw new BadRequestException("date cannot be in the future");
-        }
-
-        if (history.getDescription() == null || history.getDescription().isBlank()) {
-            throw new BadRequestException("description is required");
-        }
-    }
-
-    private String normalizeType(String type) {
-        return type.trim().toUpperCase(Locale.ROOT);
     }
 
     private void ensureRecordIsActive(MedicalRecord record) {
         if (record.isArchived()) {
             throw new BadRequestException("Medical record is archived; history changes are blocked");
         }
+    }
+
+    private String normalizeText(String value) {
+        if (value == null || value.isBlank()) {
+            throw new BadRequestException("History values must not be empty");
+        }
+        return value.trim().toUpperCase(Locale.ROOT).equals(value.trim())
+                ? value.trim()
+                : value.trim();
     }
 }

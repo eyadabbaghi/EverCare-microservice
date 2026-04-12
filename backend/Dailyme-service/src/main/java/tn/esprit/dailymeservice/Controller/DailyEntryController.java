@@ -13,9 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/daily-entries")
+@RequestMapping({"/api/daily-entries", "/dailyme/api/daily-entries"})
 @RequiredArgsConstructor
-
 public class DailyEntryController {
 
     private final DailyEntryService dailyEntryService;

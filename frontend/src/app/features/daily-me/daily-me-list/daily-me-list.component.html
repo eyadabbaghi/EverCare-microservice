@@ -338,8 +338,18 @@
       <div *ngIf="(user?.role || '').toLowerCase() !== 'patient'">
         <h3 class="text-xl font-bold mb-4">Patient Mood History</h3>
 
+        <div *ngIf="doctorPatientsLoading" class="mb-4 text-sm text-[#6B5B8C]">
+          Loading patients...
+        </div>
+
+        <div *ngIf="doctorPatientsMessage"
+             class="mb-4 rounded-2xl border border-[#E9D5FF] bg-[#F8F7FF] p-4 text-sm text-[#6B5B8C]">
+          {{ doctorPatientsMessage }}
+        </div>
+
         <select [(ngModel)]="selectedPatientId"
                 (ngModelChange)="onSelectPatient()"
+                [disabled]="doctorPatientsLoading || patients.length === 0"
                 class="w-full border rounded-2xl p-3 mb-4">
           <option [ngValue]="''">Select patient</option>
           <option *ngFor="let p of patients" [ngValue]="p.userId">
@@ -347,7 +357,11 @@
           </option>
         </select>
 
-        <div *ngIf="!selectedPatientId" class="text-gray-400">
+        <div *ngIf="!doctorPatientsLoading && patients.length === 0" class="text-gray-400">
+          No patients available.
+        </div>
+
+        <div *ngIf="patients.length > 0 && !selectedPatientId" class="text-gray-400">
           Select a patient.
         </div>
 
@@ -540,7 +554,7 @@
       <app-journal
         *ngIf="selectedPatientId"
         [patientIdInput]="selectedPatientId"
->
+        [readOnly]="true">
       </app-journal>
 
     </div>

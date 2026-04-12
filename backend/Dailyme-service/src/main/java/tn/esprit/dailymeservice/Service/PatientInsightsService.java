@@ -2,8 +2,10 @@ package tn.esprit.dailymeservice.Service;
 
 import org.springframework.stereotype.Service;
 import tn.esprit.dailymeservice.Dto.*;
+import tn.esprit.dailymeservice.Model.DailyTask;
 import tn.esprit.dailymeservice.Repository.DailyTaskRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -21,22 +23,23 @@ public class PatientInsightsService {
     public PatientDashboardInsightsDTO buildPatientDashboard(String patientId) {
         PatientDashboardInsightsDTO dto = new PatientDashboardInsightsDTO();
         dto.setPatientId(patientId);
+        LocalDateTime activeSince = LocalDateTime.now().minusHours(24);
 
         // 1) Top cards (JPQL)
-        long active = taskRepo.countActive(patientId);
-        long doneActive = taskRepo.countCompletedActive(patientId);
+        long active = taskRepo.countActive(patientId, activeSince);
+        long doneActive = taskRepo.countCompletedActive(patientId, activeSince);
         dto.setActiveTasks(active);
         dto.setCompletedActive(doneActive);
 
         double rate = (active == 0) ? 0.0 : (doneActive * 100.0 / active);
         dto.setCompletionRate(round1(rate));
 
-        long missed = taskRepo.countMissedHistory(patientId, LocalDateTime.now().minusHours(24));
+        long missed = taskRepo.countMissedHistory(patientId, activeSince);
         dto.setMissedHistory(missed);
 
         // 2) Donut chart (JPQL result -> DTO list)
         List<TypeCountDTO> dist = new ArrayList<TypeCountDTO>();
-        List<Object[]> byType = taskRepo.countByTypeActive(patientId);
+        List<Object[]> byType = taskRepo.countByTypeActive(patientId, activeSince);
         for (Object[] row : byType) {
             String type = (String) row[0];
             long count = ((Number) row[1]).longValue();
@@ -71,24 +74,30 @@ public class PatientInsightsService {
     }
 
     private List<DayRateDTO> buildTrend(String patientId, LocalDateTime start, LocalDateTime end) {
-        List<Object[]> rows = taskRepo.completionByDay(patientId, start, end);
+        List<DailyTask> rows = taskRepo.findByPatientIdAndCreatedAtBetweenOrderByCreatedAtAsc(patientId, start, end);
 
-        // map date->rate
-        Map<String, Double> dayToRate = new HashMap<String, Double>();
-        for (Object[] r : rows) {
-            Object dateObj = r[0];               // date
-            long done = ((Number) r[1]).longValue();
-            long total = ((Number) r[2]).longValue();
-            double rate = (total == 0) ? 0.0 : (done * 100.0 / total);
-            dayToRate.put(dateObj.toString(), round1(rate));
+        Map<LocalDate, long[]> dayStats = new HashMap<LocalDate, long[]>();
+        for (DailyTask task : rows) {
+            if (task.getCreatedAt() == null) {
+                continue;
+            }
+            LocalDate day = task.getCreatedAt().toLocalDate();
+            long[] stats = dayStats.computeIfAbsent(day, ignored -> new long[2]);
+            if (task.isCompleted()) {
+                stats[0]++;
+            }
+            stats[1]++;
         }
 
         // fill missing days to keep chart stable
         List<DayRateDTO> out = new ArrayList<DayRateDTO>();
         for (int i = 0; i < 7; i++) {
             LocalDateTime d = start.plusDays(i);
-            String key = d.toLocalDate().toString();
-            double rate = dayToRate.getOrDefault(key, 0.0);
+            long[] stats = dayStats.get(d.toLocalDate());
+            double rate = 0.0;
+            if (stats != null && stats[1] > 0) {
+                rate = round1(stats[0] * 100.0 / stats[1]);
+            }
             out.add(new DayRateDTO(shortDayLabel(d.getDayOfWeek().name()), rate));
         }
         return out;

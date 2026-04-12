@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/medical-records/{recordId}/documents")
@@ -23,7 +22,7 @@ public class MedicalDocumentController {
     @PostMapping
     public ResponseEntity<MedicalDocument> add(@PathVariable String recordId,
                                                @Valid @RequestBody MedicalDocumentCreateRequest request) {
-        return ResponseEntity.ok(documentService.addToRecord(recordId, toEntity(request)));
+        return ResponseEntity.ok(documentService.addToRecord(recordId, request));
     }
 
     @GetMapping
@@ -35,32 +34,12 @@ public class MedicalDocumentController {
     public ResponseEntity<MedicalDocument> update(@PathVariable String recordId,
                                                   @PathVariable String documentId,
                                                   @Valid @RequestBody MedicalDocumentUpdateRequest request) {
-        return ResponseEntity.ok(documentService.update(recordId, documentId, toEntity(request)));
+        return ResponseEntity.ok(documentService.update(recordId, documentId, request));
     }
 
     @DeleteMapping("/{documentId}")
     public ResponseEntity<Void> delete(@PathVariable String recordId, @PathVariable String documentId) {
         documentService.delete(recordId, documentId);
         return ResponseEntity.noContent().build();
-    }
-
-    private MedicalDocument toEntity(MedicalDocumentCreateRequest request) {
-        return MedicalDocument.builder()
-                .fileName(request.getFileName().trim())
-                .fileType(normalizeFileType(request.getFileType()))
-                .filePath(request.getFilePath().trim())
-                .build();
-    }
-
-    private MedicalDocument toEntity(MedicalDocumentUpdateRequest request) {
-        return MedicalDocument.builder()
-                .fileName(request.getFileName().trim())
-                .fileType(normalizeFileType(request.getFileType()))
-                .filePath(request.getFilePath().trim())
-                .build();
-    }
-
-    private String normalizeFileType(String value) {
-        return value == null ? null : value.trim().toLowerCase(Locale.ROOT);
     }
 }

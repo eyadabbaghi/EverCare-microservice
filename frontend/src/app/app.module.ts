@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
-import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; // added HTTP_INTERCEPTORS
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -68,6 +68,7 @@ import {CommonModule} from '@angular/common';
     BrowserModule,
     AppRoutingModule,
     MatRadioModule,
+    HttpClientModule,
     CoreModule,
     SharedModule,
     LayoutsModule,
@@ -98,7 +99,6 @@ import {CommonModule} from '@angular/common';
   ],
   providers: [
     provideClientHydration(),
-    provideHttpClient(withFetch(), withInterceptorsFromDi()),
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     provideAnimationsAsync('noop')
   ],

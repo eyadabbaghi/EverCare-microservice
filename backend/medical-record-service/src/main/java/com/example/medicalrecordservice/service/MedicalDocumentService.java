@@ -1,5 +1,7 @@
 package com.example.medicalrecordservice.service;
 
+import com.example.medicalrecordservice.dto.MedicalDocumentCreateRequest;
+import com.example.medicalrecordservice.dto.MedicalDocumentUpdateRequest;
 import com.example.medicalrecordservice.entity.MedicalDocument;
 import com.example.medicalrecordservice.entity.MedicalRecord;
 import com.example.medicalrecordservice.event.MedicalRecordEventPublisher;
@@ -11,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -21,14 +22,18 @@ public class MedicalDocumentService {
     private final MedicalRecordRepository recordRepository;
     private final MedicalRecordEventPublisher medicalRecordEventPublisher;
 
-    public MedicalDocument addToRecord(String recordId, MedicalDocument doc) {
+    public MedicalDocument addToRecord(String recordId, MedicalDocumentCreateRequest request) {
         MedicalRecord record = getRequiredRecord(recordId);
         ensureRecordIsActive(record);
-        validateDocument(doc);
+
+        MedicalDocument doc = MedicalDocument.builder()
+                .fileName(normalizeText(request.getFileName(), "fileName is required"))
+                .fileType(normalizeText(request.getFileType(), "fileType is required").toLowerCase())
+                .filePath(normalizeText(request.getFilePath(), "filePath is required"))
+                .medicalRecord(record)
+                .build();
+
         doc.setMedicalRecord(record);
-        doc.setFileName(doc.getFileName().trim());
-        doc.setFileType(normalizeFileType(doc.getFileType()));
-        doc.setFilePath(doc.getFilePath().trim());
         MedicalDocument savedDocument = documentRepository.save(doc);
         medicalRecordEventPublisher.publishUpdated(record);
         return savedDocument;
@@ -39,16 +44,14 @@ public class MedicalDocumentService {
         return documentRepository.findByMedicalRecordId(recordId);
     }
 
-    public MedicalDocument update(String recordId, String documentId, MedicalDocument updatedDocument) {
+    public MedicalDocument update(String recordId, String documentId, MedicalDocumentUpdateRequest request) {
         MedicalRecord record = getRequiredRecord(recordId);
         ensureRecordIsActive(record);
         MedicalDocument existing = getRequiredDocument(recordId, documentId);
-        validateDocument(updatedDocument);
 
-        existing.setMedicalRecord(record);
-        existing.setFileName(updatedDocument.getFileName().trim());
-        existing.setFileType(normalizeFileType(updatedDocument.getFileType()));
-        existing.setFilePath(updatedDocument.getFilePath().trim());
+        existing.setFileName(normalizeText(request.getFileName(), "fileName is required"));
+        existing.setFileType(normalizeText(request.getFileType(), "fileType is required").toLowerCase());
+        existing.setFilePath(normalizeText(request.getFilePath(), "filePath is required"));
 
         MedicalDocument savedDocument = documentRepository.save(existing);
         medicalRecordEventPublisher.publishUpdated(record);
@@ -58,8 +61,8 @@ public class MedicalDocumentService {
     public void delete(String recordId, String documentId) {
         MedicalRecord record = getRequiredRecord(recordId);
         ensureRecordIsActive(record);
-        getRequiredDocument(recordId, documentId);
-        documentRepository.deleteById(documentId);
+        MedicalDocument document = getRequiredDocument(recordId, documentId);
+        documentRepository.delete(document);
         medicalRecordEventPublisher.publishUpdated(record);
     }
 
@@ -75,31 +78,19 @@ public class MedicalDocumentService {
         if (document.getMedicalRecord() == null || !recordId.equals(document.getMedicalRecord().getId())) {
             throw new BadRequestException("MedicalDocument does not belong to the provided medical record");
         }
-
         return document;
-    }
-
-    private void validateDocument(MedicalDocument document) {
-        if (document.getFileName() == null || document.getFileName().isBlank()) {
-            throw new BadRequestException("fileName is required");
-        }
-
-        if (document.getFileType() == null || document.getFileType().isBlank()) {
-            throw new BadRequestException("fileType is required");
-        }
-
-        if (document.getFilePath() == null || document.getFilePath().isBlank()) {
-            throw new BadRequestException("filePath is required");
-        }
-    }
-
-    private String normalizeFileType(String fileType) {
-        return fileType.trim().toLowerCase(Locale.ROOT);
     }
 
     private void ensureRecordIsActive(MedicalRecord record) {
         if (record.isArchived()) {
             throw new BadRequestException("Medical record is archived; document changes are blocked");
         }
+    }
+
+    private String normalizeText(String value, String message) {
+        if (value == null || value.isBlank()) {
+            throw new BadRequestException(message);
+        }
+        return value.trim();
     }
 }

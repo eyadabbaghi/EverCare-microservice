@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.activities.dto.ActivityDTO;
 import tn.esprit.activities.dto.ActivityWithUserDataDTO;
-import tn.esprit.activities.dto.RecommendRequest;
 import tn.esprit.activities.dto.UserActivityDTO;
 import tn.esprit.activities.service.ActivityService;
 
@@ -47,17 +46,6 @@ public class UserActivityController {
         return ResponseEntity.ok(activityService.rateActivity(userId, activityId, rating));
     }
 
-    @PostMapping("/recommend")
-    public ResponseEntity<Void> recommend(@RequestBody RecommendRequest request) {
-        activityService.recommendActivity(request.getDoctorId(), request.getPatientId(), request.getActivityId());
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/recommendations/{patientId}")
-    public ResponseEntity<List<ActivityDTO>> getRecommendations(@PathVariable String patientId) {
-        return ResponseEntity.ok(activityService.getRecommendationsForPatient(patientId));
-    }
-
     /**
      * Public endpoint to get all activities (no user context).
      * Accessible without authentication.
@@ -67,5 +55,10 @@ public class UserActivityController {
     @GetMapping("/public")
     public ResponseEntity<List<ActivityDTO>> getPublicActivities() {
         return ResponseEntity.ok(activityService.getAllActivities());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ActivityWithUserDataDTO> getPublicActivityById(@PathVariable String id) {
+        return ResponseEntity.ok(activityService.getPublicActivityById(id));
     }
 }

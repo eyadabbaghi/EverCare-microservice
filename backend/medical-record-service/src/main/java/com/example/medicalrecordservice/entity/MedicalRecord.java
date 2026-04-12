@@ -31,9 +31,9 @@ public class MedicalRecord {
     private boolean archived;
     private LocalDateTime archivedAt;
     private String archivedBy;
-
-    @Column(length = 1000)
     private String archiveReason;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

@@ -5,7 +5,7 @@ import tn.esprit.dailymeservice.Dto.PatientDashboardInsightsDTO;
 import tn.esprit.dailymeservice.Service.PatientInsightsService;
 
 @RestController
-@RequestMapping("/api/insights")
+@RequestMapping({"/api/insights", "/dailyme/api/insights"})
 
 public class PatientInsightsController {
 

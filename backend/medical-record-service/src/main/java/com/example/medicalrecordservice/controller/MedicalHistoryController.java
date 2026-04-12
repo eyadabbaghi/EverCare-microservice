@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/medical-records/{recordId}/histories")
@@ -23,7 +22,7 @@ public class MedicalHistoryController {
     @PostMapping
     public ResponseEntity<MedicalHistory> add(@PathVariable String recordId,
                                               @Valid @RequestBody MedicalHistoryCreateRequest request) {
-        return ResponseEntity.ok(historyService.addToRecord(recordId, toEntity(request)));
+        return ResponseEntity.ok(historyService.addToRecord(recordId, request));
     }
 
     @GetMapping
@@ -35,32 +34,12 @@ public class MedicalHistoryController {
     public ResponseEntity<MedicalHistory> update(@PathVariable String recordId,
                                                  @PathVariable String historyId,
                                                  @Valid @RequestBody MedicalHistoryUpdateRequest request) {
-        return ResponseEntity.ok(historyService.update(recordId, historyId, toEntity(request)));
+        return ResponseEntity.ok(historyService.update(recordId, historyId, request));
     }
 
     @DeleteMapping("/{historyId}")
     public ResponseEntity<Void> delete(@PathVariable String recordId, @PathVariable String historyId) {
         historyService.delete(recordId, historyId);
         return ResponseEntity.noContent().build();
-    }
-
-    private MedicalHistory toEntity(MedicalHistoryCreateRequest request) {
-        return MedicalHistory.builder()
-                .type(normalize(request.getType()))
-                .date(request.getDate())
-                .description(request.getDescription().trim())
-                .build();
-    }
-
-    private MedicalHistory toEntity(MedicalHistoryUpdateRequest request) {
-        return MedicalHistory.builder()
-                .type(normalize(request.getType()))
-                .date(request.getDate())
-                .description(request.getDescription().trim())
-                .build();
-    }
-
-    private String normalize(String value) {
-        return value == null ? null : value.trim().toUpperCase(Locale.ROOT);
     }
 }

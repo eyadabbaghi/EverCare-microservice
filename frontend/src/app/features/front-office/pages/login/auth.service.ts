@@ -23,6 +23,7 @@ export interface KeycloakTokenResponse {
   expires_in: number;
   refresh_token?: string;
   token_type: string;
+  scope?: string;
 }
 
 export interface User {
@@ -74,9 +75,9 @@ export class AuthService {
   // private apiUrl = 'http://localhost:8096/EverCare/auth';
   //private usersUrl = 'http://localhost:8096/EverCare/users';
 
-  // New gateway URLs
-  private apiUrl = 'http://localhost:8089/EverCare/auth';
-  private usersUrl = 'http://localhost:8089/EverCare/users';
+  // Local user service URLs
+  private apiUrl = 'http://localhost:8096/EverCare/auth';
+  private usersUrl = 'http://localhost:8096/EverCare/users';
 
   // Keycloak configuration – use a public client (no secret) created in Keycloak -islem
   //private keycloakUrl = 'http://localhost:8180/realms/EverCareRealm/protocol/openid-connect/token';
@@ -102,20 +103,25 @@ export class AuthService {
     this.loadStoredUser();
   }
 
-  // ---------- Login with Keycloak (direct grant, public client) ----------
+  // ---------- Login with Keycloak ----------
   login(credentials: LoginRequest): Observable<KeycloakTokenResponse> {
-    // Use simple string instead of URLSearchParams for better compatibility
-    const body = `grant_type=password&client_id=${this.clientId}&username=${encodeURIComponent(credentials.email)}&password=${encodeURIComponent(credentials.password)}&scope=openid profile email`;
+    const body =
+      `grant_type=password&client_id=${this.clientId}` +
+      `&username=${encodeURIComponent(credentials.email)}` +
+      `&password=${encodeURIComponent(credentials.password)}` +
+      `&scope=openid profile email`;
 
     return this.http
       .post<KeycloakTokenResponse>(this.keycloakUrl, body, {
         headers: new HttpHeaders({
           'Content-Type': 'application/x-www-form-urlencoded',
         }),
-        withCredentials: true, // Important for CORS with Keycloak
       })
       .pipe(
-        tap((tokenResponse) => this.handleTokenResponse(tokenResponse)),
+        tap((tokenResponse) => this.storeTokens(tokenResponse)),
+        switchMap((tokenResponse) =>
+          this.fetchCurrentUser().pipe(map(() => tokenResponse)),
+        ),
         catchError((error) => {
           console.error('Keycloak login error', error);
           throw error;
@@ -141,27 +147,34 @@ export class AuthService {
 
   // ---------- Fetch current user (uses stored token) ----------
   fetchCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/me`, this.getAuthorizedOptions()).pipe(
+    const headers = new HttpHeaders().set(
+      'Authorization',
+      `Bearer ${this.getToken()}`,
+    );
+    return this.http.get<User>(`${this.apiUrl}/me`, { headers }).pipe(
       tap((user) => {
-        this.currentUserSubject.next(user);
-        if (this.isBrowser) {
-          localStorage.setItem('current_user', JSON.stringify(user));
-        }
+        this.storeUser(user);
+      }),
+      catchError((error) => {
+        console.error('Failed to fetch current user from /auth/me', error);
+        this.toastr.error(
+          'Login reached Keycloak, but loading the application user failed. Check /EverCare/auth/me on port 8096.',
+          'Profile loading failed',
+        );
+        throw error;
       }),
     );
   }
 
   // ---------- Token handling ----------
-  private handleTokenResponse(tokenResponse: KeycloakTokenResponse): void {
-    this.storeToken(tokenResponse.access_token);
-    this.fetchCurrentUser().subscribe({
-      error: (err) => console.error('Failed to fetch user after login', err),
-    });
-  }
-
-  private storeToken(token: string): void {
+  private storeTokens(tokenResponse: KeycloakTokenResponse): void {
     if (this.isBrowser) {
-      localStorage.setItem('auth_token', token);
+      localStorage.setItem('auth_token', tokenResponse.access_token);
+      localStorage.setItem('access_token', tokenResponse.access_token);
+      localStorage.setItem('token', tokenResponse.access_token);
+      if (tokenResponse.refresh_token) {
+        localStorage.setItem('refresh_token', tokenResponse.refresh_token);
+      }
     }
   }
 
@@ -175,7 +188,12 @@ export class AuthService {
   logout(): void {
     if (this.isBrowser) {
       localStorage.removeItem('auth_token');
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('token');
+      localStorage.removeItem('refresh_token');
       localStorage.removeItem('current_user');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userId');
     }
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
@@ -187,32 +205,37 @@ export class AuthService {
 
   private loadStoredUser(): void {
     if (this.isBrowser) {
-      const token = localStorage.getItem('auth_token');
-      const storedUser = localStorage.getItem('current_user');
-
-      if (!token) {
-        localStorage.removeItem('current_user');
-        this.currentUserSubject.next(null);
-        return;
-      }
-
+      const storedUser =
+        localStorage.getItem('current_user') || localStorage.getItem('user');
       if (storedUser) {
         this.currentUserSubject.next(JSON.parse(storedUser));
       }
     }
   }
 
+  private storeUser(user: User): void {
+    this.currentUserSubject.next(user);
+    if (this.isBrowser) {
+      const serialized = JSON.stringify(user);
+      localStorage.setItem('current_user', serialized);
+      localStorage.setItem('user', serialized);
+      if (user.userId) {
+        localStorage.setItem('userId', user.userId);
+      }
+    }
+  }
+
   // ---------- Profile endpoints ----------
   updateProfile(data: UpdateUserRequest): Observable<any> {
-    return this.http.put<any>(`${this.usersUrl}/profile`, data, this.getAuthorizedOptions());
+    return this.http.put<any>(`${this.usersUrl}/profile`, data);
   }
 
   changePassword(data: ChangePasswordRequest): Observable<any> {
-    return this.http.put(`${this.usersUrl}/change-password`, data, this.getAuthorizedOptions());
+    return this.http.put(`${this.usersUrl}/change-password`, data);
   }
 
   deleteAccount(): Observable<any> {
-    return this.http.delete(`${this.usersUrl}/profile`, this.getAuthorizedOptions());
+    return this.http.delete(`${this.usersUrl}/profile`);
   }
 
   uploadProfilePicture(file: File): Observable<{ profilePicture: string }> {
@@ -221,12 +244,11 @@ export class AuthService {
     return this.http.post<{ profilePicture: string }>(
       `${this.usersUrl}/profile/picture`,
       formData,
-      this.getAuthorizedOptions(),
     );
   }
 
   removeProfilePicture(): Observable<any> {
-    return this.http.delete(`${this.usersUrl}/profile/picture`, this.getAuthorizedOptions());
+    return this.http.delete(`${this.usersUrl}/profile/picture`);
   }
 
   searchUsersByRole(term: string, role: string): Observable<User[]> {
@@ -252,16 +274,5 @@ export class AuthService {
 
   getCurrentUserValue(): User | null {
     return this.currentUserSubject.value;
-  }
-
-  private getAuthorizedOptions(): { headers?: HttpHeaders } {
-    const token = this.getToken();
-    if (!token) {
-      return {};
-    }
-
-    return {
-      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`),
-    };
   }
 }

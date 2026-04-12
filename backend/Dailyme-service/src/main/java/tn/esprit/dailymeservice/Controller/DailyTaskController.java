@@ -14,9 +14,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/daily-tasks")
+@RequestMapping({"/api/daily-tasks", "/dailyme/api/daily-tasks"})
 @RequiredArgsConstructor
-
 public class DailyTaskController {
 
     private final DailyTaskService dailyTaskService;
@@ -34,17 +33,16 @@ public class DailyTaskController {
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
-    // ✅ ACTIVE tasks only (auto archives expired before returning)
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<List<DailyTaskDTO>> getPatientTasks(@PathVariable String patientId) {
         return ResponseEntity.ok(dailyTaskService.getTasksByPatientId(patientId));
     }
 
-    // ✅ HISTORY tasks
     @GetMapping("/patient/{patientId}/history")
-    public ResponseEntity<List<DailyTaskDTO>> getPatientHistory(@PathVariable String patientId) {
+    public ResponseEntity<List<DailyTaskDTO>> getPatientTaskHistory(@PathVariable String patientId) {
         return ResponseEntity.ok(dailyTaskService.getHistoryByPatientId(patientId));
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateTask(@PathVariable Long id,
@@ -73,13 +71,5 @@ public class DailyTaskController {
     public ResponseEntity<?> deleteTask(@PathVariable Long id) {
         dailyTaskService.deleteTask(id);
         return ResponseEntity.ok("Task deleted successfully");
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getTaskById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(dailyTaskService.getTaskById(id));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found: " + id);
-        }
     }
 }

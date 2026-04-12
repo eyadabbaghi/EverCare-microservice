@@ -1,23 +1,19 @@
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { AuthService } from '../../front-office/pages/login/auth.service';
 import {
   AssessmentReport,
   AssessmentReportCreateRequest,
   AssessmentReportUpdateRequest,
-  MedicalRecordArchiveRequest,
   MedicalDocumentCreateRequest,
   MedicalDocumentUpdateRequest,
   MedicalHistoryCreateRequest,
   MedicalHistoryUpdateRequest,
+  MedicalRecordArchiveRequest,
   MedicalRecordCreateRequest,
   MedicalRecordDocument,
   MedicalRecordHistory,
-  MedicalRecordRealtimeEvent,
   MedicalRecordResponse,
   MedicalRecordUpdateRequest,
 } from '../interfaces/medical-folder';
@@ -27,7 +23,6 @@ import {
 })
 export class MedicalFolderService {
   private readonly baseUrl = 'http://localhost:8089/api/medical-records';
-  private readonly websocketUrl = 'http://localhost:8089/ws-medical-records';
 
   constructor(
     private readonly http: HttpClient,
@@ -35,119 +30,50 @@ export class MedicalFolderService {
   ) {}
 
   getAllMedicalRecords(): Observable<MedicalRecordResponse[]> {
-    return this.http.get<MedicalRecordResponse[]>(
-      this.baseUrl,
-      this.getRequestOptions(),
-    );
+    return this.http.get<MedicalRecordResponse[]>(this.baseUrl, this.requestOptions());
   }
 
-  getMedicalRecordById(recordId: string): Observable<MedicalRecordResponse> {
-    return this.http.get<MedicalRecordResponse>(
-      `${this.baseUrl}/${recordId}`,
-      this.getRequestOptions(),
-    );
+  getMedicalRecordById(id: string): Observable<MedicalRecordResponse> {
+    return this.http.get<MedicalRecordResponse>(`${this.baseUrl}/${id}`, this.requestOptions());
   }
 
   getMedicalRecordByPatientId(patientId: string): Observable<MedicalRecordResponse> {
-    return this.http.get<MedicalRecordResponse>(
-      `${this.baseUrl}/patient/${encodeURIComponent(patientId)}`,
-      this.getRequestOptions(),
-    );
+    return this.http.get<MedicalRecordResponse>(`${this.baseUrl}/patient/${patientId}`, this.requestOptions());
   }
 
   createMedicalRecord(payload: MedicalRecordCreateRequest): Observable<MedicalRecordResponse> {
-    return this.http.post<MedicalRecordResponse>(
-      this.baseUrl,
-      payload,
-      this.getRequestOptions(),
-    );
+    return this.http.post<MedicalRecordResponse>(this.baseUrl, payload, this.requestOptions());
   }
 
   autoCreateMedicalRecord(payload: MedicalRecordCreateRequest): Observable<MedicalRecordResponse> {
-    return this.http.post<MedicalRecordResponse>(
-      `${this.baseUrl}/auto-create`,
-      payload,
-      this.getRequestOptions(),
-    ).pipe(
-      catchError((error) => {
-        if (error?.status === 404 || error?.status === 405) {
-          return this.createMedicalRecord(payload);
-        }
-
-        return throwError(() => error);
-      }),
-    );
+    return this.createMedicalRecord(payload);
   }
 
-  updateMedicalRecord(
-    recordId: string,
-    payload: MedicalRecordUpdateRequest,
-  ): Observable<MedicalRecordResponse> {
-    return this.http.put<MedicalRecordResponse>(
-      `${this.baseUrl}/${recordId}`,
-      payload,
-      this.getRequestOptions(),
-    );
+  updateMedicalRecord(id: string, payload: MedicalRecordUpdateRequest): Observable<MedicalRecordResponse> {
+    return this.http.put<MedicalRecordResponse>(`${this.baseUrl}/${id}`, payload, this.requestOptions());
   }
 
-  archiveMedicalRecord(
-    recordId: string,
-    payload: MedicalRecordArchiveRequest,
-  ): Observable<MedicalRecordResponse> {
-    return this.http.patch<MedicalRecordResponse>(
-      `${this.baseUrl}/${recordId}/archive`,
-      payload,
-      this.getRequestOptions(),
-    ).pipe(
-      catchError((error) => {
-        if (error?.status === 404) {
-          return throwError(() => new Error(
-            'Archive endpoint not available in the running medical-record service. Restart the medical-record backend and try again.',
-          ));
-        }
-
-        return throwError(() => error);
-      }),
-    );
+  archiveMedicalRecord(id: string, payload: MedicalRecordArchiveRequest): Observable<MedicalRecordResponse> {
+    return this.http.post<MedicalRecordResponse>(`${this.baseUrl}/${id}/archive`, payload, this.requestOptions());
   }
 
-  restoreMedicalRecord(recordId: string): Observable<MedicalRecordResponse> {
-    return this.http.patch<MedicalRecordResponse>(
-      `${this.baseUrl}/${recordId}/restore`,
-      {},
-      this.getRequestOptions(),
-    ).pipe(
-      catchError((error) => {
-        if (error?.status === 404) {
-          return throwError(() => new Error(
-            'Restore endpoint not available in the running medical-record service. Restart the medical-record backend and try again.',
-          ));
-        }
-
-        return throwError(() => error);
-      }),
-    );
+  restoreMedicalRecord(id: string): Observable<MedicalRecordResponse> {
+    return this.http.post<MedicalRecordResponse>(`${this.baseUrl}/${id}/restore`, {}, this.requestOptions());
   }
 
-  deleteMedicalRecord(recordId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${recordId}`, this.getRequestOptions());
+  deleteMedicalRecord(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`, this.requestOptions());
   }
 
   getHistories(recordId: string): Observable<MedicalRecordHistory[]> {
-    return this.http.get<MedicalRecordHistory[]>(
-      `${this.baseUrl}/${recordId}/histories`,
-      this.getRequestOptions(),
-    );
+    return this.http.get<MedicalRecordHistory[]>(`${this.baseUrl}/${recordId}/histories`, this.requestOptions());
   }
 
-  createHistory(
-    recordId: string,
-    payload: MedicalHistoryCreateRequest,
-  ): Observable<MedicalRecordHistory> {
+  createHistory(recordId: string, payload: MedicalHistoryCreateRequest): Observable<MedicalRecordHistory> {
     return this.http.post<MedicalRecordHistory>(
       `${this.baseUrl}/${recordId}/histories`,
       payload,
-      this.getRequestOptions(),
+      this.requestOptions(),
     );
   }
 
@@ -159,32 +85,23 @@ export class MedicalFolderService {
     return this.http.put<MedicalRecordHistory>(
       `${this.baseUrl}/${recordId}/histories/${historyId}`,
       payload,
-      this.getRequestOptions(),
+      this.requestOptions(),
     );
   }
 
   deleteHistory(recordId: string, historyId: string): Observable<void> {
-    return this.http.delete<void>(
-      `${this.baseUrl}/${recordId}/histories/${historyId}`,
-      this.getRequestOptions(),
-    );
+    return this.http.delete<void>(`${this.baseUrl}/${recordId}/histories/${historyId}`, this.requestOptions());
   }
 
   getDocuments(recordId: string): Observable<MedicalRecordDocument[]> {
-    return this.http.get<MedicalRecordDocument[]>(
-      `${this.baseUrl}/${recordId}/documents`,
-      this.getRequestOptions(),
-    );
+    return this.http.get<MedicalRecordDocument[]>(`${this.baseUrl}/${recordId}/documents`, this.requestOptions());
   }
 
-  createDocument(
-    recordId: string,
-    payload: MedicalDocumentCreateRequest,
-  ): Observable<MedicalRecordDocument> {
+  createDocument(recordId: string, payload: MedicalDocumentCreateRequest): Observable<MedicalRecordDocument> {
     return this.http.post<MedicalRecordDocument>(
       `${this.baseUrl}/${recordId}/documents`,
       payload,
-      this.getRequestOptions(),
+      this.requestOptions(),
     );
   }
 
@@ -196,32 +113,23 @@ export class MedicalFolderService {
     return this.http.put<MedicalRecordDocument>(
       `${this.baseUrl}/${recordId}/documents/${documentId}`,
       payload,
-      this.getRequestOptions(),
+      this.requestOptions(),
     );
   }
 
   deleteDocument(recordId: string, documentId: string): Observable<void> {
-    return this.http.delete<void>(
-      `${this.baseUrl}/${recordId}/documents/${documentId}`,
-      this.getRequestOptions(),
-    );
+    return this.http.delete<void>(`${this.baseUrl}/${recordId}/documents/${documentId}`, this.requestOptions());
   }
 
   getReports(recordId: string): Observable<AssessmentReport[]> {
-    return this.http.get<AssessmentReport[]>(
-      `${this.baseUrl}/${recordId}/reports`,
-      this.getRequestOptions(),
-    );
+    return this.http.get<AssessmentReport[]>(`${this.baseUrl}/${recordId}/reports`, this.requestOptions());
   }
 
-  createReport(
-    recordId: string,
-    payload: AssessmentReportCreateRequest,
-  ): Observable<AssessmentReport> {
+  createReport(recordId: string, payload: AssessmentReportCreateRequest): Observable<AssessmentReport> {
     return this.http.post<AssessmentReport>(
       `${this.baseUrl}/${recordId}/reports`,
       payload,
-      this.getRequestOptions(),
+      this.requestOptions(),
     );
   }
 
@@ -233,63 +141,20 @@ export class MedicalFolderService {
     return this.http.put<AssessmentReport>(
       `${this.baseUrl}/${recordId}/reports/${reportId}`,
       payload,
-      this.getRequestOptions(),
+      this.requestOptions(),
     );
   }
 
   deleteReport(recordId: string, reportId: string): Observable<void> {
-    return this.http.delete<void>(
-      `${this.baseUrl}/${recordId}/reports/${reportId}`,
-      this.getRequestOptions(),
-    );
+    return this.http.delete<void>(`${this.baseUrl}/${recordId}/reports/${reportId}`, this.requestOptions());
   }
 
-  watchPatientEvents(patientId: string): Observable<MedicalRecordRealtimeEvent> {
-    return new Observable<MedicalRecordRealtimeEvent>((observer) => {
-      if (typeof window === 'undefined') {
-        observer.complete();
-        return undefined;
-      }
-
-      const socket = new SockJS(this.websocketUrl);
-      const client = new Client({
-        webSocketFactory: () => socket,
-        reconnectDelay: 5000,
-        debug: () => undefined,
-      });
-
-      let subscription: StompSubscription | undefined;
-
-      client.onConnect = () => {
-        subscription = client.subscribe(
-          `/topic/medical-records/${patientId}`,
-          (message: IMessage) => {
-            observer.next(JSON.parse(message.body) as MedicalRecordRealtimeEvent);
-          },
-        );
-      };
-
-      client.onStompError = (frame) => {
-        observer.error(new Error(frame.body || frame.headers['message'] || 'WebSocket error'));
-      };
-
-      client.activate();
-
-      return () => {
-        subscription?.unsubscribe();
-        void client.deactivate();
-      };
-    });
-  }
-
-  private getRequestOptions(): { headers?: HttpHeaders } {
+  private requestOptions() {
     const token = this.authService.getToken();
-    if (!token) {
-      return {};
-    }
+    const headers = token
+      ? new HttpHeaders().set('Authorization', `Bearer ${token}`)
+      : new HttpHeaders();
 
-    return {
-      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`),
-    };
+    return { headers };
   }
 }

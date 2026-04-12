@@ -15,8 +15,7 @@ export class FileUploadService {
       'uploads/profile-pictures';
     this.baseUrl =
       this.configService.get<string>('upload.baseUrl') ||
-      process.env.BASE_URL ||
-      `http://localhost:${process.env.PORT || 8096}`;
+      'http://localhost:8096';
     this.ensureUploadDirectory();
   }
 

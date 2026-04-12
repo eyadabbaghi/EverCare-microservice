@@ -1,33 +1,3 @@
-// src/app/features/medical-folder/interfaces/medical-folder.interface.ts
-
-export interface MedicalDocument {
-  id: string;
-  name: string;
-  type: 'lab-result' | 'prescription' | 'report' | 'scan' | 'other';
-  date: string;
-  size: string;
-  doctor?: string;
-}
-
-export interface Medication {
-  id: string;
-  name: string;
-  dosage: string;
-  frequency: string;
-  startDate: string;
-  endDate?: string;
-  prescribedBy: string;
-  active: boolean;
-}
-
-export interface VitalSign {
-  id: string;
-  type: 'blood-pressure' | 'heart-rate' | 'temperature' | 'weight';
-  value: string;
-  date: string;
-  time: string;
-}
-
 export type BloodGroup = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
 export type AlzheimerStage = 'MILD' | 'MODERATE' | 'SEVERE';
 
@@ -36,23 +6,23 @@ export interface MedicalRecordResponse {
   patientId: string;
   bloodGroup: BloodGroup | string;
   alzheimerStage: AlzheimerStage | string;
-  createdAt?: string | null;
-  updatedAt?: string | null;
   archived: boolean;
   archivedAt?: string | null;
   archivedBy?: string | null;
   archiveReason?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
 }
 
 export interface MedicalRecordCreateRequest {
   patientId: string;
-  bloodGroup: BloodGroup;
-  alzheimerStage: AlzheimerStage;
+  bloodGroup: BloodGroup | string;
+  alzheimerStage: AlzheimerStage | string;
 }
 
 export interface MedicalRecordUpdateRequest {
-  bloodGroup: BloodGroup;
-  alzheimerStage: AlzheimerStage;
+  bloodGroup: BloodGroup | string;
+  alzheimerStage: AlzheimerStage | string;
 }
 
 export interface MedicalRecordArchiveRequest {
@@ -98,18 +68,6 @@ export interface MedicalDocumentUpdateRequest {
   filePath: string;
 }
 
-export interface MedicalRecordRealtimeEvent {
-  eventType: string;
-  recordId: string;
-  patientId: string;
-  patientEmail?: string | null;
-  bloodGroup?: string | null;
-  alzheimerStage?: string | null;
-  archived?: boolean;
-  archiveReason?: string | null;
-  occurredAt?: string | null;
-}
-
 export interface AssessmentReport {
   id: string;
   reportType: string;
@@ -126,7 +84,7 @@ export interface AssessmentReport {
 export interface AssessmentReportCreateRequest {
   reportType: string;
   score: number;
-  stage: AlzheimerStage;
+  stage: AlzheimerStage | string;
   recommendation: string;
   summary: string;
   author?: string;
@@ -136,9 +94,38 @@ export interface AssessmentReportCreateRequest {
 export interface AssessmentReportUpdateRequest {
   reportType: string;
   score: number;
-  stage: AlzheimerStage;
+  stage: AlzheimerStage | string;
   recommendation: string;
   summary: string;
   author?: string;
   assessmentDate: string;
+}
+
+// Legacy mock-page interfaces kept so the old static page still compiles if needed.
+export interface MedicalDocument {
+  id: string;
+  name: string;
+  type: 'lab-result' | 'prescription' | 'report' | 'scan' | 'other';
+  date: string;
+  size: string;
+  doctor?: string;
+}
+
+export interface Medication {
+  id: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  startDate: string;
+  endDate?: string;
+  prescribedBy: string;
+  active: boolean;
+}
+
+export interface VitalSign {
+  id: string;
+  type: 'blood-pressure' | 'heart-rate' | 'temperature' | 'weight';
+  value: string;
+  date: string;
+  time: string;
 }
