@@ -2,6 +2,27 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
+  {
+    path: 'medical-record',
+    loadChildren: () =>
+      import('./features/medical-record/medical-record.module').then(
+        (m) => m.MedicalRecordModule,
+      ),
+  },
+  {
+    path: 'assessment',
+    loadChildren: () =>
+      import('./features/medical-record/assessment.module').then(
+        (m) => m.AssessmentModule,
+      ),
+  },
+  {
+    path: 'doctor-reports',
+    loadChildren: () =>
+      import('./features/medical-record/doctor-reports.module').then(
+        (m) => m.DoctorReportsModule,
+      ),
+  },
 
 
   {

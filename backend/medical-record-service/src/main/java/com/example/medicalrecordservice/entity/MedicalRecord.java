@@ -1,13 +1,26 @@
 package com.example.medicalrecordservice.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 @Entity
+@Table(name = "medical_records")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,33 +30,43 @@ public class MedicalRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
-    /**
-     * Reference to the patient (User microservice).
-     * We keep it as a simple String to avoid tight coupling between microservices.
-     */
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, updatable = false)
     private String patientId;
 
-    private String bloodGroup;      // e.g. A+, O-
-    private String alzheimerStage;  // e.g. MILD, MODERATE, SEVERE
-    private boolean archived;
-    private LocalDateTime archivedAt;
-    private String archivedBy;
+    @Column
+    private String bloodGroup;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private AlzheimerStage alzheimerStage;
 
     @Column(length = 1000)
-    private String archiveReason;
+    private String allergies;
 
-    @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<MedicalHistory> histories = new ArrayList<>();
+    @Column(length = 1000)
+    private String chronicDiseases;
 
-    @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<MedicalDocument> documents = new ArrayList<>();
+    @Column(length = 255)
+    private String emergencyContactName;
 
-    @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(length = 32)
+    private String emergencyContactPhone;
+
     @Builder.Default
-    private List<AssessmentReport> reports = new ArrayList<>();
+    @Column(nullable = false)
+    private boolean active = true;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean archived = false;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
 }

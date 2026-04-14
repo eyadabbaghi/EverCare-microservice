@@ -1,101 +1,133 @@
 package com.example.medicalrecordservice.service;
 
+import com.example.medicalrecordservice.dto.MedicalHistoryCreateRequest;
 import com.example.medicalrecordservice.entity.MedicalHistory;
+import com.example.medicalrecordservice.entity.MedicalHistoryType;
 import com.example.medicalrecordservice.entity.MedicalRecord;
-import com.example.medicalrecordservice.exception.BadRequestException;
-import com.example.medicalrecordservice.exception.NotFoundException;
 import com.example.medicalrecordservice.repository.MedicalHistoryRepository;
 import com.example.medicalrecordservice.repository.MedicalRecordRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class MedicalHistoryService {
 
+    private static final long MAX_ENTRIES_PER_DAY = 10;
+    private static final long MAX_ENTRIES_PER_TYPE_PER_DAY = 4;
+
     private final MedicalHistoryRepository historyRepository;
     private final MedicalRecordRepository recordRepository;
+    private final MedicalRecordService medicalRecordService;
 
-	public MedicalHistory addToRecord(String recordId, MedicalHistory history) {
-		MedicalRecord record = getRequiredRecord(recordId);
-		ensureRecordIsActive(record);
-		validateHistory(history);
-		history.setMedicalRecord(record);
-		history.setType(normalizeType(history.getType()));
-		return historyRepository.save(history);
-	}
+    public MedicalHistory addToRecord(UUID recordId, MedicalHistoryCreateRequest request) {
+        MedicalRecord record = recordRepository.findById(recordId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MedicalRecord not found"));
 
-	public List<MedicalHistory> listByRecord(String recordId) {
-		getRequiredRecord(recordId);
-		return historyRepository.findByMedicalRecordId(recordId);
-	}
+        medicalRecordService.ensureRecordIsActive(record);
 
-	public MedicalHistory update(String recordId, String historyId, MedicalHistory updatedHistory) {
-		MedicalRecord record = getRequiredRecord(recordId);
-		ensureRecordIsActive(record);
-		MedicalHistory existing = getRequiredHistory(recordId, historyId);
-		validateHistory(updatedHistory);
+        if (request.getDate().isAfter(LocalDate.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "date cannot be in the future");
+        }
 
-		existing.setMedicalRecord(record);
-		existing.setType(normalizeType(updatedHistory.getType()));
-		existing.setDate(updatedHistory.getDate());
-		existing.setDescription(updatedHistory.getDescription().trim());
+        String normalizedDescription = normalizeDescription(request.getDescription());
+        enforceAdvancedHistoryRules(recordId, request.getType(), request.getDate(), normalizedDescription);
 
-		return historyRepository.save(existing);
-	}
+        if (historyRepository.existsByMedicalRecordIdAndTypeAndDateAndDescription(
+                recordId,
+                request.getType(),
+                request.getDate(),
+                normalizedDescription
+        )) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Duplicate history entry (same type, date and description) is not allowed");
+        }
 
-	public void delete(String recordId, String historyId) {
-		MedicalRecord record = getRequiredRecord(recordId);
-		ensureRecordIsActive(record);
-		getRequiredHistory(recordId, historyId);
-		historyRepository.deleteById(historyId);
-	}
+        MedicalHistory history = MedicalHistory.builder()
+                .type(request.getType())
+                .date(request.getDate())
+                .description(normalizedDescription)
+                .medicalRecord(record)
+                .build();
 
-    private MedicalRecord getRequiredRecord(String recordId) {
-        return recordRepository.findById(recordId)
-                .orElseThrow(() -> new NotFoundException("MedicalRecord not found"));
+        return historyRepository.save(history);
     }
 
-    private MedicalHistory getRequiredHistory(String recordId, String historyId) {
-        MedicalHistory history = historyRepository.findById(historyId)
-                .orElseThrow(() -> new NotFoundException("MedicalHistory not found"));
-
-        if (history.getMedicalRecord() == null || !recordId.equals(history.getMedicalRecord().getId())) {
-            throw new BadRequestException("MedicalHistory does not belong to the provided medical record");
+    public List<MedicalHistory> listByRecord(UUID recordId) {
+        if (!recordRepository.existsById(recordId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MedicalRecord not found");
         }
-
-        return history;
+        return historyRepository.findByMedicalRecordIdOrderByDateDesc(recordId);
     }
 
-    private void validateHistory(MedicalHistory history) {
-        if (history.getType() == null || history.getType().isBlank()) {
-            throw new BadRequestException("type is required");
+    public void delete(UUID recordId, UUID historyId) {
+        MedicalRecord record = recordRepository.findById(recordId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MedicalRecord not found"));
+        medicalRecordService.ensureRecordIsActive(record);
+
+        MedicalHistory history = historyRepository.findByIdAndMedicalRecordId(historyId, recordId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MedicalHistory not found"));
+
+        historyRepository.delete(history);
+    }
+
+    private String normalizeDescription(String description) {
+        if (description == null) {
+            return "";
+        }
+        return description.trim().replaceAll("\\s+", " ");
+    }
+
+    private void enforceAdvancedHistoryRules(
+            UUID recordId,
+            MedicalHistoryType type,
+            LocalDate date,
+            String description
+    ) {
+        long entriesToday = historyRepository.countByMedicalRecordIdAndDate(recordId, date);
+        if (entriesToday >= MAX_ENTRIES_PER_DAY) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Daily history limit reached (" + MAX_ENTRIES_PER_DAY + " entries/day)");
         }
 
-        if (history.getDate() == null) {
-            throw new BadRequestException("date is required");
+        long entriesByTypeToday = historyRepository.countByMedicalRecordIdAndDateAndType(recordId, date, type);
+        if (entriesByTypeToday >= MAX_ENTRIES_PER_TYPE_PER_DAY) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Daily history limit reached for type " + type + " (" + MAX_ENTRIES_PER_TYPE_PER_DAY + " entries/day)");
         }
 
-        if (history.getDate().isAfter(LocalDate.now())) {
-            throw new BadRequestException("date cannot be in the future");
-        }
-
-        if (history.getDescription() == null || history.getDescription().isBlank()) {
-            throw new BadRequestException("description is required");
+        switch (type) {
+            case INCIDENT -> {
+                if (description.length() < 20) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "INCIDENT description must contain at least 20 characters");
+                }
+            }
+            case MEDICATION -> {
+                if (!containsNumericValue(description)) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "MEDICATION description must include dosage/frequency (numeric value required)");
+                }
+            }
+            case VITAL_SIGN -> {
+                if (!containsNumericValue(description)) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "VITAL_SIGN description must include a measured value (numeric value required)");
+                }
+            }
+            case CONSULTATION -> {
+                // No extra rule for now.
+            }
         }
     }
 
-    private String normalizeType(String type) {
-        return type.trim().toUpperCase(Locale.ROOT);
-    }
-
-    private void ensureRecordIsActive(MedicalRecord record) {
-        if (record.isArchived()) {
-            throw new BadRequestException("Medical record is archived; history changes are blocked");
-        }
+    private boolean containsNumericValue(String value) {
+        return value != null && value.matches(".*\\d+([.,]\\d+)?\\s*.*");
     }
 }

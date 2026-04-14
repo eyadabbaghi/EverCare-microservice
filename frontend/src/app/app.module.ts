@@ -33,7 +33,9 @@ import { AuthInterceptor } from './features/front-office/pages/login/auth.interc
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { AddIncidentDialogComponent } from './add-incident-dialog/add-incident-dialog.component';
 import { AddAlertDialogComponent } from './add-alert-dialog/add-alert-dialog.component';
-import { BlogModule } from './features/blog/blog.module';
+import { MedicalRecordModule } from './features/medical-record/medical-record.module';
+import { AssessmentModule } from './features/medical-record/assessment.module';
+import { DoctorReportsModule } from './features/medical-record/doctor-reports.module';
 
 // Angular Material imports
 import { MatDialogModule } from '@angular/material/dialog';
@@ -59,17 +61,7 @@ import {CommonModule} from '@angular/common';
     HeroComponent,
     AddIncidentDialogComponent,
     AddAlertDialogComponent,
-    IncidentDetailsDialogComponent, // <-- add here
-
-    AppComponent,
-    BackOfficeLayoutComponent,
-    SidebarComponent,
-    NavbarComponent,
-    FooterComponent,
-    FrontOfficeLayoutComponent,
-    HeaderComponent,
-    HeroComponent,
-
+    IncidentDetailsDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -104,6 +96,9 @@ import {CommonModule} from '@angular/common';
     RouterModule,
     CommonModule,
     FrontOfficeModule,
+    MedicalRecordModule,
+    AssessmentModule,
+    DoctorReportsModule,
 
   ],
   providers: [

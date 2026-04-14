@@ -35,11 +35,16 @@ public class ApiGatewayApplication {
                         .path("/api/calls/**",
                                 "/api/conversations/**")
                         .uri("lb://COMMUNICATION-SERVICE"))
-                .route("user-service", r -> r
-                        .path("/EverCare/auth/**",
-                                "/EverCare/users/**",
-                                "/EverCare/uploads/**")
-                        .uri("http://localhost:8096"))
+.route("user-service", r -> r
+.path("/EverCare/auth/**",
+"/EverCare/users/**",
+"/EverCare/uploads/**")
+.uri("http://localhost:8096"))
+.route("user-service-api", r -> r
+.path("/api/auth/**",
+"/api/users/**")
+.filters(f -> f.rewritePath("/api/(?<segment>.*)", "/EverCare/${segment}"))
+.uri("http://localhost:8096"))
                 .route("medical-record-service", r -> r
                         .path("/api/medical-records/**")
                         .uri("lb://MEDICAL-RECORD-SERVICE"))

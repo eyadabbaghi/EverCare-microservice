@@ -2,97 +2,151 @@ package com.example.medicalrecordservice.service;
 
 import com.example.medicalrecordservice.entity.MedicalDocument;
 import com.example.medicalrecordservice.entity.MedicalRecord;
-import com.example.medicalrecordservice.exception.BadRequestException;
-import com.example.medicalrecordservice.exception.NotFoundException;
 import com.example.medicalrecordservice.repository.MedicalDocumentRepository;
 import com.example.medicalrecordservice.repository.MedicalRecordRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class MedicalDocumentService {
 
-	private final MedicalDocumentRepository documentRepository;
-	private final MedicalRecordRepository recordRepository;
+    private static final long MAX_FILE_SIZE_BYTES = 5L * 1024L * 1024L;
+    private static final Set<String> ALLOWED_TYPES = Set.of("pdf", "png", "jpg", "jpeg");
+    private static final int MAX_DOCUMENTS_PER_RECORD = 20;
 
-	public MedicalDocument addToRecord(String recordId, MedicalDocument doc) {
-		MedicalRecord record = getRequiredRecord(recordId);
-		ensureRecordIsActive(record);
-		validateDocument(doc);
-		doc.setMedicalRecord(record);
-		doc.setFileName(doc.getFileName().trim());
-		doc.setFileType(normalizeFileType(doc.getFileType()));
-		doc.setFilePath(doc.getFilePath().trim());
-		return documentRepository.save(doc);
-	}
+    private final MedicalDocumentRepository documentRepository;
+    private final MedicalRecordRepository recordRepository;
+    private final MedicalRecordService medicalRecordService;
 
-	public List<MedicalDocument> listByRecord(String recordId) {
-		getRequiredRecord(recordId);
-		return documentRepository.findByMedicalRecordId(recordId);
-	}
+    @Value("${app.documents.storage-path:uploads/medical-documents}")
+    private String storagePath;
 
-	public MedicalDocument update(String recordId, String documentId, MedicalDocument updatedDocument) {
-		MedicalRecord record = getRequiredRecord(recordId);
-		ensureRecordIsActive(record);
-		MedicalDocument existing = getRequiredDocument(recordId, documentId);
-		validateDocument(updatedDocument);
+    public MedicalDocument addToRecord(UUID recordId, MultipartFile file) {
+        MedicalRecord record = recordRepository.findById(recordId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MedicalRecord not found"));
+        medicalRecordService.ensureRecordIsActive(record);
 
-		existing.setMedicalRecord(record);
-		existing.setFileName(updatedDocument.getFileName().trim());
-		existing.setFileType(normalizeFileType(updatedDocument.getFileType()));
-		existing.setFilePath(updatedDocument.getFilePath().trim());
+        validateFile(file);
+        String originalFileName = StringUtils.cleanPath(file.getOriginalFilename() == null ? "document" : file.getOriginalFilename()).trim();
+        String extension = extractExtension(originalFileName);
+        String storedFileName = UUID.randomUUID() + "-" + originalFileName;
 
-		return documentRepository.save(existing);
-	}
+        if (documentRepository.countByMedicalRecordId(recordId) >= MAX_DOCUMENTS_PER_RECORD) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Maximum number of documents reached for this medical record (" + MAX_DOCUMENTS_PER_RECORD + ")");
+        }
+        if (documentRepository.existsByMedicalRecordIdAndFileNameIgnoreCase(recordId, originalFileName)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "A document with the same name already exists for this medical record");
+        }
 
-	public void delete(String recordId, String documentId) {
-		MedicalRecord record = getRequiredRecord(recordId);
-		ensureRecordIsActive(record);
-		getRequiredDocument(recordId, documentId);
-		documentRepository.deleteById(documentId);
-	}
+        Path basePath = Paths.get(storagePath).toAbsolutePath().normalize();
+        Path targetPath = basePath.resolve(storedFileName).normalize();
+        if (!targetPath.startsWith(basePath)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid file path");
+        }
 
-    private MedicalRecord getRequiredRecord(String recordId) {
-        return recordRepository.findById(recordId)
-                .orElseThrow(() -> new NotFoundException("MedicalRecord not found"));
+        try {
+            Files.createDirectories(basePath);
+            file.transferTo(targetPath);
+        } catch (IOException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to store file");
+        }
+
+        MedicalDocument document = MedicalDocument.builder()
+                .fileName(originalFileName)
+                .fileType(extension)
+                .filePath(targetPath.toString())
+                .medicalRecord(record)
+                .build();
+
+        return documentRepository.save(document);
     }
 
-    private MedicalDocument getRequiredDocument(String recordId, String documentId) {
-        MedicalDocument document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new NotFoundException("MedicalDocument not found"));
-
-        if (document.getMedicalRecord() == null || !recordId.equals(document.getMedicalRecord().getId())) {
-            throw new BadRequestException("MedicalDocument does not belong to the provided medical record");
+    public List<MedicalDocument> listByRecord(UUID recordId) {
+        if (!recordRepository.existsById(recordId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MedicalRecord not found");
         }
-
-        return document;
+        return documentRepository.findByMedicalRecordId(recordId);
     }
 
-    private void validateDocument(MedicalDocument document) {
-        if (document.getFileName() == null || document.getFileName().isBlank()) {
-            throw new BadRequestException("fileName is required");
+    public DocumentFile getFile(UUID recordId, UUID documentId) {
+        if (!recordRepository.existsById(recordId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MedicalRecord not found");
         }
 
-        if (document.getFileType() == null || document.getFileType().isBlank()) {
-            throw new BadRequestException("fileType is required");
+        MedicalDocument document = documentRepository.findByIdAndMedicalRecordId(documentId, recordId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MedicalDocument not found"));
+
+        Path file = Paths.get(document.getFilePath()).toAbsolutePath().normalize();
+        if (!Files.exists(file) || !Files.isReadable(file)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Stored file not found");
         }
 
-        if (document.getFilePath() == null || document.getFilePath().isBlank()) {
-            throw new BadRequestException("filePath is required");
+        Resource resource = new FileSystemResource(file);
+        return new DocumentFile(document, resource);
+    }
+
+    public void delete(UUID recordId, UUID documentId) {
+        MedicalRecord record = recordRepository.findById(recordId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MedicalRecord not found"));
+        medicalRecordService.ensureRecordIsActive(record);
+
+        MedicalDocument existing = documentRepository.findByIdAndMedicalRecordId(documentId, recordId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MedicalDocument not found"));
+
+        try {
+            Files.deleteIfExists(Paths.get(existing.getFilePath()));
+        } catch (IOException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete stored file");
+        }
+
+        documentRepository.delete(existing);
+    }
+
+    private void validateFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "file is required");
+        }
+
+        if (file.getSize() > MAX_FILE_SIZE_BYTES) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File size must be <= 5MB");
+        }
+
+        String extension = extractExtension(file.getOriginalFilename());
+        if (!ALLOWED_TYPES.contains(extension)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported file type. Allowed: pdf, png, jpg, jpeg");
         }
     }
 
-    private String normalizeFileType(String fileType) {
-        return fileType.trim().toLowerCase(Locale.ROOT);
+    private String extractExtension(String fileName) {
+        if (!StringUtils.hasText(fileName) || !fileName.contains(".")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid file name");
+        }
+
+        String extension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+        if (!StringUtils.hasText(extension)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid file name");
+        }
+        return extension;
     }
 
-    private void ensureRecordIsActive(MedicalRecord record) {
-        if (record.isArchived()) {
-            throw new BadRequestException("Medical record is archived; document changes are blocked");
-        }
+    public record DocumentFile(MedicalDocument document, Resource resource) {
     }
 }
