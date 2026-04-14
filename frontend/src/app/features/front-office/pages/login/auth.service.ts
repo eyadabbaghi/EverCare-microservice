@@ -73,8 +73,8 @@ export interface ChangePasswordRequest {
 })
 export class AuthService {
   // Backend URLs - go through API Gateway
-  private apiUrl = 'http://localhost:8089/EverCare/auth';
-  private usersUrl = 'http://localhost:8089/EverCare/users';
+private apiUrl = 'http://localhost:8089/api/auth';
+private usersUrl = 'http://localhost:8089/api/users';
 
   // Keycloak configuration
   private keycloakUrl =

@@ -1,0 +1,75 @@
+- generic [active] [ref=e1]:
+  - main [ref=e5]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - img "EverCare logo" [ref=e11]
+          - heading "EverCare" [level=1] [ref=e12]
+        - heading "Caring for your loved ones, every day" [level=2] [ref=e13]
+        - paragraph [ref=e14]: A comprehensive elderly care platform designed to support patients, caregivers, and healthcare professionals with warmth and compassion.
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - img [ref=e18]
+            - generic [ref=e20]:
+              - heading "Daily Care Support" [level=3] [ref=e21]
+              - paragraph [ref=e22]: Track moods, medications, and daily activities
+          - generic [ref=e23]:
+            - img [ref=e25]
+            - generic [ref=e27]:
+              - heading "Safety Alerts" [level=3] [ref=e28]
+              - paragraph [ref=e29]: Real-time incident tracking and emergency notifications
+          - generic [ref=e30]:
+            - img [ref=e32]
+            - generic [ref=e34]:
+              - heading "Connected Care" [level=3] [ref=e35]
+              - paragraph [ref=e36]: Coordinate appointments and medical records seamlessly
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - heading "Welcome" [level=2] [ref=e40]
+          - paragraph [ref=e41]: Sign in to your account or create a new one
+        - generic [ref=e43]:
+          - button "Sign In" [ref=e44] [cursor=pointer]
+          - button "Sign Up" [ref=e45] [cursor=pointer]
+        - generic [ref=e46]:
+          - generic [ref=e51]: Or continue with
+          - generic [ref=e53]:
+            - button "تسجيل الدخول باستخدام Googleيفتح الرابط في علامة تبويب جديدة" [ref=e55] [cursor=pointer]:
+              - generic [ref=e57]:
+                - img [ref=e59]
+                - generic [ref=e66]: تسجيل الدخول باستخدام Google
+            - iframe
+        - generic [ref=e83]:
+          - generic [ref=e84]:
+            - text: Full Name
+            - generic [ref=e85]:
+              - img [ref=e86]
+              - textbox "John Doe" [ref=e89]: Playwright Test
+          - generic [ref=e90]:
+            - text: Email
+            - generic [ref=e91]:
+              - img [ref=e92]
+              - textbox "your.email@example.com" [ref=e95]: testplaywright@test.com
+          - generic [ref=e96]:
+            - text: Password
+            - generic [ref=e97]:
+              - img [ref=e98]
+              - textbox "••••••••" [ref=e101]: Test@1234
+            - generic [ref=e105]:
+              - generic [ref=e106]:
+                - generic [ref=e107]: "Strength: Strong"
+                - generic [ref=e108]: 4/4
+              - list [ref=e111]:
+                - listitem [ref=e112]: ✓ At least 8 characters
+                - listitem [ref=e113]: ✓ Contains uppercase letter
+                - listitem [ref=e114]: ✓ Contains digit
+                - listitem [ref=e115]: ✓ Contains special character (!@#$%^&*)
+          - generic [ref=e102]:
+            - text: I am a...
+            - combobox [ref=e103]:
+              - option "Patient" [selected]
+              - option "Caregiver"
+              - option "Doctor"
+          - button "Creating account..." [disabled] [ref=e116]
+  - generic [ref=e119]:
+    - button "Close" [ref=e120] [cursor=pointer]: ×
+    - alert "Registration successful. Logging you in..." [ref=e121]

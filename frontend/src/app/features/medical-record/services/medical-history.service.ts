@@ -2,13 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CreateMedicalHistoryRequest, MedicalHistory } from '../models/medical-history.model';
-import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MedicalHistoryService {
-  private readonly baseUrl = environment.medicalRecordApiUrl;
+  private readonly baseUrl = 'http://localhost:8083/api/medical-records';
 
   constructor(private readonly http: HttpClient) {}
 

@@ -7,13 +7,12 @@ import {
   MedicalRecord,
   UpdateMedicalRecordRequest,
 } from '../models/medical-record.model';
-import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MedicalRecordService {
-  private readonly apiUrl = environment.medicalRecordApiUrl;
+  private readonly apiUrl = 'http://localhost:8083/api/medical-records';
 
   constructor(private readonly http: HttpClient) {}
 

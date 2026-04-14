@@ -11,7 +11,7 @@ import { Client } from '@stomp/stompjs';
 export class ChatService {
   // Gateway URLs (à adapter selon votre configuration)
   private gatewayUrl = 'http://localhost:8089/communication-service/api';
-  private userApiUrl = 'http://localhost:8096/EverCare/users';
+  private userApiUrl = 'http://localhost:8089/api/users';
 
   // WebSocket direct (port du communication-service)
   private webSocketUrl = 'http://localhost:8086/ws-chat';

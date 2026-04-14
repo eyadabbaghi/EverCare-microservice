@@ -74,7 +74,6 @@ import {CommonModule} from '@angular/common';
     LayoutsModule,
     BackOfficeModule,
     AppointmentsModule,
-    BlogModule, // Importation du module Blog
     LucideAngularModule.pick({Heart, Mail, Lock, User}),
     BrowserAnimationsModule,
     ToastrModule.forRoot({
@@ -85,7 +84,6 @@ import {CommonModule} from '@angular/common';
       closeButton: true
     }),
     ReactiveFormsModule,
-    // Angular Material modules
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,

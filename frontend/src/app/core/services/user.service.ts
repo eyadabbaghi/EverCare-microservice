@@ -19,7 +19,7 @@ export interface Patient {
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private baseUrl = 'http://localhost:8096/EverCare/users';
+  private baseUrl = 'http://localhost:8089/api/users';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

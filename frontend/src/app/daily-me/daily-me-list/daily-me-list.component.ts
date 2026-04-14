@@ -526,7 +526,7 @@ export class DailyMeListComponent implements OnInit, OnDestroy {
 
   // ✅ Patients for doctor
   loadPatients(): void {
-    const url = 'http://localhost:8096/EverCare/users/patients';
+    const url = 'http://localhost:8089/api/users/patients';
 
     const token =
       localStorage.getItem('token') ||

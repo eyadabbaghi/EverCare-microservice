@@ -541,7 +541,7 @@ export class DailyMeListComponent implements OnInit, OnDestroy {
     this.doctorPatientsLoading = true;
     this.doctorPatientsMessage = '';
 
-    const url = 'http://localhost:8096/EverCare/users/patients';
+    const url = 'http://localhost:8089/api/users/patients';
 
     const token =
       this.getStorageItem('token') ||
@@ -586,7 +586,7 @@ export class DailyMeListComponent implements OnInit, OnDestroy {
   }
 
   private loadAllPatientsFallback(): void {
-    const fallbackUrl = 'http://localhost:8096/EverCare/users/external/role/PATIENT';
+    const fallbackUrl = 'http://localhost:8089/api/users/external/role/PATIENT';
 
     this.http.get<any>(fallbackUrl).subscribe({
       next: (res: any) => {

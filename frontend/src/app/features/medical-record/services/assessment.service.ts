@@ -11,13 +11,12 @@ import {
   AssessmentReport,
   AssessmentStageFilter,
 } from '../models/assessment.model';
-import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AssessmentService {
-  private readonly baseApiUrl = this.resolveBaseApiUrl();
+  private readonly baseApiUrl = 'http://localhost:8083/api/medical-records';
   private readonly assessmentsUrl = `${this.baseApiUrl}/assessments`;
   private readonly alertsUrl = `${this.baseApiUrl}/alerts`;
 
@@ -107,13 +106,5 @@ export class AssessmentService {
       observe: 'response',
       responseType: 'blob'
     });
-  }
-
-  private resolveBaseApiUrl(): string {
-    const configured = environment.medicalRecordApiUrl;
-    if (configured.endsWith('/medical-records')) {
-      return configured.slice(0, configured.length - '/medical-records'.length);
-    }
-    return configured;
   }
 }
